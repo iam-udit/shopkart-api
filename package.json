@@ -1,0 +1,31 @@
+{
+  "name": "ecommerce-rest-api",
+  "version": "1.0.0",
+  "description": "A rest api using nodejs for hlf ecommerce app.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./bin/www"
+  },
+  "keywords": [
+    "ecommerce",
+    "restful",
+    "api"
+  ],
+  "author": "Udit Narayan",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "debug": "~2.6.9",
+    "express": "^4.17.1",
+    "express-validator": "^6.4.0",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.6",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
