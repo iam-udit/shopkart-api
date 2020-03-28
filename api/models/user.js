@@ -24,7 +24,7 @@ const userSchema = mongoose.Schema({
         zip: { type: Number },
         body: { type: String }
     },
-    imagePath: { type: String },
+    userImage: { type: String },
 }, { timestamp: true });
 
 module.exports = mongoose.model("User", userSchema);

@@ -11,7 +11,7 @@ exports.getProductById =  (req, res, next) => {
 
     // Finding product's details using product id.
     Product.findById(id)
-        .select("_id title type price imagePath description createdAt updatedAt")
+        .select("_id title type price productImages description createdAt updatedAt")
         .exec()
         .then(doc => {
             // if product found, return success response
@@ -46,7 +46,7 @@ exports.getProductsByType = (req, res, next) => {
 
     // Finding products
     Product.find()
-        .select("_id title type price imagePath description")
+        .select("_id title type price productImages description")
         .where({ type : type})
         .exec()
         .then(docs => {
@@ -60,7 +60,7 @@ exports.getProductsByType = (req, res, next) => {
                             title: doc.title,
                             type: doc.type,
                             price: doc.price,
-                            imagePath : doc.imagePath,
+                            productImages : doc.productImages,
                             description: doc.description,
                             request: {
                                 type: "GET",
@@ -89,7 +89,7 @@ exports.getAllProducts =  (req, res, next) => {
 
     // Finding all products
     Product.find()
-        .select("_id title type price imagePath description")
+        .select("_id title type price productImages description")
         .exec()
         .then(docs => {
             // If Product found, return product details
@@ -102,7 +102,7 @@ exports.getAllProducts =  (req, res, next) => {
                             title: doc.title,
                             type: doc.type,
                             price: doc.price,
-                            imagePath : doc.imagePath,
+                            productImages : doc.productImages,
                             description: doc.description,
                             request: {
                                 type: "GET",
@@ -129,6 +129,11 @@ exports.getAllProducts =  (req, res, next) => {
 // Creating new product
 exports.createProduct = (req, res, next) => {
 
+    // Retrieve images path from req.files
+    var productImages = [];
+    req.files.forEach(image => {
+        productImages.push(image.path);
+    });
     // Create new product's document/object
     // and binding the product's details
     const product = new Product({
@@ -136,7 +141,7 @@ exports.createProduct = (req, res, next) => {
         title: req.body.title,
         type: req.body.type,
         price: req.body.price,
-        imagePath: req.body.imagePath,
+        productImages: productImages,
         description: req.body.description
     });
 

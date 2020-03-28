@@ -1,2 +1,5 @@
 nodemon.json
 config/*
+node_modules
+.idea
+uploads

@@ -6,7 +6,9 @@ const productSchema = mongoose.Schema({
     title: { type: String, unique: true, required: true, dropDups: true },
     type: { type: String, required: true, lowercase: true, index: true },
     price: { type: Number, required: true },
-    imagePath : { type:String, required: true },
+    productImages : {
+        type:[ String ],
+    },
     description: { type: String, required: true }
 }, { timestamp: true });
 
