@@ -6,6 +6,7 @@ const  jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 
+
 // Retrieving user's details by userId
 exports.getUserById =  (req, res, next) => {
 
@@ -134,7 +135,7 @@ exports.userLogin = (req, res, next)=>{
                                 id: user._id,
                                 mobileNumber : user.mobileNumber,
                             },
-                            process.env.JWT_KEY,
+                            process.env.JWT_SECRET_KEY,
                             {
                                 expiresIn: "1h"
                             }

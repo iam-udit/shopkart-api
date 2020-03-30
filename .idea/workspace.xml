@@ -2,15 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d248c56f-b6a0-4709-bd31-22ae9f5b6419" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/middlewares/upload.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/controllers/products.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/products.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/models/product.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/controllers/users.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/users.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/middlewares/verify-jwt.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/middlewares/verify-jwt.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/models/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/user.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes/products.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/products.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/routes/users.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/users.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,12 +47,13 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
+    <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/api" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/config" />
+      <recent name="$PROJECT_DIR$/api" />
     </key>
   </component>
   <component name="RunManager">
@@ -83,7 +81,9 @@
       <workItem from="1585284046885" duration="11221000" />
       <workItem from="1585303125518" duration="21224000" />
       <workItem from="1585368602160" duration="9554000" />
-      <workItem from="1585379643517" duration="19055000" />
+      <workItem from="1585379643517" duration="20894000" />
+      <workItem from="1585498235070" duration="3031000" />
+      <workItem from="1585544438671" duration="4641000" />
     </task>
     <servers />
   </component>
@@ -103,10 +103,10 @@
       <screen x="0" y="27" width="1366" height="741" />
     </state>
     <state x="366" y="124" width="624" height="544" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.27.1366.741@0.27.1366.741" timestamp="1585303110072" />
-    <state x="416" y="145" width="524" height="502" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1585298569151">
+    <state x="416" y="145" width="524" height="502" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1585545539129">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
-    <state x="416" y="145" width="524" height="502" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.27.1366.741@0.27.1366.741" timestamp="1585298569151" />
+    <state x="416" y="145" width="524" height="502" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.27.1366.741@0.27.1366.741" timestamp="1585545539129" />
     <state x="357" y="62" width="642" height="668" key="#www" timestamp="1585129457633">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
@@ -131,18 +131,18 @@
       <screen x="0" y="27" width="1366" height="741" />
     </state>
     <state x="172" y="31" key="SettingsEditor/0.27.1366.741@0.27.1366.741" timestamp="1585313338740" />
-    <state x="339" y="224" key="com.intellij.ide.util.TipDialog" timestamp="1585379644344">
+    <state x="339" y="161" key="com.intellij.ide.util.TipDialog" timestamp="1585544447324">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
-    <state x="339" y="224" key="com.intellij.ide.util.TipDialog/0.27.1366.741@0.27.1366.741" timestamp="1585379644344" />
+    <state x="339" y="161" key="com.intellij.ide.util.TipDialog/0.27.1366.741@0.27.1366.741" timestamp="1585544447324" />
     <state width="326" height="273" key="javadoc.popup.new" timestamp="1585296697803">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
     <state width="326" height="273" key="javadoc.popup.new/0.27.1366.741@0.27.1366.741" timestamp="1585296697803" />
-    <state x="347" y="175" key="run.anything.popup" timestamp="1585331691512">
+    <state x="347" y="175" key="run.anything.popup" timestamp="1585548589301">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
-    <state x="347" y="175" key="run.anything.popup/0.27.1366.741@0.27.1366.741" timestamp="1585331691512" />
+    <state x="347" y="175" key="run.anything.popup/0.27.1366.741@0.27.1366.741" timestamp="1585548589301" />
     <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1585408639617">
       <screen x="0" y="27" width="1366" height="741" />
     </state>

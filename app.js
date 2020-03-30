@@ -3,6 +3,11 @@ var express = require('express');
 var logger = require('morgan');
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
+var dotenv = require("dotenv");
+
+// Adding database and jwt config file
+dotenv.config({path : 'config/db-config.env'});
+dotenv.config({path : 'config/jwt-config.env'});
 
 // Importing router modules
 var productRoutes = require("./api/routes/products");
@@ -20,8 +25,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Connecting with mongo db.
 mongoose.connect(
-    "mongodb+srv://uditn:" + process.env.MONGO_ATLAS_PW +
-    "@node-rest-api-vq0e4.mongodb.net/shopkart? retryWrites = true & w = majority ", {
+    "mongodb+srv://"+ process.env.DB_USERNAME +":" + process.env.DB_PASSWORD +
+    "@node-rest-api-vq0e4.mongodb.net/"+ process.env.DB_COLLECTION +"? retryWrites = true & w = majority ", {
       useUnifiedTopology: true,
       useNewUrlParser: true
     }
