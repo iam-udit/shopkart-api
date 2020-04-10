@@ -1,4 +1,13 @@
+# Config files
 config/*
+
+*.env
+
+# node core modules
 node_modules
+
+# editor cofigs
 .idea
+
+# user upload files
 uploads

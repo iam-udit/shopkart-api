@@ -1,32 +1,30 @@
+// Importing all necessary packages
 const express = require("express");
-const route = express.Router();
+const verifyJwt = require("../middlewares/verify-jwt");
+const ordersController = require("../controllers/orders");
 
-route.get("/:orderid", (req, res, next) => {
-    res.status(200).json({
-        "message": "Order are fetched.",
-        "orderid": req.params.orderid
-    });
-});
+const router = express.Router();
 
-// Handle post request.
-route.post("/", (req, res, next) => {
-    const order = {
-        productId: req.body.productId,
-        quantity: req.body.quantity
-    };
-    res.status(200).json({
-        "message": "Order is created",
-        order: order
-    });
-});
+// Verifying jwt token
+router.use( verifyJwt );
 
+// Retrieving order's details form database
+router.get('/:orderId', ordersController.getOrderById);
 
-route.delete("/:orderid", (req, res, next) => {
-    res.status(200).json({
-        "message": "Order is deleted",
-        "orderid": req.params.orderid,
-    });
-});
+// Retrieving order's details according to productId
+router.get('/product/id/:productId', ordersController.getOrdersByProductId);
 
+// Retrieving order's details according to userId
+router.get('/user/id', ordersController.getOrdersByUserId);
 
-module.exports = route;
+// Retrieving all odrder's details form database
+router.get('/', ordersController.getAllOrders);
+
+// Creating new order
+router.post('/', ordersController.createOrder);
+
+// Delete order
+router.delete('/:orderId', ordersController.deleteOrder);
+
+// Export module
+module.exports = router;

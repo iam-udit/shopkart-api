@@ -1,29 +1,31 @@
 // Importing all necessary packages
 const express = require("express");
-const sanitize = require("../middlewares/sanitize");
 const verifyJwt = require("../middlewares/verify-jwt");
 const productsController = require("../controllers/products");
 const upload = require("../middlewares/upload");
 
 const router = express.Router();
 
+// Verifying jwt token
+router.use( verifyJwt );
+
 // Retrieving product's details form database
-router.get('/:productId', sanitize, verifyJwt, productsController.getProductById);
+router.get('/:productId', productsController.getProductById);
 
 // Retrieving product's details according to productType
-router.get('/type/:productType', sanitize, verifyJwt, productsController.getProductsByType);
+router.get('/type/:productType', productsController.getProductsByType);
 
 // Retrieving all product's details form database
-router.get('/', verifyJwt, productsController.getAllProducts);
+router.get('/', productsController.getAllProducts);
 
 // Creating new product
-router.post('/', sanitize, verifyJwt, upload.array('productImages', 6 ), productsController.createProduct);
+router.post('/', upload.array('productImages', 6 ), productsController.createProduct);
 
 // Delete product
-router.delete('/:productId', sanitize, verifyJwt, productsController.deleteProduct);
+router.delete('/:productId', productsController.deleteProduct);
 
 // Update Product details
-router.patch('/:productId', sanitize, verifyJwt, productsController.updateProduct);
+router.patch('/:productId', upload.array('productImages', 6 ), productsController.updateProduct);
 
 // Export module
 module.exports = router;

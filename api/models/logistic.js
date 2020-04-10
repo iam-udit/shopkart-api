@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-// Creating user's schema
-const userSchema = mongoose.Schema({
+// Creating logistic's schema
+const logisticSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     firstName: { type: String },
     lastName: { type: String },
@@ -24,9 +24,9 @@ const userSchema = mongoose.Schema({
         zip: { type: Number },
         body: { type: String }
     },
-    userImage: { type: String },
+    logisticImage: { type: String },
 }, { timestamps: true });
 
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Logistic", logisticSchema);
 
