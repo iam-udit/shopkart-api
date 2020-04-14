@@ -17,6 +17,8 @@ const logisticSchema = mongoose.Schema({
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
     emailVarified: { type: Boolean, default: false },
+    gender: { type: String },
+    age: { type: Number, maxlength: 2 },
     address: {
         city: { type: String },
         state: { type: String },

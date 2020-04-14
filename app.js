@@ -11,7 +11,7 @@ var productRoutes = require("./api/routes/products");
 var orderRoutes = require("./api/routes/orders");
 var userRoutes = require("./api/routes/users");
 var sellerRoutes = require("./api/routes/sellers");
-var logisticRoutes = require("./api/routes/logistic");
+var logisticRoutes = require("./api/routes/logistics");
 
 // Adding config file
 dotenv.config({path : 'config/process.env'});

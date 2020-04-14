@@ -21,6 +21,6 @@ router.post("/login", sellersController.sellerLogin);
 router.patch("/update", verifyJwt, sellersController.updateSeller)
 
 // Delete seller's record
-router.delete('remove/:sellerId', verifyJwt, sellersController.removeSeller);
+router.delete('/remove/:sellerId', verifyJwt, sellersController.removeSeller);
 
 module.exports = router;

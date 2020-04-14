@@ -21,6 +21,6 @@ router.post("/login", logisticsController.logisticLogin);
 router.patch("/update", verifyJwt, logisticsController.updateLogistic)
 
 // Delete logistic's record
-router.delete('remove/:logisticId', verifyJwt, logisticsController.removeLogistic);
+router.delete('/remove/:logisticId', verifyJwt, logisticsController.removeLogistic);
 
 module.exports = router;

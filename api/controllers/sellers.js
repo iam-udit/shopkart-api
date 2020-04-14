@@ -14,8 +14,7 @@ exports.getSellerById =  (req, res, next) => {
     const id = req.userData.id;
 
     // Finding seller's details using seller id.
-    User.findById(id)
-        .select("_id firstName lastName mobileNumber email emailVarified address sellerImage createdAt updatedAt")
+    Seller.findById(id, { __v: 0, password: 0 })
         .exec()
         .then(seller => {
             // if seller found, return success response
@@ -39,12 +38,11 @@ exports.getSellerById =  (req, res, next) => {
 exports.getAllSellers =  (req, res, next) => {
 
     // Finding all sellers details
-    User.find()
-        .select("_id firstName lastName mobileNumber password email emailVarified address sellerImage createdAt updatedAt")
+    Seller.find({}, { __v : 0 })
         .exec()
         .then(sellers => {
             // If sellers found, return user details
-            if (sellers.length > 1) {
+            if (sellers.length > 0) {
                 const response = {
                     count: sellers.length,
                     sellers: sellers
@@ -66,11 +64,11 @@ exports.getAllSellers =  (req, res, next) => {
 exports.sellerSignUp = (req, res, next)=>{
 
     // Validating seller's exists or not
-    User.findOne({ mobileNumber : req.body.mobileNumber})
+    Seller.findOne({ mobileNumber : req.body.mobileNumber})
         .exec()
         .then(seller => {
             // If seller already exist then return error response
-            if(user){
+            if(seller){
                 next(createError(409, "Mobile number already in use !"));
             }
             // If seller not exists, create seller account
@@ -79,17 +77,13 @@ exports.sellerSignUp = (req, res, next)=>{
                 bcrypt.hash(req.body.password, 10, (error, hash)=>{
 
                     if(error){
-                        if(!req.body.password){
-                            error = createError(500, "Password must required.");
-                        }else{
-                            error = createError(500, "Password conversion failed.");
-                        }
-
-                        next(error);
+                        next(createError(500, "Password conversion failed."));
                     } else{
                         // Creating seller schema object and binding data to it
                         const  seller = new Seller({
                             _id: new mongoose.Types.ObjectId(),
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
                             mobileNumber: req.body.mobileNumber,
                             password: hash
                         });
@@ -122,7 +116,7 @@ exports.sellerSignUp = (req, res, next)=>{
 exports.sellerLogin = (req, res, next)=>{
 
     // Checking seller is valid or not
-    User.findOne({ mobileNumber : req.body.mobileNumber })
+    Seller.findOne({ mobileNumber : req.body.mobileNumber })
         .exec()
         .then(seller => {
             // If seller is an existing user then authenticate password
@@ -159,8 +153,6 @@ exports.sellerLogin = (req, res, next)=>{
 // Update seller's details
 exports.updateSeller = (req, res, next) => {
 
-    var updateOps = {};
-
     // Retrieving seller id from userData
     const id = req.userData.id;
 
@@ -168,48 +160,43 @@ exports.updateSeller = (req, res, next) => {
     bcrypt.hash(req.body.password, 10, (error, hash)=> {
 
         if (error) {
-            if (!req.body.password) {
-                error = createError(500, "Password must required.");
-            } else {
-                error = createError(500, "Password conversion failed.");
-            }
-            next(error);
-        } else {
-            // Retrieve update option from request body
-            updateOps = {
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                password: hash,
-                email: req.body.email,
-                address: req.body.address
-            };
+            next(createError(500, "Password conversion failed."));
         }
+
+        // Retrieve update option from request body
+        var updateOps = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            password: hash,
+            email: req.body.email,
+            address: req.body.address,
+            gender: req.body.gender,
+            age: req.body.age
+        };
+
+        // Update seller's details in database
+        Seller.update({ _id: id }, { $set: updateOps })
+            .exec()
+            .then(result => {
+
+                // If seller's details updated successfully, return success response
+                if (result.nModified > 0) {
+                    res.status(200).json({
+                        message: "User's detail updated."
+                    });
+                }
+                // If invalid seller's id
+                else {
+                    next(createError(404, "Invalid user Id !"));
+                }
+
+            })
+            // If seller's updation failed.
+            .catch(error => {
+                error.message = "User's detail updation failed !";
+                next(error);
+            });
     });
-
-
-    // Update seller's details in database
-    User.update({ _id: id }, { $set: updateOps })
-        .exec()
-        .then(result => {
-
-            // If seller's details updated successfully, return success response
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    message: "User's detail updated."
-                });
-            }
-            // If invalid seller's id
-            else {
-                next(createError(404, "Invalid user Id !"));
-            }
-
-        })
-        // If seller's updation failed.
-        .catch(error => {
-            error.message = "User's detail updation failed !";
-            next(error);
-        });
-
 };
 
 // Delete seller's records
@@ -219,7 +206,7 @@ exports.removeSeller = (req, res, next) => {
     const id = req.params.sellerId;
 
     // Deleting seller's account from database
-    User.remove({ "_id": id })
+    Seller.remove({ "_id": id })
         .exec()
         .then(result => {
             // If  seller's deleted successfully, return success response

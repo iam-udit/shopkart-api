@@ -14,8 +14,7 @@ exports.getLogisticById =  (req, res, next) => {
     const id = req.userData.id;
 
     // Finding logistic's details using logistic id.
-    User.findById(id)
-        .select("_id firstName lastName mobileNumber email emailVarified address logisticImage createdAt updatedAt")
+    Logistic.findById(id, { __v: 0, password: 0 })
         .exec()
         .then(logistic => {
             // if logistic found, return success response
@@ -39,12 +38,11 @@ exports.getLogisticById =  (req, res, next) => {
 exports.getAllLogistics =  (req, res, next) => {
 
     // Finding all logistics details
-    User.find()
-        .select("_id firstName lastName mobileNumber password email emailVarified address logisticImage createdAt updatedAt")
+    Logistic.find({}, { __v: 0 })
         .exec()
         .then(logistics => {
             // If logistics found, return user details
-            if (logistics.length > 1) {
+            if (logistics.length > 0) {
                 const response = {
                     count: logistics.length,
                     logistics: logistics
@@ -66,11 +64,11 @@ exports.getAllLogistics =  (req, res, next) => {
 exports.logisticSignUp = (req, res, next)=>{
 
     // Validating logistic's exists or not
-    User.findOne({ mobileNumber : req.body.mobileNumber})
+    Logistic.findOne({ mobileNumber : req.body.mobileNumber})
         .exec()
         .then(logistic => {
             // If logistic already exist then return error response
-            if(user){
+            if(logistic){
                 next(createError(409, "Mobile number already in use !"));
             }
             // If logistic not exists, create logistic account
@@ -79,17 +77,13 @@ exports.logisticSignUp = (req, res, next)=>{
                 bcrypt.hash(req.body.password, 10, (error, hash)=>{
 
                     if(error){
-                        if(!req.body.password){
-                            error = createError(500, "Password must required.");
-                        }else{
-                            error = createError(500, "Password conversion failed.");
-                        }
-
-                        next(error);
+                        next(createError(500, "Password conversion failed."));
                     } else{
                         // Creating logistic schema object and binding data to it
                         const  logistic = new Logistic({
                             _id: new mongoose.Types.ObjectId(),
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
                             mobileNumber: req.body.mobileNumber,
                             password: hash
                         });
@@ -122,7 +116,7 @@ exports.logisticSignUp = (req, res, next)=>{
 exports.logisticLogin = (req, res, next)=>{
 
     // Checking logistic is valid or not
-    User.findOne({ mobileNumber : req.body.mobileNumber })
+    Logistic.findOne({ mobileNumber : req.body.mobileNumber })
         .exec()
         .then(logistic => {
             // If logistic is an existing user then authenticate password
@@ -159,8 +153,6 @@ exports.logisticLogin = (req, res, next)=>{
 // Update logistic's details
 exports.updateLogistic = (req, res, next) => {
 
-    var updateOps = {};
-
     // Retrieving logistic id from userData
     const id = req.userData.id;
 
@@ -168,48 +160,43 @@ exports.updateLogistic = (req, res, next) => {
     bcrypt.hash(req.body.password, 10, (error, hash)=> {
 
         if (error) {
-            if (!req.body.password) {
-                error = createError(500, "Password must required.");
-            } else {
-                error = createError(500, "Password conversion failed.");
-            }
-            next(error);
-        } else {
-            // Retrieve update option from request body
-            updateOps = {
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                password: hash,
-                email: req.body.email,
-                address: req.body.address
-            };
+            next(createError(500, "Password conversion failed."));
         }
+
+        // Retrieve update option from request body
+        var updateOps = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            password: hash,
+            email: req.body.email,
+            address: req.body.address,
+            gender: req.body.gender,
+            age: req.body.age
+        };
+
+        // Update logistic's details in database
+        Logistic.update({ _id: id }, { $set: updateOps })
+            .exec()
+            .then(result => {
+
+                // If logistic's details updated successfully, return success response
+                if (result.nModified > 0) {
+                    res.status(200).json({
+                        message: "User's detail updated."
+                    });
+                }
+                // If invalid logistic's id
+                else {
+                    next(createError(404, "Invalid user Id !"));
+                }
+
+            })
+            // If logistic's updation failed.
+            .catch(error => {
+                error.message = "User's detail updation failed !";
+                next(error);
+            });
     });
-
-
-    // Update logistic's details in database
-    User.update({ _id: id }, { $set: updateOps })
-        .exec()
-        .then(result => {
-
-            // If logistic's details updated successfully, return success response
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    message: "User's detail updated."
-                });
-            }
-            // If invalid logistic's id
-            else {
-                next(createError(404, "Invalid user Id !"));
-            }
-
-        })
-        // If logistic's updation failed.
-        .catch(error => {
-            error.message = "User's detail updation failed !";
-            next(error);
-        });
-
 };
 
 // Delete logistic's records
@@ -219,7 +206,7 @@ exports.removeLogistic = (req, res, next) => {
     const id = req.params.logisticId;
 
     // Deleting logistic's account from database
-    User.remove({ "_id": id })
+    Logistic.remove({ "_id": id })
         .exec()
         .then(result => {
             // If  logistic's deleted successfully, return success response

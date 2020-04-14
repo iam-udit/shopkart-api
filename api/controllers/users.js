@@ -14,8 +14,7 @@ exports.getUserById =  (req, res, next) => {
     const id = req.userData.id;
 
     // Finding user's details using user id.
-    User.findById(id)
-        .select("_id firstName lastName mobileNumber email emailVarified address imagePath createdAt updatedAt")
+    User.findById(id, { __v: 0, password: 0 })
         .exec()
         .then(user => {
             // if user found, return success response
@@ -39,12 +38,11 @@ exports.getUserById =  (req, res, next) => {
 exports.getAllUsers =  (req, res, next) => {
 
     // Finding all users
-    User.find()
-        .select("_id firstName lastName mobileNumber password email emailVarified address imagePath createdAt updatedAt")
+    User.find({}, { __v : 0 })
         .exec()
         .then(users => {
             // If users found, return user details
-            if (users.length > 1) {
+            if (users.length > 0) {
                 const response = {
                     count: users.length,
                     users: users
@@ -159,8 +157,6 @@ exports.userLogin = (req, res, next)=>{
 // Update users details
 exports.updateUser = (req, res, next) => {
 
-    var updateOps = {};
-
     // Retrieving user id from userData
     const id = req.userData.id;
 
@@ -168,48 +164,43 @@ exports.updateUser = (req, res, next) => {
     bcrypt.hash(req.body.password, 10, (error, hash)=> {
 
         if (error) {
-            if (!req.body.password) {
-                error = createError(500, "Password must required.");
-            } else {
-                error = createError(500, "Password conversion failed.");
-            }
-            next(error);
-        } else {
-            // Retrieve update option from request body
-            updateOps = {
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                password: hash,
-                email: req.body.email,
-                address: req.body.address
-            };
+            next(createError(500, "Password conversion failed."));
         }
+
+        // Retrieve update option from request body
+        var updateOps = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            password: hash,
+            email: req.body.email,
+            address: req.body.address,
+            gender: req.body.gender,
+            age: req.body.age
+        };
+
+        // Update user's details in database
+        User.update({ _id: id }, { $set: updateOps })
+            .exec()
+            .then(result => {
+
+                // If user's details updated successfully, return success response
+                if (result.nModified > 0) {
+                    res.status(200).json({
+                        message: "User's detail updated."
+                    });
+                }
+                // If invalid user id
+                else {
+                    next(createError(404, "Invalid user Id !"));
+                }
+
+            })
+            // If user's updation failed.
+            .catch(error => {
+                error.message = "User's detail updation failed !";
+                next(error);
+            });
     });
-
-
-    // Update user's details in database
-    User.update({ _id: id }, { $set: updateOps })
-        .exec()
-        .then(result => {
-
-            // If user's details updated successfully, return success response
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    message: "User's detail updated."
-                });
-            }
-            // If invalid user id
-            else {
-                next(createError(404, "Invalid user Id !"));
-            }
-
-        })
-        // If user's updation failed.
-        .catch(error => {
-            error.message = "User's detail updation failed !";
-            next(error);
-        });
-
 };
 
 // Delete user records
