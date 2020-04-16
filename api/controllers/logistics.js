@@ -63,60 +63,49 @@ exports.getAllLogistics =  (req, res, next) => {
 // Creating new logistic/ processing signup
 exports.logisticSignUp = (req, res, next)=>{
 
-    // Validating logistic's exists or not
-    Logistic.findOne({ mobileNumber : req.body.mobileNumber})
-        .exec()
-        .then(logistic => {
-            // If logistic already exist then return error response
-            if(logistic){
-                next(createError(409, "Mobile number already in use !"));
-            }
-            // If logistic not exists, create logistic account
-            else{
-                // Converting plain password into hash
-                bcrypt.hash(req.body.password, 10, (error, hash)=>{
+    // Converting plain password into hash
+    bcrypt.hash(req.body.password, 10, (error, hash)=>{
 
-                    if(error){
-                        next(createError(500, "Password conversion failed."));
-                    } else{
-                        // Creating logistic schema object and binding data to it
-                        const  logistic = new Logistic({
-                            _id: new mongoose.Types.ObjectId(),
-                            firstName: req.body.firstName,
-                            lastName: req.body.lastName,
-                            mobileNumber: req.body.mobileNumber,
-                            password: hash
-                        });
+        if(error){
+            next(createError(500, "Password conversion failed."));
+        } else{
+            // Creating logistic schema object and binding data to it
+            const  logistic = new Logistic({
+                _id: new mongoose.Types.ObjectId(),
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email,
+                password: hash
+            });
 
-                        logistic.save()
-                            // If logistic account created, return success message
-                            .then(result => {
-                                res.status(201).json({
-                                    message: "User Created Successfully."
-                                });
-                            })
-                            // If any error occure return error message
-                            .catch(error=>{
-                                if (error._message) {
-                                    // If validation faied
-                                    error.message = error.message;
-                                } else {
-                                    // If logistic account creation failed
-                                    error.message = "User creation failed !";
-                                }
-                                next(error);
-                            });
-                    }
+            logistic.save()
+                // If logistic account created, return success message
+                .then(result => {
+                    res.status(201).json({
+                        message: "User Created Successfully."
+                    });
                 })
-            }
-        })
+                // If any error occure return error message
+                .catch(error=>{
+                    if (error._message) {
+                        // If validation faied
+                        error.message = error.message;
+                    } else {
+                        // If logistic account creation failed
+                        error.message = "User creation failed !";
+                    }
+                    next(error);
+                });
+        }
+    })
+
 };
 
 // Performing login process
 exports.logisticLogin = (req, res, next)=>{
 
     // Checking logistic is valid or not
-    Logistic.findOne({ mobileNumber : req.body.mobileNumber })
+    Logistic.findOne({ email : req.body.email })
         .exec()
         .then(logistic => {
             // If logistic is an existing user then authenticate password
@@ -127,7 +116,7 @@ exports.logisticLogin = (req, res, next)=>{
                         const token = jwt.sign(
                             {
                                 id: logistic._id,
-                                mobileNumber : logistic.mobileNumber,
+                                email : logistic.email,
                             },
                             process.env.JWT_SECRET_KEY,
                             {
@@ -156,47 +145,38 @@ exports.updateLogistic = (req, res, next) => {
     // Retrieving logistic id from userData
     const id = req.userData.id;
 
-    // Converting plain password into hash
-    bcrypt.hash(req.body.password, 10, (error, hash)=> {
+    // Retrieve update option from request body
+    var updateOps = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        mobileNumber: req.body.mobileNumber,
+        address: req.body.address,
+        gender: req.body.gender,
+        age: req.body.age
+    };
 
-        if (error) {
-            next(createError(500, "Password conversion failed."));
-        }
+    // Update logistic's details in database
+    Logistic.update({ _id: id }, { $set: updateOps })
+        .exec()
+        .then(result => {
 
-        // Retrieve update option from request body
-        var updateOps = {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            password: hash,
-            email: req.body.email,
-            address: req.body.address,
-            gender: req.body.gender,
-            age: req.body.age
-        };
+            // If logistic's details updated successfully, return success response
+            if (result.nModified > 0) {
+                res.status(200).json({
+                    message: "User's detail updated."
+                });
+            }
+            // If invalid logistic's id
+            else {
+                next(createError(404, "Invalid user Id !"));
+            }
 
-        // Update logistic's details in database
-        Logistic.update({ _id: id }, { $set: updateOps })
-            .exec()
-            .then(result => {
-
-                // If logistic's details updated successfully, return success response
-                if (result.nModified > 0) {
-                    res.status(200).json({
-                        message: "User's detail updated."
-                    });
-                }
-                // If invalid logistic's id
-                else {
-                    next(createError(404, "Invalid user Id !"));
-                }
-
-            })
-            // If logistic's updation failed.
-            .catch(error => {
-                error.message = "User's detail updation failed !";
-                next(error);
-            });
-    });
+        })
+        // If logistic's updation failed.
+        .catch(error => {
+            error.message = "User's detail updation failed !";
+            next(error);
+        });
 };
 
 // Delete logistic's records

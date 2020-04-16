@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema({
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
-    emailVarified: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: false },
     gender: { type: String },
     age: { type: Number, maxlength: 2 },
     address: {

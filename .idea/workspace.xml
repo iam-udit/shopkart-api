@@ -2,19 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d248c56f-b6a0-4709-bd31-22ae9f5b6419" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/api/middlewares/user-exists.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/middlewares/verify-account.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/controllers/logistics.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/logistics.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/controllers/orders.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/orders.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/controllers/products.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/products.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/controllers/sellers.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/sellers.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/controllers/users.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/controllers/users.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/models/logistic.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/logistic.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/models/seller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/seller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/models/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/models/user.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/routes/logistics.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/logistics.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/routes/orders.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/orders.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/routes/products.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/products.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/routes/sellers.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/sellers.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/finalhandler/node_modules/statuses/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/finalhandler/node_modules/statuses/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/raw-body/node_modules/statuses/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/raw-body/node_modules/statuses/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/send/node_modules/statuses/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/send/node_modules/statuses/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/routes/users.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/routes/users.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,12 +25,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ComposerSettings">
-    <execution>
-      <executable />
-    </execution>
-  </component>
-  <component name="FavoritesManager">
-    <favorites_list name="Ecommerce-Rest-API" />
+    <execution />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,15 +37,15 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../NODE/Express-Practice" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -109,11 +107,17 @@
       <workItem from="1586430419848" duration="599000" />
       <workItem from="1586506943358" duration="13067000" />
       <workItem from="1586837496168" duration="384000" />
+      <workItem from="1586880010738" duration="2466000" />
+      <workItem from="1586930654872" duration="4055000" />
+      <workItem from="1586945701517" duration="13216000" />
+      <workItem from="1586963509434" duration="18103000" />
+      <workItem from="1587021282546" duration="4414000" />
+      <workItem from="1587037232528" duration="10449000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="2" />
   </component>
   <component name="WindowStateProjectService">
     <state x="141" y="54" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1585215051448">
@@ -160,18 +164,18 @@
       <screen x="0" y="27" width="1366" height="741" />
     </state>
     <state x="172" y="31" key="SettingsEditor/0.27.1366.741@0.27.1366.741" timestamp="1585313338740" />
-    <state x="339" y="161" key="com.intellij.ide.util.TipDialog" timestamp="1586837496560">
+    <state x="381" y="171" key="com.intellij.ide.util.TipDialog" timestamp="1586880014722">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
-    <state x="339" y="161" key="com.intellij.ide.util.TipDialog/0.27.1366.741@0.27.1366.741" timestamp="1586837496560" />
+    <state x="381" y="171" key="com.intellij.ide.util.TipDialog/0.27.1366.741@0.27.1366.741" timestamp="1586880014722" />
     <state width="326" height="273" key="javadoc.popup.new" timestamp="1585296697803">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
     <state width="326" height="273" key="javadoc.popup.new/0.27.1366.741@0.27.1366.741" timestamp="1585296697803" />
-    <state x="347" y="175" key="run.anything.popup" timestamp="1585738855669">
+    <state x="347" y="175" width="672" height="677" key="run.anything.popup" timestamp="1587049544976">
       <screen x="0" y="27" width="1366" height="741" />
     </state>
-    <state x="347" y="175" key="run.anything.popup/0.27.1366.741@0.27.1366.741" timestamp="1585738855669" />
+    <state x="347" y="175" width="672" height="677" key="run.anything.popup/0.27.1366.741@0.27.1366.741" timestamp="1587049544976" />
     <state x="346" y="89" width="672" height="678" key="search.everywhere.popup" timestamp="1585730247591">
       <screen x="0" y="27" width="1366" height="741" />
     </state>

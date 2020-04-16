@@ -63,57 +63,40 @@ exports.getAllUsers =  (req, res, next) => {
 // Creating new use/ processing signup
 exports.userSignUp = (req, res, next)=>{
 
-    // Validating user's exists or not
-    User.findOne({ mobileNumber : req.body.mobileNumber})
-        .exec()
-        .then(user => {
-            // If user already exist then return error response
-            if(user){
-                next(createError(409, "Mobile number already in use !"));
-            }
-            // If user not exists, create user
-            else{
-                // Converting plain password into hash
-                bcrypt.hash(req.body.password, 10, (error, hash)=>{
+    // Converting plain password into hash
+    bcrypt.hash(req.body.password, 10, (error, hash)=>{
 
-                    if(error){
-                        if(!req.body.password){
-                            error = createError(500, "Password must required.");
-                        }else{
-                            error = createError(500, "Password conversion failed.");
-                        }
+        if(error){
+            next(createError(500, "Password conversion failed."));
+        } else{
+            // Creating user schema object and binding data to it
+            const  user = new User({
+                _id: new mongoose.Types.ObjectId(),
+                mobileNumber: req.body.mobileNumber,
+                password: hash
+            });
 
-                        next(error);
-                    } else{
-                        // Creating user schema object and binding data to it
-                        const  user = new User({
-                            _id: new mongoose.Types.ObjectId(),
-                            mobileNumber: req.body.mobileNumber,
-                            password: hash
-                        });
-
-                        user.save()
-                            // If user created, return success message
-                            .then(result => {
-                                res.status(201).json({
-                                    message: "User Created Successfully."
-                                });
-                            })
-                            // If any error occure return error message
-                            .catch(error=>{
-                                if (error._message) {
-                                    // If validation faied
-                                    error.message = error.message;
-                                } else {
-                                    // If user creation failed
-                                    error.message = "User creation failed !";
-                                }
-                                next(error);
-                            });
-                    }
+            user.save()
+                // If user created, return success message
+                .then(result => {
+                    res.status(201).json({
+                        message: "User Created Successfully."
+                    });
                 })
-            }
-        })
+                // If any error occure return error message
+                .catch(error=>{
+                    if (error._message) {
+                        // If validation faied
+                        error.message = error.message;
+                    } else {
+                        // If user creation failed
+                        error.message = "User creation failed !";
+                    }
+                    next(error);
+                });
+        }
+    })
+
 };
 
 // Performing login process
@@ -126,12 +109,12 @@ exports.userLogin = (req, res, next)=>{
             // If user is an existing user then authenticate password
             if(user){
                 bcrypt.compare(req.body.password, user.password, (error, result) => {
-                    if(result){
+                    if (result) {
                         // Creating jwt token
                         const token = jwt.sign(
                             {
                                 id: user._id,
-                                mobileNumber : user.mobileNumber,
+                                mobileNumber: user.mobileNumber,
                             },
                             process.env.JWT_SECRET_KEY,
                             {
@@ -139,11 +122,11 @@ exports.userLogin = (req, res, next)=>{
                             }
                         );
                         res.status(200).json({
-                            message : "Authentication sucesss !",
-                            token : token
+                            message: "Authentication sucesss !",
+                            token: token
                         });
-                    }else {
-                        next(createError(401, "User credential mismatched !" ));
+                    } else {
+                        next(createError(401, "User credential mismatched !"));
                     }
                 });
             }
@@ -160,47 +143,38 @@ exports.updateUser = (req, res, next) => {
     // Retrieving user id from userData
     const id = req.userData.id;
 
-    // Converting plain password into hash
-    bcrypt.hash(req.body.password, 10, (error, hash)=> {
+    // Retrieve update option from request body
+    var updateOps = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        address: req.body.address,
+        gender: req.body.gender,
+        age: req.body.age
+    };
 
-        if (error) {
-            next(createError(500, "Password conversion failed."));
-        }
+    // Update user's details in database
+    User.update({ _id: id }, { $set: updateOps })
+        .exec()
+        .then(result => {
 
-        // Retrieve update option from request body
-        var updateOps = {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            password: hash,
-            email: req.body.email,
-            address: req.body.address,
-            gender: req.body.gender,
-            age: req.body.age
-        };
+            // If user's details updated successfully, return success response
+            if (result.nModified > 0) {
+                res.status(200).json({
+                    message: "User's detail updated."
+                });
+            }
+            // If invalid user id
+            else {
+                next(createError(404, "Invalid user Id !"));
+            }
 
-        // Update user's details in database
-        User.update({ _id: id }, { $set: updateOps })
-            .exec()
-            .then(result => {
-
-                // If user's details updated successfully, return success response
-                if (result.nModified > 0) {
-                    res.status(200).json({
-                        message: "User's detail updated."
-                    });
-                }
-                // If invalid user id
-                else {
-                    next(createError(404, "Invalid user Id !"));
-                }
-
-            })
-            // If user's updation failed.
-            .catch(error => {
-                error.message = "User's detail updation failed !";
-                next(error);
-            });
-    });
+        })
+        // If user's updation failed.
+        .catch(error => {
+            error.message = "User's detail updation failed !";
+            next(error);
+        });
 };
 
 // Delete user records

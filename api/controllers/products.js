@@ -10,8 +10,7 @@ exports.getProductById =  (req, res, next) => {
     const id = req.params.productId;
 
     // Finding product's details using product id.
-    Product.findById(id)
-        .select("_id title type price productImages description createdAt updatedAt")
+    Product.findById(id, { __v: 0 })
         .exec()
         .then(product => {
             // if product found, return success response
@@ -38,60 +37,21 @@ exports.getProductById =  (req, res, next) => {
         });
 };
 
-// Retrieving product's details according to productType
-exports.getProductsByType = (req, res, next) => {
-
-    // Getting product's id from request
-    const type = req.params.productType;
-
-    // Finding products
-    Product.find()
-        .select("_id title type price productImages description createdAt updatedAt")
-        .where({ type : type})
-        .exec()
-        .then(products => {
-            // If Product found, return product details
-            if (products.length > 0) {
-                const response = {
-                    count: products.length,
-                    products: products.map(product => {
-                        return {
-                            _id: product._id,
-                            title: product.title,
-                            type: product.type,
-                            price: product.price,
-                            productImages : product.productImages,
-                            description: product.description,
-                            createdAt: product.createdAt,
-                            updatedAt: product.updatedAt,
-                            request: {
-                                type: "GET",
-                                description: "GET_PRODUCT_DETAILS",
-                                url: req.protocol + '://' + req.get('host') + "/products/" + product._id
-                            }
-                        }
-
-                    })
-                }
-                res.status(201).json(response);
-            }
-            // If product doesn't found, return empty response
-            else {
-                next(createError(404, "No entries found !"));
-            }
-        })
-        // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
-};
-
-// Retrieving all product's details form database
+// Retrieving all product's details or according to productType form database
 exports.getAllProducts =  (req, res, next) => {
 
+    var query = {};
+
+   if (req.params.productType != undefined ){
+       // Query for all product according to productType
+        query = { type: req.params.productType };
+    } else {
+       // Query for all products
+        query = {};
+    }
+
     // Finding all products
-    Product.find()
-        .select("_id title type price productImages description createdAt updatedAt")
+    Product.find(query, { __v: 0 })
         .exec()
         .then(products => {
             // If Product found, return product details

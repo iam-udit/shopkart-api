@@ -8,17 +8,17 @@ const router = express.Router();
 // Verifying jwt token
 router.use( verifyJwt );
 
-// Retrieving order's details form database
+// Retrieving all odrder's details form database
+router.get('/', ordersController.getAllOrders);
+
+// Retrieving order's details according to userId
+router.get('/user', ordersController.getAllOrders);
+
+// Retrieving order's details by orderId form database
 router.get('/:orderId', ordersController.getOrderById);
 
 // Retrieving order's details according to productId
-router.get('/product/id/:productId', ordersController.getOrdersByProductId);
-
-// Retrieving order's details according to userId
-router.get('/user/id', ordersController.getOrdersByUserId);
-
-// Retrieving all odrder's details form database
-router.get('/', ordersController.getAllOrders);
+router.get('/product/:productId', ordersController.getAllOrders);
 
 // Creating new order
 router.post('/', ordersController.createOrder);

@@ -5,18 +5,18 @@ const logisticSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     firstName: { type: String },
     lastName: { type: String },
-    mobileNumber:{
-        type: Number,
-        required: true,
-        unique: true,
-    },
-    password: { type: String, required: true},
     email: {
         type: String,
+        unique: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
-    emailVarified: { type: Boolean, default: false },
+    password: { type: String, required: true},
+    mobileNumber:{
+        type: Number,
+        required: true,
+    },
+    mobileNumberVerified: { type: Boolean, default: false },
     gender: { type: String },
     age: { type: Number, maxlength: 2 },
     address: {

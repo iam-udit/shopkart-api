@@ -39,103 +39,25 @@ exports.getOrderById =  (req, res, next) => {
         });
 };
 
-// Retrieving order's details according to productId
-exports.getOrdersByProductId = (req, res, next) => {
-
-    // Getting product's id from request
-    const productId = req.params.productId;
-
-    // Finding products
-    Order.find()
-        .select("_id user product quantity createdAt")
-        .populate("product")
-        .where({ product : productId})
-        .exec()
-        .then(orders => {
-            // If order found, return product details
-            if (orders.length > 0   ) {
-                const response = {
-                    count: orders.length,
-                    product: orders[0].product,
-                    orders: orders.map(order => {
-                        return {
-                            _id: order._id,
-                            user: order.user,
-                            quantity: order.quantity,
-                            createdAt: order.createdAt,
-                            request: {
-                                type: "GET",
-                                description: "GET_ORDER_DETAILS",
-                                url: req.protocol + '://' + req.get('host') + "/orders/" + order._id
-                            }
-                        }
-
-                    })
-                }
-                res.status(200).json(response);
-            }
-            // If order doesn't found, return empty response
-            else {
-                next(createError(404, "No orders found !"));
-            }
-        })
-        // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
-};
-
-// Retrieving order's details according to userId
-exports.getOrdersByUserId = (req, res, next) => {
-
-    // Getting user's id from request
-    const userId = req.userData.id;
-
-    // Finding products
-    Order.find()
-        .select("_id product quantity createdAt")
-        .populate("product")
-        .where({ user : userId})
-        .exec()
-        .then(orders => {
-            // If order found, return product details
-            if (orders.length > 0   ) {
-                const response = {
-                    count: orders.length,
-                    orders: orders.map(order => {
-                        return {
-                            _id: order._id,
-                            product: order.product,
-                            quantity: order.quantity,
-                            createdAt: order.createdAt,
-                            request: {
-                                type: "GET",
-                                description: "GET_ORDER_DETAILS",
-                                url: req.protocol + '://' + req.get('host') + "/orders/" + order._id
-                            }
-                        }
-
-                    })
-                }
-                res.status(200).json(response);
-            }
-            // If order doesn't found, return empty response
-            else {
-                next(createError(404, "No orders found !"));
-            }
-        })
-        // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
-};
-
 // Retrieving all order's details form database
 exports.getAllOrders =  (req, res, next) => {
 
+    var query = {};
+
+    if (req.params.productId != undefined ){
+        // Query for all orders according to productId
+        query = { product: req.params.productId };
+    } else if (req.url == '/user/'){
+        // Query for all orders according to userId
+        query = { user: req.userData.id };
+    } else {
+        // Query for all orders
+        query = {};
+    }
+
+
     // Finding all orders
-    Order.find()
-        .select("_id user product quantity createdAt")
+    Order.find(query, { __v: 0 })
         .populate("product")
         .exec()
         .then(orders => {
