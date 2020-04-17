@@ -63,40 +63,31 @@ exports.getAllUsers =  (req, res, next) => {
 // Creating new use/ processing signup
 exports.userSignUp = (req, res, next)=>{
 
-    // Converting plain password into hash
-    bcrypt.hash(req.body.password, 10, (error, hash)=>{
+    // Creating user schema object and binding data to it
+    const  user = new User({
+        _id: new mongoose.Types.ObjectId(),
+        mobileNumber: req.body.mobileNumber,
+        password: req.body.npassword
+    });
 
-        if(error){
-            next(createError(500, "Password conversion failed."));
-        } else{
-            // Creating user schema object and binding data to it
-            const  user = new User({
-                _id: new mongoose.Types.ObjectId(),
-                mobileNumber: req.body.mobileNumber,
-                password: hash
+    user.save()
+        // If user created, return success message
+        .then(result => {
+            res.status(201).json({
+                message: "User Created Successfully."
             });
-
-            user.save()
-                // If user created, return success message
-                .then(result => {
-                    res.status(201).json({
-                        message: "User Created Successfully."
-                    });
-                })
-                // If any error occure return error message
-                .catch(error=>{
-                    if (error._message) {
-                        // If validation faied
-                        error.message = error.message;
-                    } else {
-                        // If user creation failed
-                        error.message = "User creation failed !";
-                    }
-                    next(error);
-                });
-        }
-    })
-
+        })
+        // If any error occure return error message
+        .catch(error=>{
+            if (error._message) {
+                // If validation faied
+                error.message = error.message;
+            } else {
+                // If user creation failed
+                error.message = "User creation failed !";
+            }
+            next(error);
+        });
 };
 
 // Performing login process

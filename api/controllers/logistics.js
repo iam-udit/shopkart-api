@@ -63,41 +63,33 @@ exports.getAllLogistics =  (req, res, next) => {
 // Creating new logistic/ processing signup
 exports.logisticSignUp = (req, res, next)=>{
 
-    // Converting plain password into hash
-    bcrypt.hash(req.body.password, 10, (error, hash)=>{
+    // Creating logistic schema object and binding data to it
+    const  logistic = new Logistic({
+        _id: new mongoose.Types.ObjectId(),
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.npassword
+    });
 
-        if(error){
-            next(createError(500, "Password conversion failed."));
-        } else{
-            // Creating logistic schema object and binding data to it
-            const  logistic = new Logistic({
-                _id: new mongoose.Types.ObjectId(),
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                email: req.body.email,
-                password: hash
+    logistic.save()
+        // If logistic account created, return success message
+        .then(result => {
+            res.status(201).json({
+                message: "User Created Successfully."
             });
-
-            logistic.save()
-                // If logistic account created, return success message
-                .then(result => {
-                    res.status(201).json({
-                        message: "User Created Successfully."
-                    });
-                })
-                // If any error occure return error message
-                .catch(error=>{
-                    if (error._message) {
-                        // If validation faied
-                        error.message = error.message;
-                    } else {
-                        // If logistic account creation failed
-                        error.message = "User creation failed !";
-                    }
-                    next(error);
-                });
-        }
-    })
+        })
+        // If any error occure return error message
+        .catch(error=>{
+            if (error._message) {
+                // If validation faied
+                error.message = error.message;
+            } else {
+                // If logistic account creation failed
+                error.message = "User creation failed !";
+            }
+            next(error);
+        });
 
 };
 

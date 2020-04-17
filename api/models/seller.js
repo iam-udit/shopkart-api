@@ -8,15 +8,13 @@ const sellerSchema = mongoose.Schema({
     email: {
         type: String,
         unique: true,
+        required: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
     password: { type: String, required: true},
     statusConfirmed : { type: Boolean, default: false },
-    mobileNumber:{
-        type: Number,
-        required: true,
-    },
+    mobileNumber:{ type: Number },
     mobileNumberVerified: { type: Boolean, default: false },
     gender: { type: String },
     age: { type: Number, maxlength: 2 },

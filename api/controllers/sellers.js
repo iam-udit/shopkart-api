@@ -1,11 +1,11 @@
 // Importing all required modules
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const createError = require("http-errors");
-const bcrypt = require("bcryptjs");
-const  jwt = require("jsonwebtoken");
+const userExists = require('../middlewares/user-exists');
 
 const Seller = require("../models/seller");
-
 
 // Retrieving seller's details by sellerId
 exports.getSellerById =  (req, res, next) => {
@@ -73,42 +73,33 @@ exports.getAllSellers =  (req, res, next) => {
 // Creating new seller/ processing signup
 exports.sellerSignUp = (req, res, next)=>{
 
-    // Converting plain password into hash
-    bcrypt.hash(req.body.password, 10, (error, hash)=>{
+    // Creating seller schema object and binding data to it
+    const  seller = new Seller({
+        _id: new mongoose.Types.ObjectId(),
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.npassword
+    });
 
-        if(error){
-            next(createError(500, "Password conversion failed."));
-        } else{
-            // Creating seller schema object and binding data to it
-            const  seller = new Seller({
-                _id: new mongoose.Types.ObjectId(),
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                email: req.body.email,
-                password: hash
+    seller.save()
+        // If seller account created, return success message
+        .then(result => {
+            res.status(201).json({
+                message: "User Created Successfully."
             });
-
-            seller.save()
-                // If seller account created, return success message
-                .then(result => {
-                    res.status(201).json({
-                        message: "User Created Successfully."
-                    });
-                })
-                // If any error occure return error message
-                .catch(error=>{
-                    if (error._message) {
-                        // If validation faied
-                        error.message = error.message;
-                    } else {
-                        // If seller account creation failed
-                        error.message = "User creation failed !";
-                    }
-                    next(error);
-                });
-        }
-    })
-
+        })
+        // If any error occure return error message
+        .catch(error=>{
+            if (error._message) {
+                // If validation faied
+                error.message = error.message;
+            } else {
+                // If seller account creation failed
+                error.message = "User creation failed !";
+            }
+            next(error);
+        });
 };
 
 // Performing login process

@@ -6,7 +6,7 @@ const verifyJwt = require("../middlewares/verify-jwt");
 const userExists = require('../middlewares/user-exists');
 const sellersController = require("../controllers/sellers");
 const verifyAccount = require('../middlewares/verify-account');
-const updatePassword = require('../middlewares/update-password');
+const { forgotPassword, updatePassword, digestPassword } = require('../middlewares/password-ops');
 
 // Retrieving all confirmed/unconfirmed/total seller's details
 router.get("/getall/:statusConfirmed?", verifyJwt, sellersController.getAllSellers);
@@ -15,16 +15,19 @@ router.get("/getall/:statusConfirmed?", verifyJwt, sellersController.getAllSelle
 router.get("/get", verifyJwt, sellersController.getSellerById);
 
 // Creating new seller/ processing signup
-router.post("/signup", userExists, sellersController.sellerSignUp);
+router.post("/signup", userExists, digestPassword, sellersController.sellerSignUp);
 
 // Performing login process
 router.post("/login", sellersController.sellerLogin);
+
+// Performing forgot password operation
+router.post("/forgot/password", userExists, forgotPassword);
 
 // Update seller's details
 router.patch("/update", verifyJwt, sellersController.updateSeller)
 
 // Update seller's password
-router.patch("/update/password", verifyJwt, updatePassword)
+router.patch("/update/password", verifyJwt, digestPassword, updatePassword)
 
 // Verify seller's account status
 router.patch("/verify/account/:id", verifyJwt, verifyAccount);
