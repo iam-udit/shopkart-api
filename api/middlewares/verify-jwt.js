@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
 
     // Authenticating jwt token
     try {
-        req.userData = jwt.verify(req.headers.authorization, process.env.JWT_KEY);
+        req.userData = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         next();
     }
     // If authentication failed

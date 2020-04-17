@@ -10,18 +10,17 @@ exports.getProductById =  (req, res, next) => {
     const id = req.params.productId;
 
     // Finding product's details using product id.
-    Product.findById(id)
-        .select("_id title type price imagePath description createdAt updatedAt")
+    Product.findById(id, { __v: 0 })
         .exec()
-        .then(doc => {
+        .then(product => {
             // if product found, return success response
-            if (doc) {
+            if (product) {
                 res.status(200).json({
-                    product: doc,
+                    product: product,
                     request: {
                         type: "GET ",
                         description: "GET_ALL_PRODUCTS",
-                        url: "http://localhost:8000/products"
+                        url: req.protocol + '://' + req.get('host') + "/products"
                     }
                 });
             }
@@ -38,76 +37,41 @@ exports.getProductById =  (req, res, next) => {
         });
 };
 
-// Retrieving product's details according to productType
-exports.getProductsByType = (req, res, next) => {
-
-    // Getting product's id from request
-    const type = req.params.productType;
-
-    // Finding products
-    Product.find()
-        .select("_id title type price imagePath description")
-        .where({ type : type})
-        .exec()
-        .then(docs => {
-            // If Product found, return product details
-            if (docs) {
-                const response = {
-                    count: docs.length,
-                    products: docs.map(doc => {
-                        return {
-                            _id: doc._id,
-                            title: doc.title,
-                            type: doc.type,
-                            price: doc.price,
-                            imagePath : doc.imagePath,
-                            description: doc.description,
-                            request: {
-                                type: "GET",
-                                description: "GET_PRODUCT_DETAILS",
-                                url: "http://localhost:8000/products/" + doc._id
-                            }
-                        }
-
-                    })
-                }
-                res.status(201).json(response);
-            }
-            // If product doesn't found, return empty response
-            else {
-                next(createError(404, "No entries found !"));
-            }
-        })
-        // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
-};
-
-// Retrieving all product's details form database
+// Retrieving all product's details or according to productType form database
 exports.getAllProducts =  (req, res, next) => {
 
+    var query = {};
+
+   if (req.params.productType != undefined ){
+       // Query for all product according to productType
+        query = { type: req.params.productType };
+    } else {
+       // Query for all products
+        query = {};
+    }
+
     // Finding all products
-    Product.find()
-        .select("_id title type price imagePath description")
+    Product.find(query, { __v: 0 })
         .exec()
-        .then(docs => {
+        .then(products => {
             // If Product found, return product details
-            if (docs) {
+            if (products.length > 0) {
                 const response = {
-                    count: docs.length,
-                    products: docs.map(doc => {
+                    count: products.length,
+                    products: products.map(product => {
                         return {
-                            _id: doc._id,
-                            title: doc.title,
-                            type: doc.type,
-                            price: doc.price,
-                            imagePath : doc.imagePath,
-                            description: doc.description,
+                            _id: product._id,
+                            title: product.title,
+                            type: product.type,
+                            price: product.price,
+                            productImages : product.productImages,
+                            description: product.description,
+                            createdAt: product.createdAt,
+                            updatedAt: product.updatedAt,
                             request: {
                                 type: "GET",
                                 description: "GET_PRODUCT_DETAILS",
-                                url: "http://localhost:8000/products/" + doc._id
+                                url: req.protocol + '://' + req.get('host') + "/products/" + product._id
                             }
                         }
 
@@ -129,6 +93,11 @@ exports.getAllProducts =  (req, res, next) => {
 // Creating new product
 exports.createProduct = (req, res, next) => {
 
+    // Retrieve images path from req.files
+    var productImages = [];
+    req.files.forEach(image => {
+        productImages.push(image.path);
+    });
     // Create new product's document/object
     // and binding the product's details
     const product = new Product({
@@ -136,7 +105,7 @@ exports.createProduct = (req, res, next) => {
         title: req.body.title,
         type: req.body.type,
         price: req.body.price,
-        imagePath: req.body.imagePath,
+        productImages: productImages,
         description: req.body.description
     });
 
@@ -144,7 +113,7 @@ exports.createProduct = (req, res, next) => {
     product.save()
         .then(result => {
             // If  product's created successfully, return success response
-            res.status(200).json({
+            res.status(201).json({
                 message: "Product created successfully.",
                 createdProduct: {
                     _id: result._id,
@@ -158,7 +127,7 @@ exports.createProduct = (req, res, next) => {
                     request: {
                         type: "GET",
                         description: "GET_PRODUCT_DETAILS",
-                        url: "http://localhost:8000/products/" + result._id
+                        url: req.protocol + '://' + req.get('host') + "/products/" + result._id
                     }
                 }
             });
@@ -186,15 +155,23 @@ exports.updateProduct = (req, res, next) => {
     // Retrieving product id from request
     const id = req.params.productId;
 
-    // Retrieve update option from request body
-    const updateOps = {};
+    // Retrieve images path from req.files
+    var productImages = [];
+    req.files.forEach(image => {
+        productImages.push(image.path);
+    });
 
-    for (const ops of req.body) {
-        updateOps[ops.propName] = ops.propValue;
-    }
+    // Create product's document to be update
+    const product = {
+        title: req.body.title,
+        type: req.body.type,
+        price: req.body.price,
+        productImages: productImages,
+        description: req.body.description
+    };
 
     // Update product details in database
-    Product.update({ _id: id }, { $set: updateOps })
+    Product.updateOne({ _id: id }, { $set: product })
         .exec()
         .then(result => {
 
@@ -205,7 +182,7 @@ exports.updateProduct = (req, res, next) => {
                     request: {
                         type: "GET",
                         description: "GET_PRODUCT_DETAILS",
-                        url: "http://localhost:8000/products/" + id
+                        url: req.protocol + '://' + req.get('host') + "/products/" + id
                     }
                 });
             }
@@ -213,11 +190,16 @@ exports.updateProduct = (req, res, next) => {
             else {
                 next(createError(404, "Invalid Product Id !"));
             }
-
         })
         // If product's updation failed.
         .catch(error => {
-            error.message = "Product updation failed !";
+            if (error._message) {
+                // If validation faied
+                error.message = error.message;
+            } else {
+                // If product update failed
+                error.message = "Product updation failed !";
+            }
             next(error);
         });
 
@@ -240,7 +222,7 @@ exports.deleteProduct =  (req, res, next) => {
                     request: {
                         type: "POST",
                         description: "CREATE_NEW_PRODUCT",
-                        url: "http://localhost:8000/products",
+                        url: req.protocol + '://' + req.get('host') + "/products",
                         body: { "name": "String", "price": "Number" }
                     }
                 });

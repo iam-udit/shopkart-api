@@ -1,22 +1,21 @@
 const mongoose = require("mongoose");
 
-// Creating user's schema
-const userSchema = mongoose.Schema({
+// Creating seller's schema
+const sellerSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     firstName: { type: String },
     lastName: { type: String },
-    mobileNumber:{
-        type: Number,
-        required: true,
-        unique: true,
-    },
-    password: { type: String, required: true},
     email: {
         type: String,
+        unique: true,
+        required: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
-    emailVerified: { type: Boolean, default: false },
+    password: { type: String, required: true},
+    statusConfirmed : { type: Boolean, default: false },
+    mobileNumber:{ type: Number },
+    mobileNumberVerified: { type: Boolean, default: false },
     gender: { type: String },
     age: { type: Number, maxlength: 2 },
     address: {
@@ -26,9 +25,9 @@ const userSchema = mongoose.Schema({
         zip: { type: Number },
         body: { type: String }
     },
-    userImage: { type: String },
+    sellerImage: { type: String },
 }, { timestamps: true });
 
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Seller", sellerSchema);
 

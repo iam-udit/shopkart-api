@@ -6,6 +6,7 @@ const  jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 
+
 // Retrieving user's details by userId
 exports.getUserById =  (req, res, next) => {
 
@@ -13,8 +14,7 @@ exports.getUserById =  (req, res, next) => {
     const id = req.userData.id;
 
     // Finding user's details using user id.
-    User.findById(id)
-        .select("_id firstName lastName mobileNumber email emailVarified address imagePath createdAt updatedAt")
+    User.findById(id, { __v: 0, password: 0 })
         .exec()
         .then(user => {
             // if user found, return success response
@@ -23,7 +23,7 @@ exports.getUserById =  (req, res, next) => {
             }
             // If user doesn't found, return not found response
             else {
-                next(createError(404, "No valid entry found for provided ID"));
+                next(createError(404, "No valid user found for provided ID"));
             }
 
         })
@@ -38,12 +38,11 @@ exports.getUserById =  (req, res, next) => {
 exports.getAllUsers =  (req, res, next) => {
 
     // Finding all users
-    User.find()
-        .select("_id firstName lastName mobileNumber password email emailVarified address imagePath createdAt updatedAt")
+    User.find({}, { __v : 0 })
         .exec()
         .then(users => {
             // If users found, return user details
-            if (users.length > 1) {
+            if (users.length > 0) {
                 const response = {
                     count: users.length,
                     users: users
@@ -52,7 +51,7 @@ exports.getAllUsers =  (req, res, next) => {
             }
             // If user doesn't found, return empty response
             else {
-                next(createError(404, "No entries found !"));
+                next(createError(404, "No uses found !"));
             }
         })
         // If any error occures, return error message
@@ -64,57 +63,31 @@ exports.getAllUsers =  (req, res, next) => {
 // Creating new use/ processing signup
 exports.userSignUp = (req, res, next)=>{
 
-    // Validating user's exists or not
-    User.findOne({ mobileNumber : req.body.mobileNumber})
-        .exec()
-        .then(user => {
-            // If user already exist then return error response
-            if(user){
-                next(createError(409, "Mobile number already in use !"));
-            }
-            // If user not exists, create user
-            else{
-                // Converting plain password into hash
-                bcrypt.hash(req.body.password, 10, (error, hash)=>{
+    // Creating user schema object and binding data to it
+    const  user = new User({
+        _id: new mongoose.Types.ObjectId(),
+        mobileNumber: req.body.mobileNumber,
+        password: req.body.npassword
+    });
 
-                    if(error){
-                        if(!req.body.password){
-                            error = createError(500, "Password must required.");
-                        }else{
-                            error = createError(500, "Password conversion failed.");
-                        }
-
-                        next(error);
-                    } else{
-                        // Creating user schema object and binding data to it
-                        const  user = new User({
-                            _id: new mongoose.Types.ObjectId(),
-                            mobileNumber: req.body.mobileNumber,
-                            password: hash
-                        });
-
-                        user.save()
-                            // If user created, return success message
-                            .then(result => {
-                                res.status(201).json({
-                                    message: "User Created Successfully."
-                                });
-                            })
-                            // If any error occure return error message
-                            .catch(error=>{
-                                if (error._message) {
-                                    // If validation faied
-                                    error.message = error.message;
-                                } else {
-                                    // If user creation failed
-                                    error.message = "Product creation failed !";
-                                }
-                                next(error);
-                            });
-                    }
-                })
-            }
+    user.save()
+        // If user created, return success message
+        .then(result => {
+            res.status(201).json({
+                message: "User Created Successfully."
+            });
         })
+        // If any error occure return error message
+        .catch(error=>{
+            if (error._message) {
+                // If validation faied
+                error.message = error.message;
+            } else {
+                // If user creation failed
+                error.message = "User creation failed !";
+            }
+            next(error);
+        });
 };
 
 // Performing login process
@@ -127,24 +100,24 @@ exports.userLogin = (req, res, next)=>{
             // If user is an existing user then authenticate password
             if(user){
                 bcrypt.compare(req.body.password, user.password, (error, result) => {
-                    if(result){
+                    if (result) {
                         // Creating jwt token
                         const token = jwt.sign(
                             {
                                 id: user._id,
-                                mobileNumber : user.mobileNumber,
+                                mobileNumber: user.mobileNumber,
                             },
-                            process.env.JWT_KEY,
+                            process.env.JWT_SECRET_KEY,
                             {
                                 expiresIn: "1h"
                             }
                         );
                         res.status(200).json({
-                            message : "Authentication sucesss !",
-                            token : token
+                            message: "Authentication sucesss !",
+                            token: token
                         });
-                    }else {
-                        next(createError(401, "User credential mismatched !" ));
+                    } else {
+                        next(createError(401, "User credential mismatched !"));
                     }
                 });
             }
@@ -162,11 +135,14 @@ exports.updateUser = (req, res, next) => {
     const id = req.userData.id;
 
     // Retrieve update option from request body
-    const updateOps = {};
-
-    for (const ops of req.body) {
-        updateOps[ops.propName] = ops.propValue;
-    }
+    var updateOps = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        address: req.body.address,
+        gender: req.body.gender,
+        age: req.body.age
+    };
 
     // Update user's details in database
     User.update({ _id: id }, { $set: updateOps })
@@ -190,7 +166,6 @@ exports.updateUser = (req, res, next) => {
             error.message = "User's detail updation failed !";
             next(error);
         });
-
 };
 
 // Delete user records
@@ -199,17 +174,17 @@ exports.removeUser = (req, res, next) => {
     // Getting user's id from request
     const id = req.params.userId;
 
-    // Deleting product product database
+    // Deleting user's account from database
     User.remove({ "_id": id })
         .exec()
         .then(result => {
-            // If  product's deleted successfully, return success response
+            // If  user's deleted successfully, return success response
             if (result.deletedCount > 0) {
                 res.status(200).json({
                     message: "User record deleted."
                 });
             }
-            // If invalid product id
+            // If invalid user id
             else {
                 next(createError(404, "Invalid user Id !"));
             }
