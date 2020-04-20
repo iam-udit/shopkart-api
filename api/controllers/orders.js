@@ -55,17 +55,22 @@ exports.getAllOrders =  (req, res, next) => {
         query = {};
     }
 
+    let option = {
+        offset: parseInt(req.params.offSet) || 0,
+        populate: 'product',
+        limit: 10
+    };
 
     // Finding all orders
-    Order.find(query, { __v: 0 })
-        .populate("product")
-        .exec()
-        .then(orders => {
+    Order.paginate(query, option)
+        .then(result => {
             // If order found, return product details
-            if (orders.length > 0) {
+            if (result.total > 0) {
                 const response = {
-                    count: orders.length,
-                    orders: orders.map(order => {
+                    total: result.total,
+                    offset: result.offset,
+                    pages: Math.ceil(result.total / result.limit),
+                    orders: result.docs.map(order => {
                         return {
                             _id: order._id,
                             user: order.user,

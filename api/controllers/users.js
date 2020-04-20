@@ -38,14 +38,15 @@ exports.getUserById =  (req, res, next) => {
 exports.getAllUsers =  (req, res, next) => {
 
     // Finding all users
-    User.find({}, { __v : 0 })
-        .exec()
-        .then(users => {
+    User.paginate({}, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+        .then(result => {
             // If users found, return user details
-            if (users.length > 0) {
+            if (result.total > 0) {
                 const response = {
-                    count: users.length,
-                    users: users
+                    total: result.total,
+                    pages: Math.ceil(result.total / result.limit),
+                    offset: result.offset,
+                    users: result.docs,
                 }
                 res.status(200).json(response);
             }
@@ -144,8 +145,12 @@ exports.updateUser = (req, res, next) => {
         age: req.body.age
     };
 
+    if (req.file.path != undefined) {
+        updateOps.userImage =  req.file.path;
+    }
+
     // Update user's details in database
-    User.update({ _id: id }, { $set: updateOps })
+    User.updateOne({ _id: id }, { $set: updateOps })
         .exec()
         .then(result => {
 

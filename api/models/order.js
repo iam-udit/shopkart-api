@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate');
 
 const orderSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
@@ -8,4 +9,5 @@ const orderSchema = mongoose.Schema({
     createdAt: { type: String, default: new Date().toISOString() }
 });
 
+orderSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('Order', orderSchema );

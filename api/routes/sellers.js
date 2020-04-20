@@ -8,8 +8,11 @@ const sellersController = require("../controllers/sellers");
 const verifyAccount = require('../middlewares/verify-account');
 const { forgotPassword, updatePassword, digestPassword } = require('../middlewares/password-ops');
 
+// Retrieving all seller's details
+router.get("/getall/:offSet?", verifyJwt, sellersController.getAllSellers);
+
 // Retrieving all confirmed/unconfirmed/total seller's details
-router.get("/getall/:statusConfirmed?", verifyJwt, sellersController.getAllSellers);
+router.get("/get-all/:statusConfirmed/:offSet?", verifyJwt, sellersController.getAllSellers);
 
 // Retrieving seller's details by Id
 router.get("/get", verifyJwt, sellersController.getSellerById);
@@ -24,7 +27,7 @@ router.post("/login", sellersController.sellerLogin);
 router.post("/forgot/password", userExists, forgotPassword);
 
 // Update seller's details
-router.patch("/update", verifyJwt, sellersController.updateSeller)
+router.patch("/update", verifyJwt, upload.single('sellerImage'), sellersController.updateSeller)
 
 // Update seller's password
 router.patch("/update/password", verifyJwt, digestPassword, updatePassword)

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const createError = require("http-errors");
 
 // Validating user's exists or not
-module.exports = function (req, res) {
+module.exports = function (req, res, next) {
 
     var query = {};
     // Getting the model

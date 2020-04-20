@@ -10,4 +10,4 @@ node_modules
 .idea
 
 # user upload files
-uploads
+public/uploads

@@ -21,13 +21,13 @@ router.use( verifyJwt, function (req, res, next) {
 
 
 // Retrieving all product's details form database
-router.get('/', productsController.getAllProducts);
+router.get('/:offSet?', productsController.getAllProducts);
 
 // Retrieving product's details by productId form database
 router.get('/:productId', productsController.getProductById);
 
 // Retrieving all product's details according to productType
-router.get('/type/:productType', productsController.getAllProducts);
+router.get('/type/:productType/:offSet?', productsController.getAllProducts);
 
 // Creating new product
 router.post('/', upload.array('productImages', 6 ), productsController.createProduct);

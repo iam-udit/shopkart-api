@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate');
 
 // Creating logistic's schema
 const logisticSchema = mongoose.Schema({
@@ -27,6 +28,6 @@ const logisticSchema = mongoose.Schema({
     logisticImage: { type: String },
 }, { timestamps: true });
 
-
+logisticSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("Logistic", logisticSchema);
 

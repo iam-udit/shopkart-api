@@ -1,18 +1,53 @@
 // Importing all required packages
 const fs = require("fs");
+const path = require('path');
 const multer = require("multer");
 const mkdirp = require("mkdirp");
 const createError = require("http-errors");
-const Product = require("../models/product");
 
+var temp = '';
+var dir = '';
+
+var removeDir = function (dir) {
+    // Checking if the dir is exists or not
+    if(fs.existsSync(dir)){
+        // Reading all the sub files
+        let files = fs.readdirSync(dir);
+        if (files.length > 0){
+            // If the files are present then unlink
+            files.forEach(fileName=>{
+                fs.unlinkSync( dir + '/' + fileName );
+            })
+        }
+    }
+}
 
 // Providing destination, filename to multer
 const storage = multer.diskStorage({
 
     // Providing destination path
     destination : (req, file, cb) => {
+
         // Creating target directories
-        const dir = "uploads"+ "/products/" + req.body.type + "/" + req.body.title;
+        dir = 'public/uploads/';
+
+        // Getting the model
+        temp = req.originalUrl.split('/')[1];
+
+        // Creating target directories
+        if ( temp == 'users' || temp == 'sellers' || temp == 'logistics' ){
+            // Destination for users, sellers, logistics
+            dir = path.join(dir, temp, req.userData.id);
+        } else if ( temp == 'products'){
+            // Destination for products
+            dir = path.join(dir, temp, req.body.type, req.body.title +'-'+ req.userData.id);
+        }
+        // Delete if the dir is already exist
+        if ( temp == 'products' &&  req.files.length == 1 || temp != 'products') {
+            removeDir(dir);
+        }
+
+        // Creating the new dir
         mkdirp.sync(dir);
         cb(null,dir);
     },
@@ -31,53 +66,19 @@ const fileFilter = (req, file, cb) => {
         file.mimetype === "image/png" ||
         file.mimetype === "image/gif"
     ){
-        // Checking product image of profile image
-        if(req.originalUrl.split("/")[1] == "products"){
-            // Making query
-            var query = {};
-            if(req.method == "PATCH"){
-                query = { _id : req.params.productId };
-            } else if(req.method == "POST"){
-                query = { title: req.body.title };
-            }
 
-            // Ignore if product is already exist
-            Product.findOne(query)
-                .exec()
-                .then(product => {
-                        // If product already exist then ignore
-                        if(product){
-                            // If product is avalable and method is update
-                            if(req.method == "PATCH"){
-                                // Delete all old images, then allow to upload
-                                product.productImages.forEach( image => {
-
-                                    if(fs.existsSync(image)){
-                                        fs.unlinkSync(image);
-                                    }
-                                });
-                               /* // Delete the destination directory
-                                let subDir = product.productImages[0].split("/");
-                                fs.rmdir(subDir[0] + "/" + subDir[1] + "/" + subDir[2] + "/" + subDir[3], function(error){});
-*/
-                                cb(null, true);
-                            }else{
-                                // If method is post, dont upload file
-                                cb(null, false);
-                            }
-                        }
-                        // If product not exist then proceed to store
-                        else {
-                            if(req.method == "PATCH"){
-                                cb(null, false);
-                            } else {
-                                cb(null, true);
-                            }
-                        }
-                    }
-                );
-        } else{
-            // Allow to store user profile image
+        if(
+            temp == 'products' &&
+            (
+                fs.existsSync(dir) && req.method == 'POST' ||
+                !fs.existsSync(dir) && req.method == 'PATCH'
+            )
+        ) {
+            // If product already exist in post method then ignore or
+            // If the product is not exist in patch then ignore
+            cb(null, false);
+        } else {
+            // otherwise allow to upload
             cb(null, true);
         }
     }else{
@@ -89,10 +90,8 @@ const fileFilter = (req, file, cb) => {
 // Storing fie using multer
 module.exports = multer({
     storage : storage,
-
     limits : {
-        fileSize : 512 * 1024
+        fileSize : 1024 * 1024
     },
-
     fileFilter : fileFilter
 });

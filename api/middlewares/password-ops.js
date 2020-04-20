@@ -42,8 +42,9 @@ module.exports.updatePassword = (req, res, next) => {
 // Converting plain password into hash
 module.exports.digestPassword = (req, res, next) => {
 
-    bcrypt.hash(req.body.npassword, 10, (error, hash)=> {
+    bcrypt.hash(req.body.npassword || req.body.password, 10, (error, hash)=> {
         if (error) {
+            console.log(error)
             return next(createError(500, "Password conversion failed."));
         } else {
             req.body.npassword = hash;

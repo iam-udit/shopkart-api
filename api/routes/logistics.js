@@ -10,7 +10,7 @@ const { updatePassword, forgotPassword, digestPassword } = require('../middlewar
 
 
 // Retrieving all logistic's details
-router.get("/getall", verifyJwt, logisticsController.getAllLogistics);
+router.get("/getall/:offSet?", verifyJwt, logisticsController.getAllLogistics);
 
 // Retrieving logistic's details by Id
 router.get("/get", verifyJwt, logisticsController.getLogisticById);
@@ -25,7 +25,7 @@ router.post("/login", logisticsController.logisticLogin);
 router.post("/forgot/password", userExists, forgotPassword);
 
 // Update logistic's details
-router.patch("/update", verifyJwt, logisticsController.updateLogistic)
+router.patch("/update", verifyJwt, upload.single('logisticImage'), logisticsController.updateLogistic)
 
 // Update logistic's password
 router.patch("/update/password", verifyJwt, digestPassword, updatePassword)

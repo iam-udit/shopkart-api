@@ -51,14 +51,15 @@ exports.getAllProducts =  (req, res, next) => {
     }
 
     // Finding all products
-    Product.find(query, { __v: 0 })
-        .exec()
-        .then(products => {
+    Product.paginate(query, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+        .then(result => {
             // If Product found, return product details
-            if (products.length > 0) {
+            if (result.total > 0) {
                 const response = {
-                    count: products.length,
-                    products: products.map(product => {
+                    total: result.total,
+                    offSet: result.offset,
+                    pages: Math.ceil(result.total / result.limit),
+                    products: result.docs.map(product => {
                         return {
                             _id: product._id,
                             title: product.title,

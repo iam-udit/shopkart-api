@@ -48,14 +48,15 @@ exports.getAllSellers =  (req, res, next) => {
     }
 
     // Finding sellers details
-    Seller.find(query, { __v : 0 })
-        .exec()
-        .then(sellers => {
+    Seller.paginate(query, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+        .then(result => {
             // If sellers found, return user details
-            if (sellers.length > 0) {
+            if (result.total > 0) {
                 const response = {
-                    count: sellers.length,
-                    sellers: sellers
+                    total: result.total,
+                    offset: result.offset,
+                    pages: Math.ceil( result.total / result.limit ),
+                    sellers: result.docs
                 }
                 res.status(200).json(response);
             }
@@ -152,6 +153,7 @@ exports.updateSeller = (req, res, next) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         mobileNumber: req.body.mobileNumber,
+        sellerImage: req.file.path,
         address: req.body.address,
         gender: req.body.gender,
         age: req.body.age

@@ -21,6 +21,10 @@ var app = express();
 
 // Setting up morgan logging packase as dev mode.
 app.use(logger('dev'));
+app.use('/public', express.static('public'));
+
+// Allow public/upload as static
+app.use(express.static('public/upload'));
 
 // Setting up body-parser package
 app.use(bodyParser.json());
@@ -37,6 +41,9 @@ mongoose.connect(
         useCreateIndex: true
     }
 )
+mongoose.connection.on('error',
+    console.error.bind(console, 'Database Connectivity Failed !'));
+
 mongoose.Promise = global.Promise;
 
 // Hanlding CORS

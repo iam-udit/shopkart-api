@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate');
 
 // Creating seller's schema
 const sellerSchema = mongoose.Schema({
@@ -28,6 +29,6 @@ const sellerSchema = mongoose.Schema({
     sellerImage: { type: String },
 }, { timestamps: true });
 
-
+sellerSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("Seller", sellerSchema);
 

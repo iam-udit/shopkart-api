@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate');
 
 // Creating user's schema
 const userSchema = mongoose.Schema({
@@ -29,6 +30,6 @@ const userSchema = mongoose.Schema({
     userImage: { type: String },
 }, { timestamps: true });
 
-
+userSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("User", userSchema);
 

@@ -38,14 +38,15 @@ exports.getLogisticById =  (req, res, next) => {
 exports.getAllLogistics =  (req, res, next) => {
 
     // Finding all logistics details
-    Logistic.find({}, { __v: 0 })
-        .exec()
-        .then(logistics => {
+    Logistic.paginate({}, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+        .then(result => {
             // If logistics found, return user details
-            if (logistics.length > 0) {
+            if (result.total > 0) {
                 const response = {
-                    count: logistics.length,
-                    logistics: logistics
+                    total: result.total,
+                    offset: result.offset,
+                    pages: Math.ceil(result.total / result.limit ),
+                    logistics: result.docs
                 }
                 res.status(200).json(response);
             }
@@ -142,6 +143,7 @@ exports.updateLogistic = (req, res, next) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         mobileNumber: req.body.mobileNumber,
+        logisticImage: req.file.path,
         address: req.body.address,
         gender: req.body.gender,
         age: req.body.age
