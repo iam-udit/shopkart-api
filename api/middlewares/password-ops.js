@@ -15,7 +15,7 @@ module.exports.updatePassword = (req, res, next) => {
     var Model =  require('../models/' + temp.substring(0, temp.length-1));
 
     // Update password in database
-    Model.update({ _id: id }, { $set: { password: req.body.npassword } })
+    Model.update({ _id: id }, { $set: { password: req.body.password } })
         .exec()
         .then(result => {
 
@@ -44,10 +44,9 @@ module.exports.digestPassword = (req, res, next) => {
 
     bcrypt.hash(req.body.npassword || req.body.password, 10, (error, hash)=> {
         if (error) {
-            console.log(error)
             return next(createError(500, "Password conversion failed."));
         } else {
-            req.body.npassword = hash;
+            req.body.password = hash;
             next();
         }
     });

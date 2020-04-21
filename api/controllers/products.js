@@ -42,13 +42,16 @@ exports.getAllProducts =  (req, res, next) => {
 
     var query = {};
 
-   if (req.params.productType != undefined ){
+   if ( req.originalUrl.split('/')[2] == 'by-type' ){
        // Query for all product according to productType
         query = { type: req.params.productType };
+    } else if ( req.originalUrl.split('/')[2] == 'by-seller' ){
+       // Query for all products according to sellerId
+        query = { seller: req.userData.id };
     } else {
        // Query for all products
-        query = {};
-    }
+       query = {};
+   }
 
     // Finding all products
     Product.paginate(query, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
@@ -106,6 +109,7 @@ exports.createProduct = (req, res, next) => {
         title: req.body.title,
         type: req.body.type,
         price: req.body.price,
+        seller: req.userData.id,
         productImages: productImages,
         description: req.body.description
     });
@@ -121,7 +125,8 @@ exports.createProduct = (req, res, next) => {
                     title: result.title,
                     type: result.type,
                     price: result.price,
-                    imagePath: result.imagePath,
+                    seller: result.seller,
+                    productImages: result.productImages,
                     description: result.description,
                     createdAt: result.createdAt,
                     updatedAt: result.updatedAt,
@@ -138,10 +143,7 @@ exports.createProduct = (req, res, next) => {
             if (error._message) {
                 // If validation faied
                 error.message = error.message;
-            } else if(error.errmsg){
-                // If product already exists.
-                error = createError(409,"Duplicate product entry.");
-            } else {
+            }  else {
                 // If product creation failed
                 error.message = "Product creation failed !";
             }

@@ -14,6 +14,7 @@ const logisticSchema = mongoose.Schema({
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
     password: { type: String, required: true},
+    statusConfirmed : { type: Boolean, default: false },
     mobileNumber:{ type: Number },
     mobileNumberVerified: { type: Boolean, default: false },
     gender: { type: String },

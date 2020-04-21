@@ -1,0 +1,12 @@
+# Sample YAML for client config
+name: "Ecom Client"
+version: "1.0"
+client:
+  organization: Ecom
+  credentialStore:
+    path: "./credstore/ecom/hfc-kvs"
+    cryptoStore:
+      path: "./credstore/ecom/hfc-cvs"
+  connection:
+    options:
+      grpc.keepalive_time_ms: 120000

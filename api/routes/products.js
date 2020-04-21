@@ -4,6 +4,7 @@ const createError = require("http-errors");
 const upload = require("../middlewares/upload");
 const verifyJwt = require("../middlewares/verify-jwt");
 const productsController = require("../controllers/products");
+const productExists = require('../middlewares/product-exists');
 
 const router = express.Router();
 
@@ -27,16 +28,19 @@ router.get('/:offSet?', productsController.getAllProducts);
 router.get('/:productId', productsController.getProductById);
 
 // Retrieving all product's details according to productType
-router.get('/type/:productType/:offSet?', productsController.getAllProducts);
+router.get('by-type/:productType/:offSet?', productsController.getAllProducts);
+
+// Retrieving all product's details according to sellerId
+router.get('by-seller/:offSet?', productsController.getAllProducts);
 
 // Creating new product
-router.post('/', upload.array('productImages', 6 ), productsController.createProduct);
+router.post('/', productExists,  upload.array('productImages', 6 ), productsController.createProduct);
 
 // Delete product
 router.delete('/:productId', productsController.deleteProduct);
 
 // Update Product details
-router.patch('/:productId', upload.array('productImages', 6 ), productsController.updateProduct);
+router.patch('/:productId', productExists, upload.array('productImages', 6 ), productsController.updateProduct);
 
 // Export module
 module.exports = router;

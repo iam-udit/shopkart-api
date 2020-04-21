@@ -25,16 +25,14 @@ module.exports = function (req, res, next) {
             // If any error occur
             return next(createError(500, err.message));
         }
-
         // Different options for different routes
-        if(temp[2] == 'signup'){
+        if(temp[2] == 'signup' && user){
             // If request for user signup route, then forbid
-            if(user) return next(createError(409, "User is already exists !"));
-        } else {
+            return  next(createError(409, "User is already exists !"));
+        } else if(temp[2] == 'forgot' && !user){
             // If request for user forgot password route, then forbid
-            if(!user) return next(createError(404, "User is not exists !"));
+            return next(createError(404, "User is not exists !"));
         }
-
         // If user not exist, then allow for sign up
         // If user exists, then allow for forgot password
         next();

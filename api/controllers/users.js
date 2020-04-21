@@ -68,7 +68,7 @@ exports.userSignUp = (req, res, next)=>{
     const  user = new User({
         _id: new mongoose.Types.ObjectId(),
         mobileNumber: req.body.mobileNumber,
-        password: req.body.npassword
+        password: req.body.password
     });
 
     user.save()

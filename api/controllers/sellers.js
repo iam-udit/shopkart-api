@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const createError = require("http-errors");
-const userExists = require('../middlewares/user-exists');
+const wallet = require('../sdk/gateway/wallet');
 
 const Seller = require("../models/seller");
 
@@ -74,13 +74,25 @@ exports.getAllSellers =  (req, res, next) => {
 // Creating new seller/ processing signup
 exports.sellerSignUp = (req, res, next)=>{
 
+    // Register, enroll and import the seller identity in wallet
+    wallet.importIdentity({
+        id: req.body.email,
+        org: 'ecom',
+        msp: 'ecomMSP',
+        role: '',
+        affiliation: ''
+    },(error) => {
+        // If any error occur then return error response
+        next(error);
+    });
+
     // Creating seller schema object and binding data to it
     const  seller = new Seller({
         _id: new mongoose.Types.ObjectId(),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.npassword
+        password: req.body.password
     });
 
     seller.save()
@@ -90,7 +102,7 @@ exports.sellerSignUp = (req, res, next)=>{
                 message: "User Created Successfully."
             });
         })
-        // If any error occure return error message
+        // If any error occur return error message
         .catch(error=>{
             if (error._message) {
                 // If validation faied

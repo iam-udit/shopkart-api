@@ -1,8 +1,9 @@
 // Importing all required modules
-const mongoose = require("mongoose");
-const createError = require("http-errors");
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 const  jwt = require("jsonwebtoken");
+const createError = require("http-errors");
+const wallet = require('../sdk/gateway/wallet');
 
 const Logistic = require("../models/logistic");
 
@@ -37,8 +38,18 @@ exports.getLogisticById =  (req, res, next) => {
 // Retrieving all logistic's details form database
 exports.getAllLogistics =  (req, res, next) => {
 
+    var query = {};
+
+    if(req.params.statusConfirmed != undefined){
+        // Query for confirmed/unconfirmed logistics
+        query = { statusConfirmed: req.params.statusConfirmed };
+    } else {
+        // Query for all logistics
+        query = {};
+    }
+
     // Finding all logistics details
-    Logistic.paginate({}, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+    Logistic.paginate(query, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
         .then(result => {
             // If logistics found, return user details
             if (result.total > 0) {
@@ -64,13 +75,25 @@ exports.getAllLogistics =  (req, res, next) => {
 // Creating new logistic/ processing signup
 exports.logisticSignUp = (req, res, next)=>{
 
+    // Register, enroll and import the logistic identity in wallet
+    wallet.importIdentity({
+        id: req.body.email,
+        org: 'delivery',
+        msp: 'deliveryMSP',
+        role: '',
+        affiliation: ''
+    },(error) => {
+        // If any error occur then return error response
+        next(error);
+    });
+
     // Creating logistic schema object and binding data to it
     const  logistic = new Logistic({
         _id: new mongoose.Types.ObjectId(),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.npassword
+        password: req.body.password
     });
 
     logistic.save()

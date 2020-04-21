@@ -12,6 +12,9 @@ const { updatePassword, forgotPassword, digestPassword } = require('../middlewar
 // Retrieving all logistic's details
 router.get("/getall/:offSet?", verifyJwt, logisticsController.getAllLogistics);
 
+// Retrieving all confirmed/unconfirmed/total logistic's details
+router.get("/get-all/:statusConfirmed/:offSet?", verifyJwt, logisticsController.getAllLogistics);
+
 // Retrieving logistic's details by Id
 router.get("/get", verifyJwt, logisticsController.getLogisticById);
 
