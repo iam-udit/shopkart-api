@@ -22,6 +22,7 @@ module.exports.updatePassword = (req, res, next) => {
             // If password updated successfully, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
+                    status: 200,
                     message: "Password updated successfully."
                 });
             }

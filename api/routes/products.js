@@ -11,36 +11,41 @@ const router = express.Router();
 // Verifying jwt token and verifying the seller's status
 router.use( verifyJwt, function (req, res, next) {
 
-    if (req.userData.statusConfirmed == false){
+    let temp = req.originalUrl.split('/')[2];
+
+    if (req.userData.role == 'seller' && req.userData.statusConfirmed == false){
         // If seller account is not verified, return error response
-        next(createError(401, "Your account is not verified yet !"));
-    } else {
-        // If seller account is verified, allow for operation
-        next();
+        return next(createError(401, "Your account is not verified yet !"));
+    } else if(temp == 'create' || temp == 'update' || temp == 'remove') {
+        // Checking user eligibility
+        if(req.userData.role != 'seller' || req.userData.role != 'admin'){
+            return  next(createError(401,"You are not an eligible user for this operation !"));
+        }
     }
+    // If seller account is verified, allow for operation
+    next();
 } );
 
-
-// Retrieving all product's details form database
-router.get('/:offSet?', productsController.getAllProducts);
-
 // Retrieving product's details by productId form database
-router.get('/:productId', productsController.getProductById);
+router.get('/get/:productId', productsController.getProductById);
 
 // Retrieving all product's details according to productType
-router.get('by-type/:productType/:offSet?', productsController.getAllProducts);
+router.get('/by-type/:productType/:offSet?', productsController.getAllProducts);
 
 // Retrieving all product's details according to sellerId
-router.get('by-seller/:offSet?', productsController.getAllProducts);
+router.get('/by-seller/:sellerId/:offSet?', productsController.getAllProducts);
+
+// Retrieving all product's details form database
+router.get('/get-all/:offSet?', productsController.getAllProducts);
 
 // Creating new product
-router.post('/', productExists,  upload.array('productImages', 6 ), productsController.createProduct);
+router.post('/create/', productExists,  upload.array('productImages', 6 ), productsController.createProduct);
 
 // Delete product
-router.delete('/:productId', productsController.deleteProduct);
+router.delete('/remove/:productId', productsController.deleteProduct);
 
 // Update Product details
-router.patch('/:productId', productExists, upload.array('productImages', 6 ), productsController.updateProduct);
+router.put('/update/:productId', productExists, upload.array('productImages', 6 ), productsController.updateProduct);
 
 // Export module
 module.exports = router;

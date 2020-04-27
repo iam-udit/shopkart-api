@@ -10,20 +10,21 @@ exports.getOrderById =  (req, res, next) => {
     const id = req.params.orderId;
 
     // Finding order's details using order id.
-    Order.findById(id)
-        .select("_id product quantity createdAt ")
+    Order.findById(id, { __v: 0 })
         .populate("product")
         .exec()
         .then(order => {
             // if order found, return success response
             if (order) {
+                order.request = {
+                    type: "GET",
+                    description: "GET_ALL_ORDERS",
+                    url: req.protocol + '://' + req.get('host') + "/orders/get-all"
+                }
                 res.status(200).json({
-                    order: order,
-                    request: {
-                        type: "GET ",
-                        description: "GET_ALL_ORDERS",
-                        url: req.protocol + '://' + req.get('host') + "/orders"
-                    }
+                    status: 200,
+                    message: "Order details of the given Id: " + id,
+                    order: order
                 });
             }
             // If order doesn't found, return not found response
@@ -44,12 +45,12 @@ exports.getAllOrders =  (req, res, next) => {
 
     var query = {};
 
-    if (req.params.productId != undefined ){
+    if (req.originalUrl.split('/')[2] == 'by-product'){
         // Query for all orders according to productId
         query = { product: req.params.productId };
-    } else if (req.url == '/user/'){
+    } else if (req.originalUrl.split('/')[2] == 'by-user'){
         // Query for all orders according to userId
-        query = { user: req.userData.id };
+        query = { user: req.params.userId };
     } else {
         // Query for all orders
         query = {};
@@ -67,6 +68,8 @@ exports.getAllOrders =  (req, res, next) => {
             // If order found, return product details
             if (result.total > 0) {
                 const response = {
+                    status: 200,
+                    message: "A list of order details",
                     total: result.total,
                     offset: result.offset,
                     pages: Math.ceil(result.total / result.limit),
@@ -75,12 +78,17 @@ exports.getAllOrders =  (req, res, next) => {
                             _id: order._id,
                             user: order.user,
                             product: order.product,
+                            colour: order.colour,
+                            size: order.size,
                             quantity: order.quantity,
+                            totalBalance: order.totalBalance,
+                            deliveryAddress: order.deliveryAddress,
                             createdAt: order.createdAt,
+                            updatedAt: order.updatedAt,
                             request: {
                                 type: "GET",
                                 description: "GET_ORDER_DETAILS",
-                                url: req.protocol + '://' + req.get('host') + "/orders/" + order._id
+                                url: req.protocol + '://' + req.get('host') + "/orders/get/" + order._id
                             }
                         }
 
@@ -108,7 +116,11 @@ exports.createOrder = (req, res, next) => {
         _id: new mongoose.Types.ObjectId(),
         user: req.userData.id,
         product: req.body.product,
-        quantity: req.body.quantity
+        colour: req.body.colour,
+        size: req.body.size,
+        quantity: req.body.quantity,
+        totalBalance: req.body.totalBalance,
+        deliveryAddress: req.body.deliveryAddress,
     });
 
     // Creating a new order
@@ -116,17 +128,23 @@ exports.createOrder = (req, res, next) => {
         .then(result => {
             // If  order's created successfully, return success response
             res.status(201).json({
+                status: 201,
                 message: "Order placed successfully",
                 createdOrder: {
                     _id: result._id,
                     user: result.user,
                     product: result.product,
+                    colour: result.colour,
+                    size: result.size,
                     quantity: result.quantity,
+                    totalBalance: result.totalBalance,
+                    deliveryAddress: result.deliveryAddress,
                     createdAt: result.createdAt,
+                    updatedAt: result.updatedAt,
                     request: {
                         type: "GET",
                         description: "GET_ORDER_DETAILS",
-                        url: req.protocol + '://' + req.get('host') + "/orders/" + result._id
+                        url: req.protocol + '://' + req.get('host') + "/orders/get/" + result._id
                     }
                 }
             });
@@ -158,12 +176,12 @@ exports.deleteOrder =  (req, res, next) => {
             // If  order's deleted successfully, return success response
             if (result.deletedCount > 0) {
                 res.status(200).json({
-                    message: "Order deleted.",
+                    status: 200,
+                    message: "Order deleted successfully",
                     request: {
                         type: "POST",
                         description: "CREATE_NEW_ORDER",
-                        url: req.protocol + '://' + req.get('host') + "/orders",
-                        body: { "product": "String", "quantity": "Number" }
+                        url: req.protocol + '://' + req.get('host') + "/orders/create"
                     }
                 });
             }
@@ -175,7 +193,7 @@ exports.deleteOrder =  (req, res, next) => {
         })
         // If any error occurs, return error response
         .catch(error => {
-            error.message = "order deletion failed !";
+            error.message = "Order deletion failed !";
             next(error);
         })
 };

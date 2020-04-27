@@ -20,7 +20,12 @@ exports.getLogisticById =  (req, res, next) => {
         .then(logistic => {
             // if logistic found, return success response
             if (logistic) {
-                res.status(200).json(logistic);
+                res.status(200).json({
+                    status: 200,
+                    message: "Logistic details of the given Id: " + id,
+                    logistic: logistic
+                });
+
             }
             // If logistic doesn't found, return not found response
             else {
@@ -40,7 +45,7 @@ exports.getAllLogistics =  (req, res, next) => {
 
     var query = {};
 
-    if(req.params.statusConfirmed != undefined){
+    if(req.originalUrl.split('/')[2] == 'by-status'){
         // Query for confirmed/unconfirmed logistics
         query = { statusConfirmed: req.params.statusConfirmed };
     } else {
@@ -54,6 +59,8 @@ exports.getAllLogistics =  (req, res, next) => {
             // If logistics found, return user details
             if (result.total > 0) {
                 const response = {
+                    status: 200,
+                    message: "A list of logistic details",
                     total: result.total,
                     offset: result.offset,
                     pages: Math.ceil(result.total / result.limit ),
@@ -75,13 +82,15 @@ exports.getAllLogistics =  (req, res, next) => {
 // Creating new logistic/ processing signup
 exports.logisticSignUp = (req, res, next)=>{
 
+    // Creating id for user registration
+    let id = new mongoose.Types.ObjectId();
     // Register, enroll and import the logistic identity in wallet
     wallet.importIdentity({
-        id: req.body.email,
+        id: id.toString(),
         org: 'delivery',
         msp: 'deliveryMSP',
-        role: '',
-        affiliation: ''
+        role: 'delivery',
+        affiliation: 'delivery.delivery'
     },(error) => {
         // If any error occur then return error response
         next(error);
@@ -89,7 +98,7 @@ exports.logisticSignUp = (req, res, next)=>{
 
     // Creating logistic schema object and binding data to it
     const  logistic = new Logistic({
-        _id: new mongoose.Types.ObjectId(),
+        _id: id,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
@@ -100,6 +109,7 @@ exports.logisticSignUp = (req, res, next)=>{
         // If logistic account created, return success message
         .then(result => {
             res.status(201).json({
+                status: 201,
                 message: "User Created Successfully."
             });
         })
@@ -132,6 +142,7 @@ exports.logisticLogin = (req, res, next)=>{
                         const token = jwt.sign(
                             {
                                 id: logistic._id,
+                                role: 'logistic',
                                 email : logistic.email,
                             },
                             process.env.JWT_SECRET_KEY,
@@ -140,6 +151,7 @@ exports.logisticLogin = (req, res, next)=>{
                             }
                         );
                         res.status(200).json({
+                            status: 200,
                             message : "Authentication sucesss !",
                             token : token
                         });
@@ -167,7 +179,13 @@ exports.updateLogistic = (req, res, next) => {
         lastName: req.body.lastName,
         mobileNumber: req.body.mobileNumber,
         logisticImage: req.file.path,
-        address: req.body.address,
+        address: {
+            city: req.body.city,
+            state: req.body.state,
+            country: req.body.country,
+            zip: req.body.zip,
+            body: req.body.body
+        },
         gender: req.body.gender,
         age: req.body.age
     };
@@ -180,6 +198,7 @@ exports.updateLogistic = (req, res, next) => {
             // If logistic's details updated successfully, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
+                    status: 200,
                     message: "User's detail updated."
                 });
             }
@@ -209,6 +228,7 @@ exports.removeLogistic = (req, res, next) => {
             // If  logistic's deleted successfully, return success response
             if (result.deletedCount > 0) {
                 res.status(200).json({
+                    status: 200,
                     message: "Logistic's record deleted."
                 });
             }

@@ -10,11 +10,11 @@ const yaml = require('js-yaml');
 const { Gateway, FileSystemWallet, DefaultEventHandlerStrategies, Transaction  } = require('fabric-network');
 
 // Constants for profile
-const CONNECTION_PROFILE_PATH = '../profiles/dev-connection-copy.yaml'
+const CONNECTION_PROFILE_PATH = '../profiles/dev-connection.yaml'
 // Path to the wallet
-const FILESYSTEM_WALLET_PATH = './user-wallet'
+const FILESYSTEM_WALLET_PATH = '../wallet/ecom'
 // Identity context used
-const USER_ID = 'admin'
+const USER_ID = 'zaack100@gmail.com';
 // Channel name
 const NETWORK_NAME = 'ecomchannel'
 // Chaincode
@@ -48,10 +48,10 @@ async function main() {
     await queryContract(contract)
 
     // 7. Execute the transaction
-    // await submitTxnContract(contract)
+    await submitTxnContract(contract)
     // Must give delay or use await here otherwise Error=MVCC_READ_CONFLICT
     // await submitTxnContract(contract)
-    await submitTxnTransaction(contract);
+    //await submitTxnTransaction(contract);
 }
 
 /**
@@ -75,7 +75,7 @@ async function queryContract(contract){
 async function submitTxnContract(contract){
     try{
         // Submit the transaction
-        let response = await contract.submitTransaction('transfer', 'john','sam','2')
+        let response = await contract.submitTransaction('invoke', 'a','b','10')
         console.log("Submit Response=",response.toString())
     } catch(e){
         // fabric-network.TimeoutError

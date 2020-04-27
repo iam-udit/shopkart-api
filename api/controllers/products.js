@@ -15,13 +15,15 @@ exports.getProductById =  (req, res, next) => {
         .then(product => {
             // if product found, return success response
             if (product) {
-                res.status(200).json({
-                    product: product,
-                    request: {
-                        type: "GET ",
+                product.request = {
+                    type: "GET ",
                         description: "GET_ALL_PRODUCTS",
-                        url: req.protocol + '://' + req.get('host') + "/products"
-                    }
+                        url: req.protocol + '://' + req.get('host') + "/products/get-all"
+                }
+                res.status(200).json({
+                    status: 200,
+                    message: "Product details of the given Id: " + id,
+                    product: product
                 });
             }
             // If product doesn't found, return not found response
@@ -47,7 +49,7 @@ exports.getAllProducts =  (req, res, next) => {
         query = { type: req.params.productType };
     } else if ( req.originalUrl.split('/')[2] == 'by-seller' ){
        // Query for all products according to sellerId
-        query = { seller: req.userData.id };
+        query = { seller: req.params.sellerId };
     } else {
        // Query for all products
        query = {};
@@ -59,6 +61,8 @@ exports.getAllProducts =  (req, res, next) => {
             // If Product found, return product details
             if (result.total > 0) {
                 const response = {
+                    status: 200,
+                    message: "A list of product details",
                     total: result.total,
                     offSet: result.offset,
                     pages: Math.ceil(result.total / result.limit),
@@ -67,6 +71,8 @@ exports.getAllProducts =  (req, res, next) => {
                             _id: product._id,
                             title: product.title,
                             type: product.type,
+                            colours: product.colours,
+                            sizes: product.sizes,
                             price: product.price,
                             productImages : product.productImages,
                             description: product.description,
@@ -75,7 +81,7 @@ exports.getAllProducts =  (req, res, next) => {
                             request: {
                                 type: "GET",
                                 description: "GET_PRODUCT_DETAILS",
-                                url: req.protocol + '://' + req.get('host') + "/products/" + product._id
+                                url: req.protocol + '://' + req.get('host') + "/products/get/" + product._id
                             }
                         }
 
@@ -85,7 +91,7 @@ exports.getAllProducts =  (req, res, next) => {
             }
             // If product doesn't found, return empty response
             else {
-                next(createError(404, "No entries found !"));
+                next(createError(404, "Product not found !"));
             }
         })
         // If any error occures, return error message
@@ -108,6 +114,8 @@ exports.createProduct = (req, res, next) => {
         _id: new mongoose.Types.ObjectId(),
         title: req.body.title,
         type: req.body.type,
+        colours: req.body.colours,
+        sizes: req.body.sizes,
         price: req.body.price,
         seller: req.userData.id,
         productImages: productImages,
@@ -119,11 +127,14 @@ exports.createProduct = (req, res, next) => {
         .then(result => {
             // If  product's created successfully, return success response
             res.status(201).json({
+                status: 201,
                 message: "Product created successfully.",
                 createdProduct: {
                     _id: result._id,
                     title: result.title,
                     type: result.type,
+                    colours: result.colours,
+                    sizes: result.sizes,
                     price: result.price,
                     seller: result.seller,
                     productImages: result.productImages,
@@ -133,7 +144,7 @@ exports.createProduct = (req, res, next) => {
                     request: {
                         type: "GET",
                         description: "GET_PRODUCT_DETAILS",
-                        url: req.protocol + '://' + req.get('host') + "/products/" + result._id
+                        url: req.protocol + '://' + req.get('host') + "/products/get/" + result._id
                     }
                 }
             });
@@ -168,6 +179,8 @@ exports.updateProduct = (req, res, next) => {
     const product = {
         title: req.body.title,
         type: req.body.type,
+        colours: req.body.colours,
+        sizes: req.body.sizes,
         price: req.body.price,
         productImages: productImages,
         description: req.body.description
@@ -181,7 +194,8 @@ exports.updateProduct = (req, res, next) => {
             // If product's details updated successfully, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
-                    message: "Product updated.",
+                    status: 200,
+                    message: "Product details updated",
                     request: {
                         type: "GET",
                         description: "GET_PRODUCT_DETAILS",
@@ -205,7 +219,6 @@ exports.updateProduct = (req, res, next) => {
             }
             next(error);
         });
-
 };
 
 // Delete product
@@ -221,12 +234,12 @@ exports.deleteProduct =  (req, res, next) => {
             // If  product's deleted successfully, return success response
             if (result.deletedCount > 0) {
                 res.status(200).json({
-                    message: "Product deleted.",
+                    status: 200,
+                    message: "Product deleted successfully",
                     request: {
                         type: "POST",
                         description: "CREATE_NEW_PRODUCT",
-                        url: req.protocol + '://' + req.get('host') + "/products",
-                        body: { "name": "String", "price": "Number" }
+                        url: req.protocol + '://' + req.get('host') + "/products/create"
                     }
                 });
             }

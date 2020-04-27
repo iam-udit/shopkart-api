@@ -8,14 +8,14 @@ const sellersController = require("../controllers/sellers");
 const verifyAccount = require('../middlewares/verify-account');
 const { forgotPassword, updatePassword, digestPassword } = require('../middlewares/password-ops');
 
-// Retrieving all seller's details
-router.get("/getall/:offSet?", verifyJwt, sellersController.getAllSellers);
-
-// Retrieving all confirmed/unconfirmed/total seller's details
-router.get("/get-all/:statusConfirmed/:offSet?", verifyJwt, sellersController.getAllSellers);
-
 // Retrieving seller's details by Id
 router.get("/get", verifyJwt, sellersController.getSellerById);
+
+// Retrieving all confirmed/unconfirmed seller's details
+router.get("/by-status/:statusConfirmed/:offSet?", verifyJwt, sellersController.getAllSellers);
+
+// Retrieving all seller's details
+router.get("/get-all/:offSet?", verifyJwt, sellersController.getAllSellers);
 
 // Creating new seller/ processing signup
 router.post("/signup", userExists, digestPassword, sellersController.sellerSignUp);
@@ -27,13 +27,13 @@ router.post("/login", sellersController.sellerLogin);
 router.post("/forgot/password", userExists, forgotPassword);
 
 // Update seller's details
-router.patch("/update", verifyJwt, upload.single('sellerImage'), sellersController.updateSeller)
+router.put("/update", verifyJwt, upload.single('sellerImage'), sellersController.updateSeller)
 
 // Update seller's password
-router.patch("/update/password", verifyJwt, digestPassword, updatePassword)
+router.put("/update/password", verifyJwt, digestPassword, updatePassword)
 
 // Verify seller's account status
-router.patch("/verify/account/:id", verifyJwt, verifyAccount);
+router.put("/verify/account/:id", verifyJwt, verifyAccount);
 
 // Delete seller's record
 router.delete('/remove/:sellerId', verifyJwt, sellersController.removeSeller);

@@ -19,7 +19,11 @@ exports.getUserById =  (req, res, next) => {
         .then(user => {
             // if user found, return success response
             if (user) {
-                res.status(200).json(user);
+                res.status(200).json({
+                    status: 200,
+                    message: "User details of the given Id: " + id,
+                    user: user
+                });
             }
             // If user doesn't found, return not found response
             else {
@@ -43,6 +47,8 @@ exports.getAllUsers =  (req, res, next) => {
             // If users found, return user details
             if (result.total > 0) {
                 const response = {
+                    status: 200,
+                    message: "A list of user details",
                     total: result.total,
                     pages: Math.ceil(result.total / result.limit),
                     offset: result.offset,
@@ -52,7 +58,7 @@ exports.getAllUsers =  (req, res, next) => {
             }
             // If user doesn't found, return empty response
             else {
-                next(createError(404, "No uses found !"));
+                next(createError(404, "No users found !"));
             }
         })
         // If any error occures, return error message
@@ -75,6 +81,7 @@ exports.userSignUp = (req, res, next)=>{
         // If user created, return success message
         .then(result => {
             res.status(201).json({
+                status: 201,
                 message: "User Created Successfully."
             });
         })
@@ -85,7 +92,7 @@ exports.userSignUp = (req, res, next)=>{
                 error.message = error.message;
             } else {
                 // If user creation failed
-                error.message = "User creation failed !";
+                error.message = "User registration failed !";
             }
             next(error);
         });
@@ -106,6 +113,7 @@ exports.userLogin = (req, res, next)=>{
                         const token = jwt.sign(
                             {
                                 id: user._id,
+                                role: 'customer',
                                 mobileNumber: user.mobileNumber,
                             },
                             process.env.JWT_SECRET_KEY,
@@ -114,6 +122,7 @@ exports.userLogin = (req, res, next)=>{
                             }
                         );
                         res.status(200).json({
+                            status: 200,
                             message: "Authentication sucesss !",
                             token: token
                         });
@@ -140,7 +149,13 @@ exports.updateUser = (req, res, next) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        address: req.body.address,
+        address: {
+            city: req.body.city,
+            state: req.body.state,
+            country: req.body.country,
+            zip: req.body.zip,
+            body: req.body.body
+        },
         gender: req.body.gender,
         age: req.body.age
     };
@@ -157,7 +172,8 @@ exports.updateUser = (req, res, next) => {
             // If user's details updated successfully, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
-                    message: "User's detail updated."
+                    status: 200,
+                    message: "User details updated"
                 });
             }
             // If invalid user id
@@ -168,7 +184,7 @@ exports.updateUser = (req, res, next) => {
         })
         // If user's updation failed.
         .catch(error => {
-            error.message = "User's detail updation failed !";
+            error.message = "User details updation failed !";
             next(error);
         });
 };
@@ -186,6 +202,7 @@ exports.removeUser = (req, res, next) => {
             // If  user's deleted successfully, return success response
             if (result.deletedCount > 0) {
                 res.status(200).json({
+                    status: 200,
                     message: "User record deleted."
                 });
             }

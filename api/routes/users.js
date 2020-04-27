@@ -7,11 +7,11 @@ const usersController = require("../controllers/users");
 const userExists = require('../middlewares/user-exists');
 const { updatePassword, forgotPassword, digestPassword } = require('../middlewares/password-ops');
 
-// Retrieving all user's details
-router.get("/getall/:offSet?", verifyJwt, usersController.getAllUsers);
-
 // Retrieving user's details by Id
 router.get("/get", verifyJwt, usersController.getUserById);
+
+// Retrieving all user's details
+router.get("/get-all/:offSet?", verifyJwt, usersController.getAllUsers);
 
 // Creating new use/ processing signup
 router.post("/signup",userExists, digestPassword, usersController.userSignUp);
@@ -23,10 +23,10 @@ router.post("/login", usersController.userLogin);
 router.post("/forgot/password", userExists, forgotPassword);
 
 // Update user details
-router.patch("/update", verifyJwt, upload.single('userImage'), usersController.updateUser)
+router.put("/update", verifyJwt, upload.single('userImage'), usersController.updateUser)
 
 // Update user's password
-router.patch("/update/password", verifyJwt, digestPassword, updatePassword)
+router.put("/update/password", verifyJwt, digestPassword, updatePassword)
 
 // Delete user records
 router.delete('remove/:userId', verifyJwt, usersController.removeUser);

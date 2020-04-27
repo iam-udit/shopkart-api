@@ -15,6 +15,16 @@ const productSchema = mongoose.Schema({
         lowercase: true,
         index: true
     },
+    colours: {
+        type: [ String ],
+        required: true,
+        minlength: 1
+    },
+    sizes: {
+        type: [ String ],
+        required: true,
+        minlength: 1
+    },
     price: {
         type: Number,
         required: true
@@ -26,7 +36,7 @@ const productSchema = mongoose.Schema({
         required: true
     },
     productImages : {
-        type:[ String ],
+        type: [ String ],
     },
     description: {
         type: String,

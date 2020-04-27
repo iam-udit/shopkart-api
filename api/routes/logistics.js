@@ -9,14 +9,14 @@ const logisticsController = require("../controllers/logistics");
 const { updatePassword, forgotPassword, digestPassword } = require('../middlewares/password-ops');
 
 
-// Retrieving all logistic's details
-router.get("/getall/:offSet?", verifyJwt, logisticsController.getAllLogistics);
-
-// Retrieving all confirmed/unconfirmed/total logistic's details
-router.get("/get-all/:statusConfirmed/:offSet?", verifyJwt, logisticsController.getAllLogistics);
-
 // Retrieving logistic's details by Id
 router.get("/get", verifyJwt, logisticsController.getLogisticById);
+
+// Retrieving all confirmed/unconfirmed/total logistic's details
+router.get("/by-status/:statusConfirmed/:offSet?", verifyJwt, logisticsController.getAllLogistics);
+
+// Retrieving all logistic's details
+router.get("/get-all/:offSet?", verifyJwt, logisticsController.getAllLogistics);
 
 // Creating new logistic/ processing signup
 router.post("/signup", userExists, digestPassword, logisticsController.logisticSignUp);
@@ -28,13 +28,13 @@ router.post("/login", logisticsController.logisticLogin);
 router.post("/forgot/password", userExists, forgotPassword);
 
 // Update logistic's details
-router.patch("/update", verifyJwt, upload.single('logisticImage'), logisticsController.updateLogistic)
+router.put("/update", verifyJwt, upload.single('logisticImage'), logisticsController.updateLogistic)
 
 // Update logistic's password
-router.patch("/update/password", verifyJwt, digestPassword, updatePassword)
+router.put("/update/password", verifyJwt, digestPassword, updatePassword)
 
 // Verify logistic's account status
-router.patch("/verify/account/:id", verifyJwt, verifyAccount);
+router.put("/verify/account/:id", verifyJwt, verifyAccount);
 
 // Delete logistic's record
 router.delete('/remove/:logisticId', verifyJwt, logisticsController.removeLogistic);

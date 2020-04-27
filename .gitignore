@@ -11,3 +11,9 @@ node_modules
 
 # user upload files
 public/uploads
+
+# For credstore
+credstore
+
+# For wallet
+api/sdk/wallet/*

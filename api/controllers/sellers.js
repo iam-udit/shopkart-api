@@ -19,7 +19,11 @@ exports.getSellerById =  (req, res, next) => {
         .then(seller => {
             // if seller found, return success response
             if (seller) {
-                res.status(200).json(seller);
+                res.status(200).json({
+                    status: 200,
+                    message: "Seller details of the given Id: " + id,
+                    seller: seller
+                });
             }
             // If seller doesn't found, return not found response
             else {
@@ -39,7 +43,7 @@ exports.getAllSellers =  (req, res, next) => {
 
     var query = {};
 
-    if(req.params.statusConfirmed != undefined){
+    if(req.originalUrl.split('/')[2] == 'by-status'){
         // Query for confirmed/unconfirmed sellers
         query = { statusConfirmed: req.params.statusConfirmed };
     } else {
@@ -53,6 +57,8 @@ exports.getAllSellers =  (req, res, next) => {
             // If sellers found, return user details
             if (result.total > 0) {
                 const response = {
+                    status: 200,
+                    message: "A List of seller details",
                     total: result.total,
                     offset: result.offset,
                     pages: Math.ceil( result.total / result.limit ),
@@ -74,13 +80,15 @@ exports.getAllSellers =  (req, res, next) => {
 // Creating new seller/ processing signup
 exports.sellerSignUp = (req, res, next)=>{
 
+    // Creating id for seller registration
+    let id = new mongoose.Types.ObjectId();
     // Register, enroll and import the seller identity in wallet
     wallet.importIdentity({
-        id: req.body.email,
+        id: id.toString(),
         org: 'ecom',
         msp: 'ecomMSP',
-        role: '',
-        affiliation: ''
+        role: 'seller',
+        affiliation: 'ecom.seller'
     },(error) => {
         // If any error occur then return error response
         next(error);
@@ -88,7 +96,7 @@ exports.sellerSignUp = (req, res, next)=>{
 
     // Creating seller schema object and binding data to it
     const  seller = new Seller({
-        _id: new mongoose.Types.ObjectId(),
+        _id: id,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
@@ -99,6 +107,7 @@ exports.sellerSignUp = (req, res, next)=>{
         // If seller account created, return success message
         .then(result => {
             res.status(201).json({
+                status: 201,
                 message: "User Created Successfully."
             });
         })
@@ -130,6 +139,7 @@ exports.sellerLogin = (req, res, next)=>{
                         const token = jwt.sign(
                             {
                                 id: seller._id,
+                                role: 'seller',
                                 email : seller.email,
                                 statusConfirmed: seller.statusConfirmed
                             },
@@ -139,6 +149,7 @@ exports.sellerLogin = (req, res, next)=>{
                             }
                         );
                         res.status(200).json({
+                            status: 200,
                             message : "Authentication sucesss !",
                             token : token
                         });
@@ -166,7 +177,13 @@ exports.updateSeller = (req, res, next) => {
         lastName: req.body.lastName,
         mobileNumber: req.body.mobileNumber,
         sellerImage: req.file.path,
-        address: req.body.address,
+        address: {
+            city: req.body.city,
+            state: req.body.state,
+            country: req.body.country,
+            zip: req.body.zip,
+            body: req.body.body
+        },
         gender: req.body.gender,
         age: req.body.age
     };
@@ -179,6 +196,7 @@ exports.updateSeller = (req, res, next) => {
             // If seller's details updated successfully, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
+                    status: 200,
                     message: "User's detail updated."
                 });
             }
@@ -190,7 +208,7 @@ exports.updateSeller = (req, res, next) => {
         })
         // If seller's updation failed.
         .catch(error => {
-            error.message = "User's detail updation failed !";
+            error.message = "User details updation failed !";
             next(error);
         });
 };
@@ -208,6 +226,7 @@ exports.removeSeller = (req, res, next) => {
             // If  seller's deleted successfully, return success response
             if (result.deletedCount > 0) {
                 res.status(200).json({
+                    status: 200,
                     message: "Seller's record deleted."
                 });
             }
@@ -219,7 +238,7 @@ exports.removeSeller = (req, res, next) => {
         })
         // If any error occurs, return error response
         .catch(error => {
-            error.message = "Seller's record deletion failed !";
+            error.message = "Seller details deletion failed !";
             next(error);
         })
 };

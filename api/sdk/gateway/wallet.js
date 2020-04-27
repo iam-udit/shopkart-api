@@ -50,13 +50,8 @@ exports.importIdentity = async function (user, cb) {
         // Create a new CA client for interacting with the CA.
         const ca = new FabricCAServices(caURL);
 
-        // Check to see if we've already enrolled the user.
+        // Create newFileSystemWallet object
         let wallet = createWallet(user.org);
-        let userIdentity = await wallet.export(user.id);
-        if (userIdentity) {
-            console.log('An identity for the user - ' + user.id + ' already exists in the wallet');
-            return cb(createError(409, 'User already exists !'));
-        }
 
         // build a user object for authenticating with the CA
         const client = Client.loadFromConfig(CONNECTION_PROFILE_PATH);
@@ -162,3 +157,5 @@ exports.removeIdentity = async function (user, org){
     await wallet.delete(user);
 }
 
+// Exporting the createWallet()
+exports.createWallet = createWallet;

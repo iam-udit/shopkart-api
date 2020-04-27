@@ -5,6 +5,11 @@ const createError = require("http-errors");
 // Update account status
 module.exports = (req, res, next) => {
 
+    // Checking user eligibility
+    if(req.userData.role != 'admin'){
+        return  next(createError(401,"You are not an eligible user for this operation !"));
+    }
+
     // Getting the model
     var temp = req.originalUrl.split('/')[1];
     // Making model class
@@ -18,7 +23,8 @@ module.exports = (req, res, next) => {
             // If confirmation successful, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
-                    message: "Account Verified"
+                    status: 200,
+                    message: "Account Verified !"
                 });
             }
             // If invalid user id
