@@ -1,0 +1,1971 @@
+# Swagger version
+swagger: "2.0"
+
+# API information
+info:
+  description: "This is an ecommerce application runing on hyperledger fabric network."
+  version: "1.0.0"
+  title: "Ecommerce Application"
+  contact:
+    name: "Ecom Team"
+
+# API address
+servers:
+  - url: "http://localhost:8000"
+    description: "Development server (uses test data)"
+  - url: "https://shopkart-api.herokuapp.com/"
+    description: "Production server (uses live data)"
+
+# Route information
+tags:
+  - name: "product"
+    description: "Everything about products"
+  - name: "order"
+    description: "Access to order products"
+  - name: "admin"
+    description: "Operations about admin"
+  - name: "user"
+    description: "Operations about user"
+  - name: "seller"
+    description: "Operations about sellers"
+  - name: "logistic"
+    description: "Operations about logistics"
+
+# Types of Schemes
+schemes:
+  - "http"
+  - "https"
+
+# All routes path
+paths:
+
+  # Routes for Product operations
+
+  # Get product details by productId
+  /products/get/{productId}:
+    get:
+      tags:
+        - "product"
+      summary: "Get product's details by productId"
+      description: "Returns a single product"
+      operationId: "getProductById"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/productIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Product details of the given ID"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  product:
+                    $ref: '#/definitions/Product'
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "No valid entry found for provided ID !"
+  # Get products detail by productType
+  /products/by-type/{productType}/{offSet}:
+    get:
+      tags:
+        - "product"
+      summary: "Get product's details by productType"
+      description: "Returns an array of products list"
+      operationId: "getProductsByType"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "productType"
+          in: "path"
+          description: "Type of the product to be list out"
+          required: true
+          type: "string"
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/ProductDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "Product not found !"
+  # Get products detail by sellerId
+  /products/by-seller/{sellerId}/{offSet}:
+    get:
+      tags:
+        - "product"
+      summary: "Get product's details by sellerId"
+      description: "Returns an array of products list"
+      operationId: "getProductsBySellerId"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/sellerIdParam"
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/ProductDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "Product not found !"
+  # Get all product details
+  /products/get-all/{offSet}:
+    get:
+      tags:
+        - "product"
+      summary: "Get all product's details"
+      description: "Returns an array of products list"
+      operationId: "getAllProducts"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/ProductDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "Product not found !"
+  # Create new product
+  /products/create:
+    post:
+      tags:
+        - "product"
+      summary: "Create a new product"
+      description: "Admin and Sellers are only eligible for this operation"
+      operationId: "createProduct"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/titleParam"
+        - $ref: "#/parameters/typeParam"
+        - $ref: "#/parameters/coloursParam"
+        - $ref: "#/parameters/sizesParam"
+        - $ref: "#/parameters/priceParam"
+        - $ref: "#/parameters/productImagesParam"
+        - $ref: "#/parameters/descriptionParam"
+      responses:
+        200:
+          description:  "Created product details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  createdProduct:
+                    $ref: "#/definitions/Product"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        404:
+          description: "Product not found !"
+        409:
+          description: "Duplicate product entry !"
+        500:
+          description: "Different possible errors ! (e.g: Only jpeg, jpg, png, gig files are allowed, File max upload size is exceed, Product creation failed, Validation failed )"
+  # Update product details
+  /products/update/{productId}:
+    put:
+      tags:
+        - "product"
+      summary: "Update product details"
+      description: "Admin and Sellers are only eligible for this operation"
+      operationId: "updateProduct"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/productIdParam"
+        - $ref: "#/parameters/titleParam"
+        - $ref: "#/parameters/typeParam"
+        - $ref: "#/parameters/coloursParam"
+        - $ref: "#/parameters/sizesParam"
+        - $ref: "#/parameters/priceParam"
+        - $ref: "#/parameters/productImagesParam"
+        - $ref: "#/parameters/descriptionParam"
+      responses:
+        200:
+          description:  "Updated product details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  request:
+                    type: "object"
+                    properties:
+                      type:
+                        type: "string"
+                      description:
+                        type: "string"
+                      url:
+                        type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        404:
+          description: "Invalid product ID !"
+        500:
+          description: "Different possible errors ! (e.g: Only jpeg, jpg, png, gig files are allowed, File max upload size is exceed, Product updation failed, Validation failed )"
+  # Remove product details
+  /products/remove/{productId}:
+    delete:
+      tags:
+        - "product"
+      summary: "Remove product details"
+      description: "Admin and Sellers are only eligible for this operation"
+      operationId: "removeProduct"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/productIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Deleted product details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  request:
+                    type: "object"
+                    properties:
+                      type:
+                        type: "string"
+                      description:
+                        type: "string"
+                      url:
+                        type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        404:
+          description: "Invalid product ID !"
+        500:
+          description: "Product deletion failed !"
+
+  # Routes for Order operations
+
+  # Get order details by ordertId
+  /orders/get/{orderId}:
+    get:
+      tags:
+        - "order"
+      summary: "Get order's details by orderId"
+      description: "Returns a single order"
+      operationId: "getOrderById"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/orderIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Order details of the given ID"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  order:
+                    $ref: "#/definitions/Order"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "No order found for provided ID !"
+  # Get order detail by userId
+  /orders/by-user/{userId}/{offSet}:
+    get:
+      tags:
+        - "order"
+      summary: "Get order's details by userId"
+      description: "Returns an array of order list"
+      operationId: "getOrdersByUserId"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userIdParam"
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/OrderDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "Orders not found !"
+  # Get order detail by productId
+  /orders/by-product/{productId}/{offSet}:
+    get:
+      tags:
+        - "order"
+      summary: "Get order's details by product ID"
+      description: "Returns an array of order list"
+      operationId: "getOrdersByProductId"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/productIdParam"
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/OrderDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "Orders not found !"
+  # Get all order details
+  /orders/get-all/{offSet}:
+    get:
+      tags:
+        - "order"
+      summary: "Get all order details"
+      description: "Returns an array of order list"
+      operationId: "getAllOrder"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/OrderDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "Orders not found !"
+  # Buy new product
+  /orders/create:
+    post:
+      tags:
+        - "order"
+      summary: "Buy new product"
+      description: ""
+      operationId: "buyProduct"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - name: "order"
+          in: "body"
+          description: "Order details to buy product"
+          required: true
+          schema:
+            properties:
+              product:
+                description: "Product's ID selected by user"
+                type: "string"
+              colour:
+                description: "Product's colour selected by user"
+                type: "string"
+              size:
+                description: "Product's size selected by user"
+                type: "string"
+              quantity:
+                description: "Quantity of the product"
+                type: "integer"
+              totalBalance:
+                description: "Total price of the order"
+                type: "number"
+              deliveryAddress:
+                description: "Delivery address of the order"
+                type: "object"
+                properties:
+                  name:
+                    description: "Name of the recipant"
+                    type: "string"
+                  mobileNumber:
+                    description: "Mobile number of the recipant"
+                    type: "integer"
+                    format: "int64"
+                  landMark:
+                    description: "LandMark/Locality of the recipant"
+                    type: "string"
+                  city:
+                    description: "City of the recipant"
+                    type: "string"
+                  state:
+                    description: "State of the recipant"
+                    type: "string"
+                  country:
+                    description: "Country of the recipant"
+                    type: "string"
+                  zip:
+                    description: "ZIP code of the recipant"
+                    type: "integer"
+      responses:
+        200:
+          description:  "Created order details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  createdProduct:
+                    allOf:
+                      - $ref: "#/definitions/Order"
+                      - type: "object"
+                        properties:
+                          product:
+                            type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        500:
+          description: "Different possible errors ! ( Order creation failed, Validation failed )"
+  # Remove order details
+  /orders/remove/{orderId}:
+    delete:
+      tags:
+        - "order"
+      summary: "Remove order details"
+      description: ""
+      operationId: "removeOrder"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/orderIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Deleted order details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  request:
+                    type: "object"
+                    properties:
+                      type:
+                        type: "string"
+                      description:
+                        type: "string"
+                      url:
+                        type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+        404:
+          description: "Invalid order ID !"
+        500:
+          description: "Order deletion failed !"
+
+  # Routes for Admin operations
+
+  # Get admin details
+  /admin/get:
+    get:
+      tags:
+        - "admin"
+      summary: "Get admin details"
+      description: "Returns admin details"
+      operationId: "getAdmin"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Admin account details "
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  admin:
+                    allOf:
+                      - $ref: "#/definitions/User"
+                      - type: "object"
+                        properties:
+                          emailVerified:
+                            example: true
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Admin details not found !"
+  # Admin login operation
+  /admin/login:
+    post:
+      tags:
+        - "admin"
+      summary: "Logs admin into the system"
+      description: ""
+      operationId: "adminLogin"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userLoginParam"
+      responses:
+        200:
+          $ref: "#/responses/LoginSuccess"
+        401:
+          $ref: "#/responses/LoginError"
+  # Update admin details
+  /admin/update:
+    put:
+      tags:
+        - "admin"
+      summary: "Update admin details"
+      description: ""
+      operationId: "updateAdmin"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/firstNameParam"
+        - $ref: "#/parameters/lastNameParam"
+        - $ref: "#/parameters/mobileNumberParam"
+        - $ref: "#/parameters/userImageParam"
+        - $ref: "#/parameters/cityParam"
+        - $ref: "#/parameters/stateParam"
+        - $ref: "#/parameters/countryParam"
+        - $ref: "#/parameters/zipParam"
+        - $ref: "#/parameters/bodyParam"
+        - $ref: "#/parameters/genderParam"
+        - $ref: "#/parameters/ageParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Only jpeg, jpg, png, gig files are allowed, File max upload size is exceed, User details updation failed )"
+  # Update admin password
+  /admin/update/password:
+    put:
+      tags:
+        - "admin"
+      summary: "Admin update password opeation"
+      description: ""
+      operationId: "updateAdminPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userUpdatePasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
+
+  # Routes for User operations
+
+  # Get user details by userID
+  /users/get:
+    get:
+      tags:
+        - "user"
+      summary: "Get user's details by userId"
+      description: "Returns user details"
+      operationId: "getUserById"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "User details of the given ID"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  user:
+                    $ref: "#/definitions/User"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "No valid user found for provided ID !"
+  # Get all user details
+  /users/get-all/{offSet}:
+    get:
+      tags:
+        - "user"
+      summary: "Get all user's details"
+      description: "Returns an array of users list"
+      operationId: "getAllUsers"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "All user details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  total:
+                    type: "integer"
+                    format: "int32"
+                  offSet:
+                    type: "integer"
+                    format: "int32"
+                  pages:
+                    type: "integer"
+                    format: "int32"
+                  users:
+                    type: "array"
+                    items:
+                      $ref: '#/definitions/User'
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Users not found !"
+  # User signup operation
+  /users/signup:
+    post:
+      tags:
+        - "user"
+      summary: "Register a new user"
+      description: ""
+      operationId: "userSignUp"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        409:
+          description: "User is already exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, User registration failed, Validation failed )"
+  # User login operation
+  /users/login:
+    post:
+      tags:
+        - "user"
+      summary: "Logs user into the system"
+      description: ""
+      operationId: "userLogin"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userParam"
+      responses:
+        200:
+          $ref: "#/responses/LoginSuccess"
+        401:
+          $ref: "#/responses/LoginError"
+  # User forgot password operation
+  /users/forgot/password:
+    post:
+      tags:
+        - "user"
+      summary: "User forgot password opeation"
+      description: ""
+      operationId: "forgotPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "user"
+          in: "body"
+          description: "User's information for forgot password operation"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              mobileNumber:
+                description: "The mobile number of user"
+                type: "integer"
+                format: "int64"
+      responses:
+        200:
+          description: "Success response with an One Time Password"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  otp:
+                    type: "string"
+        404:
+          description: "User is not exists !"
+  # Update user details
+  /users/update:
+    put:
+      tags:
+        - "user"
+      summary: "Update user details"
+      description: ""
+      operationId: "updateUser"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/firstNameParam"
+        - $ref: "#/parameters/lastNameParam"
+        - $ref: "#/parameters/emailParam"
+
+        - name: "userImage"
+          in: "formData"
+          description: "Profile image for the user"
+          required: false
+          type: "file"
+
+        - $ref: "#/parameters/cityParam"
+        - $ref: "#/parameters/stateParam"
+        - $ref: "#/parameters/countryParam"
+        - $ref: "#/parameters/zipParam"
+        - $ref: "#/parameters/bodyParam"
+        - $ref: "#/parameters/genderParam"
+        - $ref: "#/parameters/ageParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Only jpeg, jpg, png, gig files are allowed, File max upload size is exceed, User details updation failed )"
+  # Update user password
+  /users/update/password:
+    put:
+      tags:
+        - "user"
+      summary: "User update password opeation"
+      description: ""
+      operationId: "updateUserPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userUpdatePasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
+  # Remove user details
+  /users/remove/{userId}:
+    delete:
+      tags:
+        - "user"
+      summary: "Remove user details"
+      description: ""
+      operationId: "removeUser"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "User details deletion failed !"
+
+  # Routes for seller operations
+
+  # Get seller details by sellerID
+  /sellers/get:
+    get:
+      tags:
+        - "seller"
+      summary: "Get seller's details by sellerID"
+      description: "Returns seller details"
+      operationId: "getSellerById"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Seller details of the given ID"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  seller:
+                    $ref: "#/definitions/Seller"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "No valid user found for provided ID !"
+  # Get sellers detail by status
+  /sellers/by-status/{statusConfirmed}/{offSet}:
+    get:
+      tags:
+        - "seller"
+      summary: "Get sellers detail by status"
+      description: "Returns an array of sellers list"
+      operationId: "getSellersByStatus"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/statusConfirmedParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/SellerDetails"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Sellers not found !"
+  # Get all seller details
+  /sellers/get-all/{offSet}:
+    get:
+      tags:
+        - "seller"
+      summary: "Get all seller's details"
+      description: "Returns an array of sellers list"
+      operationId: "getAllSellers"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/SellerDetails"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Sellers not found !"
+  # Seller's signup operation
+  /sellers/signup:
+    post:
+      tags:
+        - "seller"
+      summary: "Register a new seller"
+      description: ""
+      operationId: "sellerSignUp"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userSignupParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        409:
+          description: "User is already exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, User registration failed, Validation failed )"
+  # Seller login operation
+  /sellers/login:
+    post:
+      tags:
+        - "seller"
+      summary: "Logs seller into the system"
+      description: ""
+      operationId: "sellerLogin"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userLoginParam"
+      responses:
+        200:
+          $ref: "#/responses/LoginSuccess"
+        401:
+          $ref: "#/responses/LoginError"
+  # Seller forgot password operation
+  /sellers/forgot/password:
+    post:
+      tags:
+        - "seller"
+      summary: "Seller forgot password opeation"
+      description: ""
+      operationId: "forgotSellerPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userForgotPasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        404:
+          description: "User is not exists !"
+  # Update sellers details
+  /sellers/update:
+    put:
+      tags:
+        - "seller"
+      summary: "Update seller details"
+      description: ""
+      operationId: "updateSeller"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/firstNameParam"
+        - $ref: "#/parameters/lastNameParam"
+        - $ref: "#/parameters/mobileNumberParam"
+
+        - name: "sellerImage"
+          in: "formData"
+          description: "Profile image for the user"
+          required: false
+          type: "file"
+
+        - $ref: "#/parameters/cityParam"
+        - $ref: "#/parameters/stateParam"
+        - $ref: "#/parameters/countryParam"
+        - $ref: "#/parameters/zipParam"
+        - $ref: "#/parameters/bodyParam"
+        - $ref: "#/parameters/genderParam"
+        - $ref: "#/parameters/ageParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Only jpeg, jpg, png, gig files are allowed, File max upload size is exceed, User details updation failed )"
+  # Update seller password
+  /sellers/update/password:
+    put:
+      tags:
+        - "seller"
+      summary: "Seller update password opeation"
+      description: ""
+      operationId: "updateSellerPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userUpdatePasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
+  # Verify seller account
+  /sellers/verify/account/{sellerId}:
+    put:
+      tags:
+        - "seller"
+      summary: "Verify seller account"
+      description: "Admin is only eligible for this operation"
+      operationId: "verifySellerAccount"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/sellerIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid seller ID !"
+        500:
+          description: "Verification failed !"
+  # Remove seller details
+  /sellers/remove/{sellerId}:
+    delete:
+      tags:
+        - "seller"
+      summary: "Remove seller details"
+      description: ""
+      operationId: "removeSeller"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/sellerIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid seller ID !"
+        500:
+          description: "Seller details deletion failed !"
+
+  # Routes for logistic operations
+
+  # Get logistic details by logisticID
+  /logistics/get:
+    get:
+      tags:
+        - "logistic"
+      summary: "Get logistic's details by logisticID"
+      description: "Returns logistic details"
+      operationId: "getLogisticById"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Logistic details of the given ID"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  logistic:
+                    $ref: "#/definitions/Logistic"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "No valid user found for provided ID !"
+  # Get logistics detail by status
+  /logistics/by-status/{statusConfirmed}/{offSet}:
+    get:
+      tags:
+        - "logistic"
+      summary: "Get logistics detail by status"
+      description: "Returns an array of logistics list"
+      operationId: "getLogisticsByStatus"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/statusConfirmedParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/LogisticDetails"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Logistics not found !"
+  # Get all logistic details
+  /logistics/get-all/{offSet}:
+    get:
+      tags:
+        - "logistic"
+      summary: "Get all logistic's details"
+      description: "Returns an array of logistics list"
+      operationId: "getAllLogistics"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/LogisticDetails"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Logistics not found !"
+  # Logistic's signup operation
+  /logistics/signup:
+    post:
+      tags:
+        - "logistic"
+      summary: "Register a new logistic"
+      description: ""
+      operationId: "logisticSignUp"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userSignupParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        409:
+          description: "User is already exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, User registration failed, Validation failed )"
+  # Logistic login operation
+  /logistics/login:
+    post:
+      tags:
+        - "logistic"
+      summary: "Logs logistic into the system"
+      description: ""
+      operationId: "logisticLogin"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userLoginParam"
+      responses:
+        200:
+          $ref: "#/responses/LoginSuccess"
+        401:
+          $ref: "#/responses/LoginError"
+  # Logistic forgot password operation
+  /logistics/forgot/password:
+    post:
+      tags:
+        - "logistic"
+      summary: "Logistic forgot password opeation"
+      description: ""
+      operationId: "forgotLogisticPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userForgotPasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        404:
+          description: "User is not exists !"
+  # Update logistics details
+  /logistics/update:
+    put:
+      tags:
+        - "logistic"
+      summary: "Update logistic details"
+      description: ""
+      operationId: "updateLogistic"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/firstNameParam"
+        - $ref: "#/parameters/lastNameParam"
+        - $ref: "#/parameters/mobileNumberParam"
+
+        - name: "logisticImage"
+          in: "formData"
+          description: "Profile image for the user"
+          required: false
+          type: "file"
+
+        - $ref: "#/parameters/cityParam"
+        - $ref: "#/parameters/stateParam"
+        - $ref: "#/parameters/countryParam"
+        - $ref: "#/parameters/zipParam"
+        - $ref: "#/parameters/bodyParam"
+        - $ref: "#/parameters/genderParam"
+        - $ref: "#/parameters/ageParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Only jpeg, jpg, png, gig files are allowed, File max upload size is exceed, User details updation failed )"
+  # Update logistic password
+  /logistics/update/password:
+    put:
+      tags:
+        - "logistic"
+      summary: "Logistic update password opeation"
+      description: ""
+      operationId: "updateLogisticPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userUpdatePasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
+  # Verify logistic account
+  /logistics/verify/account/{logisticId}:
+    put:
+      tags:
+        - "logistic"
+      summary: "Verify logistic account"
+      description: "Admin is only eligible for this operation"
+      operationId: "verifyLogisticAccount"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/logisticIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid logistic ID !"
+        500:
+          description: "Verification failed !"
+  # Remove logistic details
+  /logistics/remove/{logisticId}:
+    delete:
+      tags:
+        - "logistic"
+      summary: "Remove logistic details"
+      description: ""
+      operationId: "removeLogistic"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/logisticIdParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid logistic ID !"
+        500:
+          description: "Logistic details deletion failed !"
+
+# Description of common consumes
+consumes:
+  - "multipart/form-data"
+  - "application/x-www-form-urlencoded"
+
+# Descriptions of common parameters
+parameters:
+
+  # Common parameters for all path
+  authorizationParam:
+    name: "Authorization"
+    in: "header"
+    description: "Jwt token to be passed as header for verifying user authentication"
+    required: true
+    type: "string"
+
+  offSetParam:
+    name: "offSet"
+    in: "path"
+    description: "Current page number for pagination"
+    required: true
+    type: "integer"
+    format: "int32"
+    default: 0
+
+  # Parameters for product path
+  productIdParam:
+    name: "productId"
+    in: "path"
+    description: "Product's Id of the product"
+    required: true
+    type: "string"
+
+  titleParam:
+    name: "title"
+    in: "formData"
+    description: "Title of the product"
+    required: true
+    type: "string"
+
+  typeParam:
+    name: "type"
+    in: "formData"
+    description: "Catagory of the product"
+    required: true
+    type: "string"
+
+  coloursParam:
+    name: "colours"
+    in: "formData"
+    description: "Colour lists of the product"
+    required: true
+    type: "array"
+    uniqueItems: true
+    items:
+      type: "string"
+      enum: ["black", "white", "gray", "red", "pink", "orange", "yellow", "green", "blue", "purple", "brown"]
+    minItems: 1
+
+  sizesParam:
+    name: "sizes"
+    in: "formData"
+    description: "Size lists of the product"
+    required: true
+    type: "array"
+    uniqueItems: true
+    items:
+      type: "string"
+      enum: ["XS", "S", "M", "L", "XL", "XXL"]
+    minItems: 1
+
+  priceParam:
+    name: "price"
+    in: "formData"
+    description: "Selling price of the product"
+    required: true
+    type: "number"
+
+  productImagesParam:
+    name: "productImages"
+    in: "formData"
+    description: "Images for the product"
+    required: true
+    type: "file"
+
+  descriptionParam:
+    name: "description"
+    in: "formData"
+    description: "Description of the product"
+    required: true
+    type: "string"
+
+  # Parameters for order path
+  orderIdParam:
+    name: "orderId"
+    in: "path"
+    description: "Order's Id of the order"
+    required: true
+    type: "string"
+
+  # Parameters for user path
+  userIdParam:
+    name: "userId"
+    in: "path"
+    description: "User ID of the user"
+    required: true
+    type: "string"
+
+  userParam:
+    name: "user"
+    in: "body"
+    description: "User's information for the operation"
+    required: true
+    schema:
+      properties:
+        mobileNumber:
+          description: "Mobile number of the user"
+          type: "integer"
+          format: "int64"
+        password:
+          description: "Password of the user in clear text"
+          type: "string"
+
+  firstNameParam:
+    name: "firstName"
+    in: "formData"
+    description: "FirstName of the user"
+    required: true
+    type: "string"
+
+  lastNameParam:
+    name: "lastName"
+    in: "formData"
+    description: "LastName of the user"
+    required: true
+    type: "string"
+
+  emailParam:
+    name: "email"
+    in: "formData"
+    description: "Email of the user"
+    required: true
+    type: "string"
+
+  mobileNumberParam:
+    name: "mobileNumber"
+    in: "formData"
+    description: "Mobile number of the user"
+    required: true
+    type: "integer"
+    format: "int64"
+
+  userImageParam:
+    name: "userImage"
+    in: "formData"
+    description: "Profile image for the user"
+    required: false
+    type: "file"
+
+  cityParam:
+    name: "city"
+    in: "formData"
+    description: "City of the user"
+    required: true
+    type: "string"
+
+  stateParam:
+    name: "state"
+    in: "formData"
+    description: "State of the user"
+    required: true
+    type: "string"
+
+  countryParam:
+    name: "country"
+    in: "formData"
+    description: "Country of the user"
+    required: true
+    type: "string"
+
+  zipParam:
+    name: "zip"
+    in: "formData"
+    description: "ZIP of the user"
+    required: true
+    type: "integer"
+
+  bodyParam:
+    name: "body"
+    in: "formData"
+    description: "Address/Landmark of the user"
+    required: true
+    type: "string"
+
+  genderParam:
+    name: "gender"
+    in: "formData"
+    description: "Gender of the user"
+    required: true
+    type: "string"
+
+  ageParam:
+    name: "age"
+    in: "formData"
+    description: "Age of the user"
+    required: true
+    type: "integer"
+
+  # Parameters for seller path
+  sellerIdParam:
+    name: "sellerId"
+    in: "path"
+    description: "ID of the seller"
+    required: true
+    type: "string"
+
+  userSignupParam:
+    name: "user"
+    in: "body"
+    description: "User's information for signup operation"
+    required: true
+    schema:
+      properties:
+        firstName:
+          description: "First Name of the user"
+          type: "string"
+        lastName:
+          description: "Last Name of the user"
+          type: "string"
+        email:
+          description: "Email ID of the user"
+          type: "string"
+        password:
+          description: "Password of the user in clear text"
+          type: "string"
+
+  userLoginParam:
+    name: "user"
+    in: "body"
+    description: "User's login credential to be passed"
+    required: true
+    schema:
+      type: "object"
+      properties:
+        email:
+          description: "The email for login"
+          type: "string"
+        password:
+          description: "The password for login in clear text"
+          type: "string"
+
+  userForgotPasswordParam:
+    name: "user"
+    in: "body"
+    description: "User's information for forgot password operation"
+    required: true
+    schema:
+      type: "object"
+      properties:
+        email:
+          description: "Email Id of the user"
+          type: "string"
+        url:
+          description: "Url of the update new password page"
+          type: "string"
+
+  userUpdatePasswordParam:
+    name: "user"
+    in: "body"
+    description: "User's information for update password operation"
+    required: true
+    schema:
+      type: "object"
+      properties:
+        password:
+          description: "New password of the user"
+          type: "string"
+
+  statusConfirmedParam:
+    name: "statusConfirmed"
+    in: "path"
+    description: "Account verification status"
+    required: true
+    type: "boolean"
+    enum: [ true, false ]
+    default: false
+
+  # Parameters for logistic path
+  logisticIdParam:
+    name: "logisticId"
+    in: "path"
+    description: "ID of the logistic"
+    required: true
+    type: "string"
+
+# Descriptions of common responses
+responses:
+
+  # Definition of all API success response statuses
+  Success:
+    description: "Success response"
+    schema:
+      $ref: "#/definitions/APIResponse"
+
+  # Definition of all API error response statuses
+  Error:
+    description: "Error response"
+    schema:
+      $ref: "#/definitions/APIResponse"
+
+  # Definition of login success statuses
+  LoginSuccess:
+    description: "Success response with a token"
+    schema:
+      allOf:
+        - $ref: "#/definitions/APIResponse"
+        - type: "object"
+          properties:
+            token:
+              type: "string"
+
+  # Definition of login error statuses
+  LoginError:
+    description: "User credential mismatched !"
+    schema:
+      $ref: "#/definitions/APIResponse"
+
+  # Definition of list of product response
+  ProductDetails:
+    description:  "A list of Product details"
+    schema:
+      allOf:
+        - $ref: "#/definitions/APIResponse"
+        - type: "object"
+          properties:
+            total:
+              type: "integer"
+              format: "int32"
+            offSet:
+              type: "integer"
+              format: "int32"
+            pages:
+              type: "integer"
+              format: "int32"
+            products:
+              type: "array"
+              items:
+                $ref: '#/definitions/Product'
+
+  # Definition of list of order response
+  OrderDetails:
+    description:  "A list of Order details"
+    schema:
+      allOf:
+        - $ref: "#/definitions/APIResponse"
+        - type: "object"
+          properties:
+            total:
+              type: "integer"
+              format: "int32"
+            offSet:
+              type: "integer"
+              format: "int32"
+            pages:
+              type: "integer"
+              format: "int32"
+            orders:
+              type: "array"
+              items:
+                $ref: "#/definitions/Order"
+
+  # Definition of list of seller response
+  SellerDetails:
+    description:  "List of seller details"
+    schema:
+      allOf:
+        - $ref: "#/definitions/APIResponse"
+        - type: "object"
+          properties:
+            total:
+              type: "integer"
+              format: "int32"
+            offSet:
+              type: "integer"
+              format: "int32"
+            pages:
+              type: "integer"
+              format: "int32"
+            sellers:
+              type: "array"
+              items:
+                $ref: '#/definitions/Seller'
+
+  # Definition of list of logistic response
+  LogisticDetails:
+    description:  "List of logistic details"
+    schema:
+      allOf:
+        - $ref: "#/definitions/APIResponse"
+        - type: "object"
+          properties:
+            total:
+              type: "integer"
+              format: "int32"
+            offSet:
+              type: "integer"
+              format: "int32"
+            pages:
+              type: "integer"
+              format: "int32"
+            logistics:
+              type: "array"
+              items:
+                $ref: '#/definitions/Logistic'
+
+  # Definition of all error statuses
+  default:
+    description: "Unexpected error !"
+    schema:
+      $ref: "#/definitions/APIResponse"
+
+# definitions for differnt models
+definitions:
+
+  # Schema for Product model
+  Product:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      title:
+        type: "string"
+      type:
+        type: "string"
+      colours:
+        type: "array"
+        items:
+          type: "string"
+      sizes:
+        type: "array"
+        items:
+          type: "string"
+      price:
+        type: "number"
+      productImages:
+        type: "array"
+        items:
+          type: "string"
+      description:
+        type: "string"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+      request:
+        type: "object"
+        properties:
+          type:
+            type: "string"
+          description:
+            type: "string"
+          url:
+            type: "string"
+
+  # Schema for Order model
+  Order:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      user:
+        type: "string"
+      product:
+        type: "object"
+        properties:
+          _id:
+            type: "string"
+          title:
+            type: "string"
+          type:
+            type: "string"
+          colours:
+            type: "array"
+            items:
+              type: "string"
+          sizes:
+            type: "array"
+            items:
+              type: "string"
+          price:
+            type: "number"
+          productImages:
+            type: "array"
+            items:
+              type: "string"
+          description:
+            type: "string"
+          createdAt:
+            type: "string"
+            format: "date-time"
+          updatedAt:
+            type: "string"
+            format: "date-time"
+      colour:
+        type: "string"
+      size:
+        type: "string"
+      quantity:
+        type: "integer"
+      totalBalance:
+        type: "number"
+      deliveryAddress:
+        type: "object"
+        properties:
+          name:
+            type: "string"
+          mobileNumber:
+            type: "integer"
+            format: "int64"
+          landMark:
+            type: "string"
+          city:
+            type: "string"
+          state:
+            type: "string"
+          country:
+            type: "string"
+          zip:
+            type: "integer"
+            format: "int32"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+      request:
+        type: "object"
+        properties:
+          type:
+            type: "string"
+          description:
+            type: "string"
+          url:
+            type: "string"
+
+  # Schema for User model
+  User:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      mobileNumber:
+        type: "integer"
+        format: "int64"
+      email:
+        type: "string"
+      emailVerified:
+        type: "boolean"
+      gender:
+        type: "string"
+      age:
+        type: "integer"
+        format: "int32"
+      address:
+        type: "object"
+        properties:
+          city:
+            type: "string"
+          state:
+            type: "string"
+          country:
+            type: "string"
+          zip:
+            type: "integer"
+            format: "int32"
+          body:
+            type: "string"
+      userImage:
+        type: "string"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+
+  # Schema for Seller model
+  Seller:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      statusConfirmed:
+        type: "boolean"
+      mobileNumber:
+        type: "integer"
+        format: "int64"
+      mobileNumberVerified:
+        type: "boolean"
+      gender:
+        type: "string"
+      age:
+        type: "integer"
+        format: "int32"
+      address:
+        type: "object"
+        properties:
+          city:
+            type: "string"
+          state:
+            type: "string"
+          country:
+            type: "string"
+          zip:
+            type: "integer"
+            format: "int32"
+          body:
+            type: "string"
+      sellerImage:
+        type: "string"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+
+  # Schema for Logistic model
+  Logistic:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      statusConfirmed:
+        type: "boolean"
+      mobileNumber:
+        type: "integer"
+        format: "int64"
+      mobileNumberVerified:
+        type: "boolean"
+      gender:
+        type: "string"
+      age:
+        type: "integer"
+        format: "int32"
+      address:
+        type: "object"
+        properties:
+          city:
+            type: "string"
+          state:
+            type: "string"
+          country:
+            type: "string"
+          zip:
+            type: "integer"
+            format: "int32"
+          body:
+            type: "string"
+      logisticImage:
+        type: "string"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+
+  # Schema for API response
+  APIResponse:
+    type: "object"
+    properties:
+      status:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"

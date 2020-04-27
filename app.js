@@ -1,3 +1,5 @@
+var fs = require('fs');
+var yaml = require('js-yaml');
 var logger = require('morgan');
 var dotenv = require("dotenv");
 var express = require('express');
@@ -6,10 +8,13 @@ var bodyParser = require("body-parser");
 var createError = require('http-errors');
 var swaggerUI = require('swagger-ui-express');
 var expAutoSan = require("express-autosanitizer");
-var shopKartDocs = require('./api/documents/shopkart-docs.json');
+var shopKartDocs = yaml.safeLoad(
+    fs.readFileSync('./api/documents/shopkart-docs.yaml', 'utf8')
+);
 
 // Importing router modules
 var userRoutes = require("./api/routes/users");
+var adminRoutes = require("./api/routes/admin");
 var orderRoutes = require("./api/routes/orders");
 var sellerRoutes = require("./api/routes/sellers");
 var productRoutes = require("./api/routes/products");
@@ -67,6 +72,7 @@ app.use((req, res, next) => {
 
 // Providing routes
 app.use("/users", userRoutes);
+app.use("/admin", adminRoutes);
 app.use("/orders", orderRoutes);
 app.use("/sellers", sellerRoutes);
 app.use("/products", productRoutes);
@@ -77,9 +83,6 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(shopKartDocs));
 
 // Redirecting main page to api-docs
 app.use("/", (req, res)=>res.redirect('/api-docs'));
-
-
-
 
 // If invalid url, catch 404 and forward to error handler
 app.use((req, res, next) => {

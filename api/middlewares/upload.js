@@ -35,13 +35,17 @@ const storage = multer.diskStorage({
         temp = req.originalUrl.split('/')[1];
 
         // Creating target directories
-        if ( temp == 'users' || temp == 'sellers' || temp == 'logistics' ){
-            // Destination for users, sellers, logistics
-            dir = path.join(dir, temp, req.userData.id);
+        if ( temp == 'admin' ){
+            // Destination for admin
+            dir = path.join(dir, 'admin');
         } else if ( temp == 'products'){
             // Destination for products
             dir = path.join(dir, temp, req.body.type, req.body.title +'-'+ req.userData.id);
+        } else if ( temp == 'users' || temp == 'sellers' || temp == 'logistics' ) {
+            // Destination for users, sellers, logistics
+            dir = path.join(dir, temp, req.userData.id);
         }
+
         // Delete if the dir is already exist
         if ( temp == 'products' &&  req.files.length == 1 || temp != 'products') {
             removeDir(dir);

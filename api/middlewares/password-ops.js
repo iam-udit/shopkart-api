@@ -6,13 +6,21 @@ const bcrypt = require("bcryptjs");
 // Update new password
 module.exports.updatePassword = (req, res, next) => {
 
+    var Model = null;
+
     // Retrieving user id from userData
     var id = req.userData.id;
 
     // Getting the model
     var temp = req.originalUrl.split('/')[1];
-    // Making model class
-    var Model =  require('../models/' + temp.substring(0, temp.length-1));
+
+    if ( temp != 'admin' ){
+        // Making model class if request from user, seller, logistic
+        Model =  require('../models/' + temp.substring(0, temp.length-1));
+    } else {
+        // Making model class if request from admin
+        Model = require('../models/user');
+    }
 
     // Update password in database
     Model.update({ _id: id }, { $set: { password: req.body.password } })

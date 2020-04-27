@@ -19,6 +19,10 @@ exports.getUserById =  (req, res, next) => {
         .then(user => {
             // if user found, return success response
             if (user) {
+                // Remove emailVerified field from user for admin request
+                if (req.originalUrl.split('/')[1] == 'admin') {
+                    delete user.emailVerified;
+                }
                 res.status(200).json({
                     status: 200,
                     message: "User details of the given Id: " + id,
@@ -42,7 +46,7 @@ exports.getUserById =  (req, res, next) => {
 exports.getAllUsers =  (req, res, next) => {
 
     // Finding all users
-    User.paginate({}, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+    User.paginate({ email : { $ne: process.env.ADMIN } }, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
         .then(result => {
             // If users found, return user details
             if (result.total > 0) {
@@ -101,26 +105,45 @@ exports.userSignUp = (req, res, next)=>{
 // Performing login process
 exports.userLogin = (req, res, next)=>{
 
+    let query = {};
+    let temp = req.originalUrl.split('/')[1];
+    if (temp == 'users'){
+        // Building query for users login
+        query = { mobileNumber : req.body.mobileNumber };
+    } else if ( temp == 'admin'){
+        // Building query for admin login
+        query = { email : req.body.email };
+
+    }
     // Checking user is valid or not
-    User.findOne({ mobileNumber : req.body.mobileNumber })
+    User.findOne(query)
         .exec()
         .then(user => {
             // If user is an existing user then authenticate password
             if(user){
                 bcrypt.compare(req.body.password, user.password, (error, result) => {
                     if (result) {
+
+                        let payload = {
+                            id: user._id,
+                            role: 'customer',
+                            mobileNumber : user.mobileNumber
+                        };
+
+                        // If request from admin, make payload
+                       if ( temp == 'admin'){
+                            payload.role = 'admin';
+                            payload.email = user.email;
+                            delete payload.mobileNumber;
+                        }
+
                         // Creating jwt token
                         const token = jwt.sign(
-                            {
-                                id: user._id,
-                                role: 'customer',
-                                mobileNumber: user.mobileNumber,
-                            },
+                            payload,
                             process.env.JWT_SECRET_KEY,
                             {
                                 expiresIn: "1h"
-                            }
-                        );
+                            });
                         res.status(200).json({
                             status: 200,
                             message: "Authentication sucesss !",
@@ -159,6 +182,12 @@ exports.updateUser = (req, res, next) => {
         gender: req.body.gender,
         age: req.body.age
     };
+
+    // If request from admin, modify updateOps
+    if (req.originalUrl.split('/')[1] == 'admin') {
+        delete updateOps.email;
+        updateOps.mobileNumber = req.body.mobileNumber;
+    }
 
     if (req.file.path != undefined) {
         updateOps.userImage =  req.file.path;
