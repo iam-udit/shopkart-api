@@ -13,7 +13,7 @@ node_modules
 public/uploads
 
 # For credstore
-credstore
+api/sdk/client/credstore
 
 # For wallet
 api/sdk/wallet/*
