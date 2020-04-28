@@ -17,6 +17,7 @@ var userRoutes = require("./api/routes/users");
 var adminRoutes = require("./api/routes/admin");
 var orderRoutes = require("./api/routes/orders");
 var sellerRoutes = require("./api/routes/sellers");
+var courierRoutes = require("./api/routes/couriers");
 var productRoutes = require("./api/routes/products");
 var logisticRoutes = require("./api/routes/logistics");
 
@@ -75,6 +76,7 @@ app.use("/users", userRoutes);
 app.use("/admin", adminRoutes);
 app.use("/orders", orderRoutes);
 app.use("/sellers", sellerRoutes);
+app.use("/couriers", courierRoutes);
 app.use("/products", productRoutes);
 app.use("/logistics", logisticRoutes);
 

@@ -25,13 +25,13 @@ exports.getUserById =  (req, res, next) => {
                 }
                 res.status(200).json({
                     status: 200,
-                    message: "User details of the given Id: " + id,
+                    message: "User account details",
                     user: user
                 });
             }
             // If user doesn't found, return not found response
             else {
-                next(createError(404, "No valid user found for provided ID"));
+                next(createError(404, "User details not found !"));
             }
 
         })

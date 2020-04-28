@@ -21,13 +21,13 @@ exports.getSellerById =  (req, res, next) => {
             if (seller) {
                 res.status(200).json({
                     status: 200,
-                    message: "Seller details of the given Id: " + id,
+                    message: "Seller account details",
                     seller: seller
                 });
             }
             // If seller doesn't found, return not found response
             else {
-                next(createError(404, "No valid user found for provided ID"));
+                next(createError(404, "Seller details not found !"));
             }
 
         })

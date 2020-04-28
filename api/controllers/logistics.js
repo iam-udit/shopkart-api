@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const  jwt = require("jsonwebtoken");
 const createError = require("http-errors");
-const wallet = require('../sdk/gateway/wallet');
 
 const Logistic = require("../models/logistic");
 
@@ -22,14 +21,14 @@ exports.getLogisticById =  (req, res, next) => {
             if (logistic) {
                 res.status(200).json({
                     status: 200,
-                    message: "Logistic details of the given Id: " + id,
+                    message: "Logistic account details",
                     logistic: logistic
                 });
 
             }
             // If logistic doesn't found, return not found response
             else {
-                next(createError(404, "No valid user found for provided ID"));
+                next(createError(404, "Logistic details not found !"));
             }
 
         })
@@ -82,23 +81,9 @@ exports.getAllLogistics =  (req, res, next) => {
 // Creating new logistic/ processing signup
 exports.logisticSignUp = (req, res, next)=>{
 
-    // Creating id for user registration
-    let id = new mongoose.Types.ObjectId();
-    // Register, enroll and import the logistic identity in wallet
-    wallet.importIdentity({
-        id: id.toString(),
-        org: 'delivery',
-        msp: 'deliveryMSP',
-        role: 'delivery',
-        affiliation: 'delivery.delivery'
-    },(error) => {
-        // If any error occur then return error response
-        next(error);
-    });
-
     // Creating logistic schema object and binding data to it
     const  logistic = new Logistic({
-        _id: id,
+        _id: new mongoose.Types.ObjectId(),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,

@@ -2,6 +2,7 @@
 const mongoose = require("mongoose");
 const createError = require("http-errors");
 const Order = require("../models/order.js");
+const productController = require('../controllers/products');
 
 // Retrieving order's details form database
 exports.getOrderById =  (req, res, next) => {
@@ -126,7 +127,10 @@ exports.createOrder = (req, res, next) => {
     // Creating a new order
     order.save()
         .then(result => {
-            // If  order's created successfully, return success response
+
+            // If  order's created successfully, then update product quantity
+            productController.updateProductQuantity(result.product, - result.quantity);
+            // return success response
             res.status(201).json({
                 status: 201,
                 message: "Order placed successfully",
@@ -168,6 +172,13 @@ exports.deleteOrder =  (req, res, next) => {
 
     // Getting order's id from request
     const id = req.params.orderId;
+
+    // Before order deletion, update product quantity
+    // Getting product Id and order quantity
+    Order.findById(id, { product: 1, quantity: 1}, function (err, order) {
+        // Adding order quantity with product quantity
+        productController.updateProductQuantity(order.product, order.quantity);
+    });
 
     // Deleting order from database
     Order.remove({ "_id": id })

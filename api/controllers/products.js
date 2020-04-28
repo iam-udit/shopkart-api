@@ -69,10 +69,12 @@ exports.getAllProducts =  (req, res, next) => {
                     products: result.docs.map(product => {
                         return {
                             _id: product._id,
+                            seller: product.seller,
                             title: product.title,
                             type: product.type,
                             colours: product.colours,
                             sizes: product.sizes,
+                            quantity: product.quantity,
                             price: product.price,
                             productImages : product.productImages,
                             description: product.description,
@@ -84,7 +86,6 @@ exports.getAllProducts =  (req, res, next) => {
                                 url: req.protocol + '://' + req.get('host') + "/products/get/" + product._id
                             }
                         }
-
                     })
                 }
                 res.status(200).json(response);
@@ -112,12 +113,13 @@ exports.createProduct = (req, res, next) => {
     // and binding the product's details
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
+        seller: req.userData.id,
         title: req.body.title,
         type: req.body.type,
         colours: req.body.colours,
         sizes: req.body.sizes,
+        quantity: req.body.quantity,
         price: req.body.price,
-        seller: req.userData.id,
         productImages: productImages,
         description: req.body.description
     });
@@ -131,12 +133,13 @@ exports.createProduct = (req, res, next) => {
                 message: "Product created successfully.",
                 createdProduct: {
                     _id: result._id,
+                    seller: result.seller,
                     title: result.title,
                     type: result.type,
                     colours: result.colours,
                     sizes: result.sizes,
+                    quantity: result.quantity,
                     price: result.price,
-                    seller: result.seller,
                     productImages: result.productImages,
                     description: result.description,
                     createdAt: result.createdAt,
@@ -181,6 +184,7 @@ exports.updateProduct = (req, res, next) => {
         type: req.body.type,
         colours: req.body.colours,
         sizes: req.body.sizes,
+        quantity: req.body.quantity,
         price: req.body.price,
         productImages: productImages,
         description: req.body.description
@@ -199,7 +203,7 @@ exports.updateProduct = (req, res, next) => {
                     request: {
                         type: "GET",
                         description: "GET_PRODUCT_DETAILS",
-                        url: req.protocol + '://' + req.get('host') + "/products/" + id
+                        url: req.protocol + '://' + req.get('host') + "/products/get/" + id
                     }
                 });
             }
@@ -254,4 +258,15 @@ exports.deleteProduct =  (req, res, next) => {
             error.message = "Product deletion failed !";
             next(error);
         })
+};
+
+// Update product quantity
+exports.updateProductQuantity =  (id, quantity) => {
+    //Finding product's quantity using product id.
+    Product.findById(id, { quantity: 1 }, function (err, product) {
+         // If product is exists then update quantity of the product
+        if (product){
+            Product.updateOne({ _id: id }, { $set: { quantity: product.quantity + quantity } }).exec();
+        }
+    } );
 };

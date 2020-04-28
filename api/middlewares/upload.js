@@ -41,7 +41,7 @@ const storage = multer.diskStorage({
         } else if ( temp == 'products'){
             // Destination for products
             dir = path.join(dir, temp, req.body.type, req.body.title +'-'+ req.userData.id);
-        } else if ( temp == 'users' || temp == 'sellers' || temp == 'logistics' ) {
+        } else if ( temp == 'users' || temp == 'sellers' || temp == 'logistics'  || temp == 'couriers' ) {
             // Destination for users, sellers, logistics
             dir = path.join(dir, temp, req.userData.id);
         }

@@ -30,6 +30,8 @@ tags:
     description: "Operations about sellers"
   - name: "logistic"
     description: "Operations about logistics"
+  - name: "courier"
+    description: "Operations about couriers"
 
 # Types of Schemes
 schemes:
@@ -152,6 +154,7 @@ paths:
         - $ref: "#/parameters/typeParam"
         - $ref: "#/parameters/coloursParam"
         - $ref: "#/parameters/sizesParam"
+        - $ref: "#/parameters/quantityParam"
         - $ref: "#/parameters/priceParam"
         - $ref: "#/parameters/productImagesParam"
         - $ref: "#/parameters/descriptionParam"
@@ -192,6 +195,7 @@ paths:
         - $ref: "#/parameters/typeParam"
         - $ref: "#/parameters/coloursParam"
         - $ref: "#/parameters/sizesParam"
+        - $ref: "#/parameters/quantityParam"
         - $ref: "#/parameters/priceParam"
         - $ref: "#/parameters/productImagesParam"
         - $ref: "#/parameters/descriptionParam"
@@ -471,7 +475,7 @@ paths:
       tags:
         - "admin"
       summary: "Get admin details"
-      description: "Returns admin details"
+      description: "Admin is only eligible for this operation"
       operationId: "getAdmin"
       produces:
         - "application/json"
@@ -562,6 +566,7 @@ paths:
       produces:
         - "application/json"
       parameters:
+        - $ref: "#/parameters/authorizationParam"
         - $ref: "#/parameters/userUpdatePasswordParam"
       responses:
         200:
@@ -580,8 +585,8 @@ paths:
     get:
       tags:
         - "user"
-      summary: "Get user's details by userId"
-      description: "Returns user details"
+      summary: "Get user details"
+      description: "User is only eligible for this operation"
       operationId: "getUserById"
       produces:
         - "application/json"
@@ -589,7 +594,7 @@ paths:
         - $ref: "#/parameters/authorizationParam"
       responses:
         200:
-          description:  "User details of the given ID"
+          description:  "User account details"
           schema:
             allOf:
               - $ref: "#/definitions/APIResponse"
@@ -600,7 +605,7 @@ paths:
         401:
           description: "Authentication failed !"
         404:
-          description: "No valid user found for provided ID !"
+          description: "User details not found ! !"
   # Get all user details
   /users/get-all/{offSet}:
     get:
@@ -768,6 +773,7 @@ paths:
       produces:
         - "application/json"
       parameters:
+        - $ref: "#/parameters/authorizationParam"
         - $ref: "#/parameters/userUpdatePasswordParam"
       responses:
         200:
@@ -808,8 +814,8 @@ paths:
     get:
       tags:
         - "seller"
-      summary: "Get seller's details by sellerID"
-      description: "Returns seller details"
+      summary: "Get seller details"
+      description: "Seller is only eligible for this operation"
       operationId: "getSellerById"
       produces:
         - "application/json"
@@ -817,7 +823,7 @@ paths:
         - $ref: "#/parameters/authorizationParam"
       responses:
         200:
-          description:  "Seller details of the given ID"
+          description:  "Seller account details"
           schema:
             allOf:
               - $ref: "#/definitions/APIResponse"
@@ -828,7 +834,7 @@ paths:
         401:
           description: "Authentication failed !"
         404:
-          description: "No valid user found for provided ID !"
+          description: "Seller details not found ! !"
   # Get sellers detail by status
   /sellers/by-status/{statusConfirmed}/{offSet}:
     get:
@@ -982,6 +988,7 @@ paths:
       produces:
         - "application/json"
       parameters:
+        - $ref: "#/parameters/authorizationParam"
         - $ref: "#/parameters/userUpdatePasswordParam"
       responses:
         200:
@@ -1044,8 +1051,8 @@ paths:
     get:
       tags:
         - "logistic"
-      summary: "Get logistic's details by logisticID"
-      description: "Returns logistic details"
+      summary: "Get logistic details"
+      description: "Logistic is only eligible for this operation"
       operationId: "getLogisticById"
       produces:
         - "application/json"
@@ -1053,7 +1060,7 @@ paths:
         - $ref: "#/parameters/authorizationParam"
       responses:
         200:
-          description:  "Logistic details of the given ID"
+          description:  "Logistic account details"
           schema:
             allOf:
               - $ref: "#/definitions/APIResponse"
@@ -1064,7 +1071,7 @@ paths:
         401:
           description: "Authentication failed !"
         404:
-          description: "No valid user found for provided ID !"
+          description: "Logistic details not found ! !"
   # Get logistics detail by status
   /logistics/by-status/{statusConfirmed}/{offSet}:
     get:
@@ -1218,6 +1225,7 @@ paths:
       produces:
         - "application/json"
       parameters:
+        - $ref: "#/parameters/authorizationParam"
         - $ref: "#/parameters/userUpdatePasswordParam"
       responses:
         200:
@@ -1272,6 +1280,207 @@ paths:
           description: "Invalid logistic ID !"
         500:
           description: "Logistic details deletion failed !"
+
+  # Routes for courier operations
+
+  # Get courier account details
+  /couriers/get:
+    get:
+      tags:
+        - "courier"
+      summary: "Get courier details"
+      description: "Courier is only eligible for this operation"
+      operationId: "getCourier"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description:  "Courier account details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  courier:
+                    $ref: "#/definitions/Courier"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Courier details not found ! !"
+  # Get all courier details
+  /couriers/get-all/{offSet}:
+    get:
+      tags:
+        - "courier"
+      summary: "Get all courier details"
+      description: "Logistic is only eligible for this operation"
+      operationId: "getAllCouriers"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/CourierDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        404:
+          description: "Couriers not found !"
+  # Courier's signup operation
+  /couriers/signup:
+    post:
+      tags:
+        - "courier"
+      summary: "Register a new courier"
+      description: "Logistic is only eligible for this operation"
+      operationId: "courierSignUp"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/userSignupParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        409:
+          description: "Courier is already exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Courier account creation failed, Validation failed )"
+  # Courier login operation
+  /couriers/login:
+    post:
+      tags:
+        - "courier"
+      summary: "Logs courier into the system"
+      description: ""
+      operationId: "courierLogin"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userLoginParam"
+      responses:
+        200:
+          $ref: "#/responses/LoginSuccess"
+        401:
+          $ref: "#/responses/LoginError"
+  # Courier forgot password operation
+  /couriers/forgot/password:
+    post:
+      tags:
+        - "courier"
+      summary: "Courier forgot password opeation"
+      description: ""
+      operationId: "forgotCourierPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userForgotPasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        404:
+          description: "User is not exists !"
+  # Update courier details
+  /couriers/update:
+    put:
+      tags:
+        - "courier"
+      summary: "Update courier details"
+      description: ""
+      operationId: "updateCourier"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/firstNameParam"
+        - $ref: "#/parameters/lastNameParam"
+        - $ref: "#/parameters/mobileNumberParam"
+
+        - name: "courierImage"
+          in: "formData"
+          description: "Profile image for the user"
+          required: false
+          type: "file"
+
+        - $ref: "#/parameters/cityParam"
+        - $ref: "#/parameters/stateParam"
+        - $ref: "#/parameters/countryParam"
+        - $ref: "#/parameters/zipParam"
+        - $ref: "#/parameters/bodyParam"
+        - $ref: "#/parameters/genderParam"
+        - $ref: "#/parameters/ageParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Only jpeg, jpg, png, gig files are allowed, File max upload size is exceed, User details updation failed )"
+  # Update courier password
+  /couriers/update/password:
+    put:
+      tags:
+        - "courier"
+      summary: "Courier update password opeation"
+      description: ""
+      operationId: "updateCourierPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - $ref: "#/parameters/userUpdatePasswordParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid user ID !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
+  # Remove courier details
+  /couriers/remove/{courierId}:
+    delete:
+      tags:
+        - "courier"
+      summary: "Remove courier details"
+      description: ""
+      operationId: "removeCourier"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "courierId"
+          in: "path"
+          description: "ID of the courier"
+          required: true
+          type: "string"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/Success"
+        401:
+          description: "Authentication failed !"
+        404:
+          description: "Invalid courier ID !"
+        500:
+          description: "Courier details deletion failed !"
 
 # Description of common consumes
 consumes:
@@ -1343,6 +1552,15 @@ parameters:
       type: "string"
       enum: ["XS", "S", "M", "L", "XL", "XXL"]
     minItems: 1
+
+  quantityParam:
+    name: "quantity"
+    in: "formData"
+    description: "Quantity of the product"
+    required: true
+    type: "integer"
+    format: "int32"
+    default: 1
 
   priceParam:
     name: "price"
@@ -1547,7 +1765,7 @@ parameters:
     schema:
       type: "object"
       properties:
-        password:
+        npassword:
           description: "New password of the user"
           type: "string"
 
@@ -1688,6 +1906,28 @@ responses:
               items:
                 $ref: '#/definitions/Logistic'
 
+  # Definition of list of courier response
+  CourierDetails:
+    description:  "List of courier details"
+    schema:
+      allOf:
+        - $ref: "#/definitions/APIResponse"
+        - type: "object"
+          properties:
+            total:
+              type: "integer"
+              format: "int32"
+            offSet:
+              type: "integer"
+              format: "int32"
+            pages:
+              type: "integer"
+              format: "int32"
+            couriers:
+              type: "array"
+              items:
+                $ref: '#/definitions/Courier'
+
   # Definition of all error statuses
   default:
     description: "Unexpected error !"
@@ -1703,6 +1943,8 @@ definitions:
     properties:
       _id:
         type: "string"
+      seller:
+        type: "string"
       title:
         type: "string"
       type:
@@ -1715,6 +1957,8 @@ definitions:
         type: "array"
         items:
           type: "string"
+      quantity:
+        type: "integer"
       price:
         type: "number"
       productImages:
@@ -1952,6 +2196,51 @@ definitions:
           body:
             type: "string"
       logisticImage:
+        type: "string"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+
+  # Schema for Courier model
+  Courier:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      logistic:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      mobileNumber:
+        type: "integer"
+        format: "int64"
+      gender:
+        type: "string"
+      age:
+        type: "integer"
+        format: "int32"
+      address:
+        type: "object"
+        properties:
+          city:
+            type: "string"
+          state:
+            type: "string"
+          country:
+            type: "string"
+          zip:
+            type: "integer"
+            format: "int32"
+          body:
+            type: "string"
+      courierImage:
         type: "string"
       createdAt:
         type: "string"

@@ -4,6 +4,12 @@ const mongoosePaginate = require('mongoose-paginate');
 // Creating product schema
 const productSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller',
+        index: true,
+        required: true
+    },
     title: {
         type: String,
         required: true,
@@ -25,14 +31,13 @@ const productSchema = mongoose.Schema({
         required: true,
         minlength: 1
     },
+    quantity: {
+        type: Number,
+        required: true,
+        default: 1
+    },
     price: {
         type: Number,
-        required: true
-    },
-    seller: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Seller',
-        index: true,
         required: true
     },
     productImages : {

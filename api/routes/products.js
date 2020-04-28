@@ -18,7 +18,7 @@ router.use( verifyJwt, function (req, res, next) {
         return next(createError(401, "Your account is not verified yet !"));
     } else if(temp == 'create' || temp == 'update' || temp == 'remove') {
         // Checking user eligibility
-        if(req.userData.role != 'seller' || req.userData.role != 'admin'){
+        if(req.userData.role != 'seller' && req.userData.role != 'admin'){
             return  next(createError(401,"You are not an eligible user for this operation !"));
         }
     }
@@ -41,11 +41,11 @@ router.get('/get-all/:offSet?', productsController.getAllProducts);
 // Creating new product
 router.post('/create/', productExists,  upload.array('productImages', 6 ), productsController.createProduct);
 
-// Delete product
-router.delete('/remove/:productId', productsController.deleteProduct);
-
 // Update Product details
 router.put('/update/:productId', productExists, upload.array('productImages', 6 ), productsController.updateProduct);
+
+// Delete product
+router.delete('/remove/:productId', productsController.deleteProduct);
 
 // Export module
 module.exports = router;

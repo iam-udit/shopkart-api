@@ -15,7 +15,7 @@ module.exports = function (req, res, next) {
         // Query for finding users
         query = { mobileNumber : req.body.mobileNumber };
     } else {
-        // Query for finding sellers or logistics
+        // Query for finding sellers or logistics or couriers
         query = { email : req.body.email };
     }
 
@@ -27,10 +27,10 @@ module.exports = function (req, res, next) {
         }
         // Different options for different routes
         if(temp[2] == 'signup' && user){
-            // If request for user signup route, then forbid
+            // If request for signup route, then forbid
             return  next(createError(409, "User is already exists !"));
         } else if(temp[2] == 'forgot' && !user){
-            // If request for user forgot password route, then forbid
+            // If request for forgot password route, then forbid
             return next(createError(404, "User is not exists !"));
         }
         // If user not exist, then allow for sign up
