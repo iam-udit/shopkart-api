@@ -94,8 +94,8 @@ exports.courierSignUp = (req, res, next)=>{
         id: id.toString(),
         org: 'delivery',
         msp: 'deliveryMSP',
-        role: 'delivery',
-        affiliation: 'delivery.delivery'
+        role: '',
+        affiliation: ''
     },(error) => {
         // If any error occur then return error response
         next(error);
