@@ -10,8 +10,6 @@ const CONNECTION_PROFILE_PATH = __dirname + '/../profiles/dev-connection.yaml';
 // Client section configuration
 const ECOM_CLIENT_CONNECTION_PROFILE_PATH = __dirname + '/../profiles/ecom-client.yaml';
 const DELIVERY_CLIENT_CONNECTION_PROFILE_PATH = __dirname + '/../profiles/delivery-client.yaml';
-// Config fo network
-const CRYPTO_CONFIG_PEER_ORGANIZATIONS ='/D-HDKR/HLF/network/client';
 
 // Creating and initializing client object
 const client = Client.loadFromConfig(CONNECTION_PROFILE_PATH);
@@ -31,7 +29,7 @@ function createMSPId(org) {
  * @param {string} user
  */
 function getCertPath(org, user) {
-    var certPath = CRYPTO_CONFIG_PEER_ORGANIZATIONS + "/" + org + "/" + user + "/msp/signcerts/cert.pem";
+    var certPath = process.env.CRYPTO_CONFIG_PEER_ORGANIZATIONS + "/" + org + "/" + user + "/msp/signcerts/cert.pem";
     return certPath;
 }
 
@@ -41,7 +39,7 @@ function getCertPath(org, user) {
  * @param {string} user
  */
 function getPrivateKeyPath(org, user) {
-    let pkFolder = CRYPTO_CONFIG_PEER_ORGANIZATIONS + "/" + org + "/" + user + "/msp/keystore";
+    let pkFolder = process.env.CRYPTO_CONFIG_PEER_ORGANIZATIONS + "/" + org + "/" + user + "/msp/keystore";
     let pkFile = '';
     fs.readdirSync(pkFolder).forEach(file => {
         // return the first file

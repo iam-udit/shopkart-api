@@ -13,10 +13,7 @@ const { createWallet } = require('./wallet');
 
 // Constants for profile
 const CONNECTION_PROFILE_PATH = '../profiles/dev-connection.yaml'
-// Channel name
-const NETWORK_NAME = 'ecomchannel'
-// Chaincode
-const CONTRACT_ID = "test"
+
 
 
 /**
@@ -50,10 +47,10 @@ async function setupGateway(org, user) {
     await gateway.connect(connectionProfile, connectionOptions)
 
     // 3. Get the network
-    let network = await gateway.getNetwork(NETWORK_NAME);
+    let network = await gateway.getNetwork(process.env.NETWORK_NAME);
 
     // 5. Get the contract
-    const contract = await network.getContract(CONTRACT_ID);
+    const contract = await network.getContract(process.env.CONTRACT_ID);
 
     return contract;
 }
