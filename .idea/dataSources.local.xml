@@ -2,26 +2,12 @@
 <project version="4">
   <component name="dataSourceStorageLocal">
     <data-source name="MongoDB - shopkart@node-rest-api-vq0e4.mongodb.net" uuid="0914ca8e-c887-44af-96fa-2dd3ed3bbd94">
-      <database-info product="Mongo DB" version="4.2.5" jdbc-version="4.2" driver-name="MongoDB JDBC Driver" driver-version="1.7.1" dbms="MONGO" exact-version="4.2.5" exact-driver-version="1.7" />
-      <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
-      <secret-storage>master_key</secret-storage>
-      <user-name>uditn</user-name>
-      <schema-mapping>
-        <introspection-scope>
-          <node kind="schema" qname="@" />
-        </introspection-scope>
-      </schema-mapping>
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MONGO" exact-version="0" />
+      <schema-mapping />
     </data-source>
     <data-source name="shopkart@node-rest-api-vq0e4.mongodb.net" uuid="36ecb036-4e90-4675-892e-c10f1537fe31">
-      <database-info product="Mongo DB" version="4.2.5" jdbc-version="4.2" driver-name="MongoDB JDBC Driver" driver-version="1.7.1" dbms="MONGO" exact-version="4.2.5" exact-driver-version="1.7" />
-      <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
-      <secret-storage>master_key</secret-storage>
-      <user-name>uditn</user-name>
-      <schema-mapping>
-        <introspection-scope>
-          <node kind="schema" qname="@" />
-        </introspection-scope>
-      </schema-mapping>
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MONGO" exact-version="0" />
+      <schema-mapping />
     </data-source>
   </component>
 </project>

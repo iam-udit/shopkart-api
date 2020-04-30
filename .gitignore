@@ -1,13 +1,11 @@
 # Config files
-config/*
-
-*.env
+config
 
 # node core modules
-./node_modules
+node_modules
 
 # editor cofigs
-./.idea
+.idea
 
 # user upload files
 public/uploads
