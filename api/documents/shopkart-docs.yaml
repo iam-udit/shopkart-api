@@ -10,11 +10,8 @@ info:
     name: "Ecom Team"
 
 # API address
-servers:
-  - url: "http://localhost:8000"
-    description: "Development server (uses test data)"
-  - url: "https://shopkart-api.herokuapp.com/"
-    description: "Production server (uses live data)"
+host: "http://localhost:8000"
+basePath: "/"
 
 # Route information
 tags:
@@ -36,7 +33,6 @@ tags:
 # Types of Schemes
 schemes:
   - "http"
-  - "https"
 
 # All routes path
 paths:
