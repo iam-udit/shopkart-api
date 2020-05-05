@@ -62,8 +62,7 @@ exports.updateOps = async function (req) {
     // Retriveing image path
     if (req.file != undefined) {
 
-        let filePath = req.file.path.split('/');
-        let imagePath = path.join(filePath[2], 'avatar', filePath[3], filePath[4]);
+        let imagePath = req.file.path.replace('public/uploads/', '');
 
         if( role == 'admin' || role == 'customer' ) {
             // If request from admin or user
@@ -141,38 +140,4 @@ exports.orderResponse = function (req, order) {
 
     // Returning response
     return response;
-}
-
-// View profile images
-exports.viewImages = function (req, res, next) {
-
-    // Creating file path
-    let filePath = path.join(__dirname, '../../public/uploads', req.originalUrl.replace('/avatar', ''));
-
-    let extension = path.extname(req.originalUrl);
-
-    // Checking valid url
-    if(
-        extension != '.jpg' &&
-        extension != '.png' &&
-        extension != '.gif' &&
-        extension != 'jpeg'
-    ) {
-        return next();
-    }
-
-
-    try {
-        // Checking file is exists or not
-        if (fs.existsSync(filePath)) {
-            // Sending file as response
-            res.sendfile(filePath);
-        } else {
-            // If file not found, return error response
-            next(createError(404, 'File not found !'));
-        }
-    } catch (error) {
-        // If any error occur
-        next(error);
-    }
 }

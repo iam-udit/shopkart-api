@@ -181,14 +181,14 @@ exports.acceptOrderBySeller = function (req, res, next) {
             req.userData.id.toString(),
             req.body.user,
             req.body.productName,
-            req.body.totalBalance,
-            req.body.shipmentCharges,
-            req.body.quantity
+            req.body.totalBalance.toString(),
+            req.body.shipmentCharges.toString(),
+            req.body.quantity.toString()
         ]
     };
 
     // Confirmed pending order of the product
-    contract.invoke(options )
+    contract.invoke(options)
         .then( data =>{
             // Saving logistic ID and Updating order status
             return Order.updateOne(
@@ -350,3 +350,37 @@ exports.cancelOrder =  async function (req, res, next) {
         next(error);
     }
 };
+
+
+// Checking user's permission
+exports.checkUsersPermission = function (req, res, next) {
+
+    let role = req.userData.role;
+    let path = req.originalUrl.split('/')[2];
+
+    if (
+        // Checking admin access
+        ( ( path == 'get-all' || path == 'by-product' ) && role != 'admin' ) ||
+        // Checking customer access
+        ( ( path == 'create' || path == 'cancel' || path == 'by-user' ) && role != 'customer') ||
+        // Checking logistic/courier/seller access
+        (
+            (
+                path == 'accept' || path == 'confirm-delivery' || path == 'by-seller' ||
+                path == 'by-logistic' || path == 'by-courier'
+
+            ) && ( role != 'seller' && role != 'logistic' && role != 'courier' )
+        )
+    ) {
+        // If any other roles access these paths, return error response
+        return  next(createError(401,"You are not an eligible user for this operation !"));
+    } else if (
+        ( role == 'seller' || role == 'logistic' ) &&
+        req.userData.statusConfirmed == false
+    ){
+        // If seller account is not verified, return error response
+        return next(createError(401, "Your account is not verified yet !"));
+    }else {
+        next();
+    }
+}

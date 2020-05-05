@@ -54,12 +54,12 @@ const storage = multer.diskStorage({
 
         // Getting the model
         temp = req.originalUrl.split('/')[1];
-        console.log(req.body+"----------------------------")
+
         // Creating target directories
         dir = createDir(req, temp);
 
         // Delete if the dir is already exist
-        if ( temp == 'products' &&  req.files.length == 1 || temp != 'products') {
+        if ( (temp == 'products' &&  req.files.length == 1) || temp != 'products') {
             removeDir(dir);
         }
 

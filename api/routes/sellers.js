@@ -7,12 +7,9 @@ const adminController = require('../controllers/admin');
 const userExists = require('../middlewares/user-exists');
 const sellersController = require("../controllers/sellers");
 const verifyAccount = require('../middlewares/verify-account');
-const { viewImages, checkAdminPermission } = require('../middlewares/utils');
+const { checkAdminPermission } = require('../middlewares/utils');
 const { forgotPassword, updatePassword, digestPassword } = require('../middlewares/password-ops');
 
-
-// Viewing profile images of the couriers
-router.get('/avatar/*/*', verifyJwt, viewImages);
 
 // Retrieving seller's details by Id
 router.get("/get", verifyJwt, sellersController.getSellerById);

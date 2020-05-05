@@ -43,32 +43,6 @@ paths:
 
   # Routes for Product operations
 
-  # View product images by productImage
-  /{productImage}:
-    get:
-      tags:
-        - "product"
-      summary: "View product's image by productImagePath"
-      description: "Returns a single product image"
-      operationId: "getProductImage"
-      produces:
-        - "image/*"
-        - "application/json"
-      parameters:
-        - name: "productImage"
-          in: "path"
-          description: "Image path of the product"
-          required: true
-          allowReserved: true
-          schema:
-            type: "string"
-      responses:
-        200:
-          description:  "Product image of the product"
-        404:
-          description: "File Not found !"
-          schema:
-             $ref: "#/definitions/APIResponse"
   # Get product details by productId
   /products/get/{productId}:
     get:
@@ -320,7 +294,7 @@ paths:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Orders not found !"
   # Get order detail by sellerId
@@ -341,7 +315,7 @@ paths:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Orders not found !"
   # Get order detail by logsticId
@@ -362,7 +336,7 @@ paths:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Orders not found !"
   # Get order detail by courierId
@@ -392,7 +366,7 @@ paths:
       tags:
         - "order"
       summary: "Get order's details by product ID"
-      description: "Returns an array of order list"
+      description: "Admin is only eligible for the operation"
       operationId: "getOrdersByProductId"
       produces:
         - "application/json"
@@ -404,7 +378,7 @@ paths:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Orders not found !"
   # Get all order details
@@ -413,7 +387,7 @@ paths:
       tags:
         - "order"
       summary: "Get all order details"
-      description: "Returns an array of order list"
+      description: "Admin is only eligible for the operation"
       operationId: "getAllOrder"
       produces:
         - "application/json"
@@ -424,7 +398,7 @@ paths:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Orders not found !"
   # Buy new product
@@ -433,7 +407,7 @@ paths:
       tags:
         - "order"
       summary: "Buy new product"
-      description: ""
+      description: "User is only eligible for this operation"
       operationId: "buyProduct"
       consumes:
         - "application/json"
@@ -510,7 +484,7 @@ paths:
                           product:
                             type: "string"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         500:
           description: "Different possible errors ! ( Order creation failed, Validation failed )"
   # Accept order by seller
@@ -556,7 +530,7 @@ paths:
         200:
           $ref: '#/responses/Success'
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Invalid order ID !"
         500:
@@ -589,7 +563,7 @@ paths:
         200:
           $ref: '#/responses/Success'
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         403:
           description: "Insufficient balance in account !"
         404:
@@ -637,7 +611,7 @@ paths:
       tags:
         - "order"
       summary: "Cancel order details"
-      description: ""
+      description: "User is only eligible for this operation"
       operationId: "cancelOrder"
       produces:
         - "application/json"
@@ -662,45 +636,13 @@ paths:
                       url:
                         type: "string"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Invalid order ID !"
         500:
           description: "Order cancellation failed !"
 
   # Routes for Admin operations
-
-  # View user profile images by imagePath
-  /{imagePath}:
-    get:
-      tags:
-        - "admin"
-        - "user"
-        - "seller"
-        - "logistic"
-        - "courier"
-      summary: "View profile image of the user by imagePath"
-      description: "Returns profile image of the user"
-      operationId: "getProfileImage"
-      produces:
-        - "image/*"
-        - "application/json"
-      parameters:
-        - name: "imagePath"
-          in: "path"
-          description: "Profile image path of the user"
-          required: true
-          allowReserved: true
-          schema:
-            type: "string"
-        - $ref: "#/parameters/authorizationParam"
-      responses:
-        200:
-          description:  "Profile image of the user"
-        404:
-          description: "File Not found !"
-          schema:
-            $ref: "#/definitions/APIResponse"
 
   # Get admin details
   /admin/get:
@@ -2386,7 +2328,7 @@ responses:
 
   # Definition of list of order response
   OrderDetails:
-    description:  "A list of Order details"
+    description:  "Returns a list of Order details"
     schema:
       allOf:
         - $ref: "#/definitions/APIResponse"

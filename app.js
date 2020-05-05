@@ -31,7 +31,7 @@ var app = express();
 app.use(logger('dev'));
 
 // Allow public/upload as static
-app.use('/products', express.static('public/uploads/products'));
+app.use('/', express.static('public/uploads/'));
 
 // Setting up body-parser package
 app.use(bodyParser.json());

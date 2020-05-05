@@ -1,32 +1,13 @@
 // Importing all necessary packages
 const express = require("express");
+const createError = require('http-errors');
 const verifyJwt = require("../middlewares/verify-jwt");
 const ordersController = require("../controllers/orders");
 
 const router = express.Router();
 
-// Verifying jwt token and seller account verification
-router.use( verifyJwt, function (req, res, next) {
-
-    let role = req.userData.role;
-    let path = req.originalUrl.split('/')[2];
-
-    if (
-        ( role == 'seller' || role == 'logistic' ) &&
-        req.userData.statusConfirmed == false
-    ){
-        // If seller account is not verified, return error response
-        return next(createError(401, "Your account is not verified yet !"));
-    } else if (
-        ( role != 'seller' && role != 'logistic' && role != 'courier' ) &&
-        ( path == 'accept' || path == 'confirm-delivery' )
-    ) {
-        // If any other roles access these paths, return error response
-        return  next(createError(401,"You are not an eligible user for this operation !"));
-    } else {
-        next();
-    }
-} );
+// Verifying jwt token and verifying user' role
+router.use( verifyJwt, ordersController.checkUsersPermission);
 
 // Retrieving order's details by orderId from database
 router.get('/get/:orderId', ordersController.getOrderById);

@@ -1,7 +1,6 @@
 // Importing all required modules
 const express = require("express");
 const router = express.Router();
-const utils = require('../middlewares/utils');
 const upload = require("../middlewares/upload");
 const verifyJwt = require("../middlewares/verify-jwt");
 const usersController = require("../controllers/users");
@@ -20,9 +19,6 @@ router.use(verifyJwt, function (req, res, next) {
         next();
     }
 });
-
-// Viewing profile images of the users
-router.get('/avatar/*/*', utils.viewImages);
 
 // Retrieving admin details
 router.get("/get", usersController.getUserById);

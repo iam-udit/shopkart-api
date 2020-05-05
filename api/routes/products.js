@@ -39,10 +39,10 @@ router.get('/get-all/:offSet?', productsController.getAllProducts);
 router.get('/by-seller/:sellerId/:offSet?', verifyJwt, checkPermission, productsController.getAllProducts);
 
 // Creating new product
-router.post('/create/', verifyJwt, checkPermission, productExists,  upload.array('productImages', 6 ), productsController.createProduct);
+router.post('/create/', verifyJwt, checkPermission,  upload.array('productImages', 6 ), productExists, productsController.createProduct);
 
 // Update Product details
-router.put('/update/:productId', verifyJwt, checkPermission, productExists, upload.array('productImages', 6 ), productsController.updateProduct);
+router.put('/update/:productId', verifyJwt, checkPermission, upload.array('productImages', 6 ), productExists, productsController.updateProduct);
 
 // Delete product
 router.delete('/remove/:productId', verifyJwt, checkPermission, productsController.deleteProduct);

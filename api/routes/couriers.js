@@ -2,7 +2,6 @@
 const express = require("express");
 const router = express.Router();
 const createError = require('http-errors');
-const utils = require('../middlewares/utils');
 const upload = require("../middlewares/upload");
 const verifyJwt = require("../middlewares/verify-jwt");
 const userExists = require('../middlewares/user-exists');
@@ -21,9 +20,6 @@ function checkPermission (req, res, next){
         next();
     }
 }
-
-// Viewing profile images of the couriers
-router.get('/avatar/*/*', verifyJwt, utils.viewImages);
 
 // Retrieving courier's details by Id
 router.get("/get", verifyJwt, couriersController.getCourierById);

@@ -156,7 +156,8 @@ exports.createProduct = async function (req, res, next) {
 
         // If error occur, then remove stored images
         removeDir(
-            path.resolve(__dirname + "../../../public/uploads", path.dirname(req.body.productImages[0]))
+            path.resolve(__dirname + "../../../public/uploads",
+            path.dirname(req.body.productImages[0]))
         );
 
         if (error._message) {
