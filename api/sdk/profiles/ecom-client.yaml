@@ -4,9 +4,9 @@ version: "1.0"
 client:
   organization: Ecom
   credentialStore:
-    path: "./api/sdk/client/credstore/ecom/hfc-kvs"
+    path: "./api/sdk/wallet/ecom/admin"
     cryptoStore:
-      path: "./api/sdk/client/credstore/ecom/hfc-cvs"
+      path: "./api/sdk/wallet/ecom/admin"
   connection:
     options:
       grpc.keepalive_time_ms: 120000

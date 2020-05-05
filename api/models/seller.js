@@ -17,7 +17,10 @@ const sellerSchema = mongoose.Schema({
     statusConfirmed : { type: Boolean, default: false },
     mobileNumber:{ type: Number },
     mobileNumberVerified: { type: Boolean, default: false },
-    gender: { type: String },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other']
+    },
     age: { type: Number, maxlength: 2 },
     address: {
         city: { type: String },

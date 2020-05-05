@@ -3,13 +3,10 @@ const mongoose = require("mongoose");
 const createError = require("http-errors");
 const bcrypt = require("bcryptjs");
 
-// Update new password
-module.exports.updatePassword = (req, res, next) => {
+// Create Model class
+function createModel(req) {
 
-    var Model = null;
-
-    // Retrieving user id from userData
-    var id = req.userData.id;
+    let Model = "";
 
     // Getting the model
     var temp = req.originalUrl.split('/')[1];
@@ -22,8 +19,20 @@ module.exports.updatePassword = (req, res, next) => {
         Model = require('../models/user');
     }
 
-    // Update password in database
-    Model.update({ _id: id }, { $set: { password: req.body.password } })
+    return Model;
+}
+
+// Update new password
+exports.updatePassword = function (req, res, next)  {
+
+    // Retrieving user id from userData
+    var id = req.userData.id;
+
+    // Creating model class for request
+    var Model = createModel(req);
+
+    // Update password in database
+    Model.updateOne({ _id: id }, { $set: { password: req.body.password } })
         .exec()
         .then(result => {
 
@@ -49,7 +58,7 @@ module.exports.updatePassword = (req, res, next) => {
 
 
 // Converting plain password into hash
-module.exports.digestPassword = (req, res, next) => {
+exports.digestPassword = function (req, res, next) {
 
     bcrypt.hash(req.body.npassword || req.body.password, 10, (error, hash)=> {
         if (error) {
@@ -63,6 +72,8 @@ module.exports.digestPassword = (req, res, next) => {
 
 
 // Update account status
-module.exports.forgotPassword = (req, res, next) => {
+exports.forgotPassword = function (req, res, next) {
 
 };
+
+exports.createModel = createModel;

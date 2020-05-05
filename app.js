@@ -31,7 +31,7 @@ var app = express();
 app.use(logger('dev'));
 
 // Allow public/upload as static
-app.use('/public', express.static('public'));
+app.use('/products', express.static('public/uploads/products'));
 
 // Setting up body-parser package
 app.use(bodyParser.json());
@@ -84,19 +84,25 @@ app.use("/logistics", logisticRoutes);
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(shopKartDocs));
 
 // Redirecting main page to api-docs
-app.use("/", (req, res)=>res.redirect('/api-docs'));
+app.use((req, res, next)=>{
 
-// If invalid url, catch 404 and forward to error handler
-app.use((req, res, next) => {
-  next(createError(404, "Invalid Url !"));
+    if (req.originalUrl == "/"){
+        // If the route is '/', then redirect to api-docs
+        res.redirect('/api-docs');
+    } else {
+    // If invalid url, catch 404 and forward to error handler
+        next(createError(404, "Invalid Url !"));
+    }
 });
 
 // error handler, return the error response
 app.use( (err, req, res, next) => {
-    delete err.stack;
-  res.status(err.status || 500);
-  err.status = res.statusCode;
-  res.json(err);
+    res.status(err.status || 500);
+    res.json({
+        status: res.statusCode,
+        message: err.message
+    });
 });
+
 
 module.exports = app;

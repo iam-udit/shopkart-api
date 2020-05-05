@@ -9,6 +9,24 @@ const orderSchema = mongoose.Schema({
         index: true,
         required: true
     },
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller',
+        index: true,
+        required: true
+    },
+    logistic: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Logistic',
+        index: true,
+        default: null
+    },
+    courier: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Courier',
+        index: true,
+        default: null
+    },
     product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
@@ -28,6 +46,22 @@ const orderSchema = mongoose.Schema({
     quantity: {
         type: Number,
         default: 1
+    },
+    orderStatus: {
+        type: String,
+        enum: [
+            'Pending',
+            'Confirmed',
+            'Dispatched',
+            'Delivered',
+            'Canceled',
+            'Returned'
+        ],
+        default: 'Pending'
+    },
+    shipmentCharges: {
+        type: Number,
+        required: true,
     },
     totalBalance: {
         type: Number,

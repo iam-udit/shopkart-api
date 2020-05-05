@@ -2,6 +2,8 @@
  * Demonstrates the use of Gateway Network & Contract classes
  */
 
+// Adding path module
+const path = require('path');
 // Needed for reading the connection profile as JS object
 const fs = require('fs');
 // Used for parsing the connection profile YAML file
@@ -12,8 +14,7 @@ const { Gateway, FileSystemWallet } = require('fabric-network');
 const { createWallet } = require('./wallet');
 
 // Constants for profile
-const CONNECTION_PROFILE_PATH = '../profiles/dev-connection.yaml'
-
+const CONNECTION_PROFILE_PATH = __dirname + '/../profiles/dev-connection.yaml';
 
 
 /**
@@ -60,16 +61,21 @@ async function setupGateway(org, user) {
  * Queries the chaincode
  * @param {object} options
  */
-async function query(options) {
+exports.query =  async function (options) {
 
     // Setup gateway for connecting network and contract
     let contract = await setupGateway( options.org, options.user );
 
     // Query the chaincode
-    let response =  await contract.evaluateTransaction(options.method, ...options.args);
+    response =  await contract.evaluateTransaction(options.method, ...options.args);
+
+    // Parsing and managing response
+    response = JSON.parse(response);
+    response.data = response.response;
+    delete response.response;
 
     // Return query response
-    return  response.toString();
+    return response;
 }
 
 
@@ -77,7 +83,7 @@ async function query(options) {
  * Creates & submit the transaction & uses the submit function
  * @param {object} options
  */
-async function invoke(options) {
+exports.invoke = async function (options) {
 
     // Setup gateway for connecting network and contract
     let contract = await setupGateway( options.org, options.user );
@@ -85,25 +91,16 @@ async function invoke(options) {
     // Provide the function name
     let txn = contract.createTransaction(options.method);
 
-    // Get the txn ID
-    console.log(txn.getTransactionID())
-
     // Submit the transaction
     let response = await txn.submit(...options.args);
 
+    // Managing response
+    response = JSON.parse(response);
+    response.message = response.response;
+    delete response.response;
+    response.txn = await txn.getTransactionID();
+
     // Return invoke response
-    return response.toString();
+    return response;
 }
 
-
-async function main() {
-    let options = {
-        org: "ecom",
-        user: "5ea9078bf49a0e2cbcbcd749",
-        method: "query",
-        args: ['a']
-    }
-    let response = await query(options);
-    console.log(response)
-}
-main();

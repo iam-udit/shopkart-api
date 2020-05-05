@@ -3,12 +3,15 @@ const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const  jwt = require("jsonwebtoken");
 const createError = require("http-errors");
+const utils = require("../middlewares/utils");
+const wallet = require('../sdk/gateway/wallet');
+const contract = require('../sdk/gateway/contract');
 
 const Logistic = require("../models/logistic");
 
 
 // Retrieving logistic's details by logisticId
-exports.getLogisticById =  (req, res, next) => {
+exports.getLogisticById = function (req, res, next) {
 
     // Getting logistic's id from userData
     const id = req.userData.id;
@@ -40,7 +43,7 @@ exports.getLogisticById =  (req, res, next) => {
 };
 
 // Retrieving all logistic's details form database
-exports.getAllLogistics =  (req, res, next) => {
+exports.getAllLogistics = function (req, res, next) {
 
     var query = {};
 
@@ -53,7 +56,7 @@ exports.getAllLogistics =  (req, res, next) => {
     }
 
     // Finding all logistics details
-    Logistic.paginate(query, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+    Logistic.paginate(query, { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 })
         .then(result => {
             // If logistics found, return user details
             if (result.total > 0) {
@@ -61,7 +64,7 @@ exports.getAllLogistics =  (req, res, next) => {
                     status: 200,
                     message: "A list of logistic details",
                     total: result.total,
-                    offset: result.offset,
+                    offset: (result.offset / 10) + 1,
                     pages: Math.ceil(result.total / result.limit ),
                     logistics: result.docs
                 }
@@ -79,41 +82,43 @@ exports.getAllLogistics =  (req, res, next) => {
 };
 
 // Creating new logistic/ processing signup
-exports.logisticSignUp = (req, res, next)=>{
+exports.logisticSignUp = async function (req, res, next) {
 
     // Creating logistic schema object and binding data to it
-    const  logistic = new Logistic({
-        _id: new mongoose.Types.ObjectId(),
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
-    });
+    const  logistic = new Logistic(utils.createOps(req));
 
-    logistic.save()
-        // If logistic account created, return success message
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: "User Created Successfully."
-            });
+    try {
+        // Creaing logistic account in couchdb
+        await contract.invoke( {
+            org: "delivery",
+            user: 'admin',
+            method: "CreateAccount",
+            args: [logistic._id.toString(), 'delivery']
         })
-        // If any error occure return error message
-        .catch(error=>{
-            if (error._message) {
-                // If validation faied
-                error.message = error.message;
-            } else {
-                // If logistic account creation failed
-                error.message = "User creation failed !";
-            }
-            next(error);
+
+        // Save logistic details in database
+        await logistic.save();
+
+        // If logistic account created, return success message
+        await res.status(201).json({
+            status: 201,
+            message: "User Created Successfully."
         });
 
+    } catch (error) {
+        if (error._message) {
+            // If validation faied
+            error.message = error.message;
+        } else {
+            // If logistic account creation failed
+            error.message = "User creation failed !";
+        }
+        next(error);
+    }
 };
 
 // Performing login process
-exports.logisticLogin = (req, res, next)=>{
+exports.logisticLogin = function (req, res, next) {
 
     // Checking logistic is valid or not
     Logistic.findOne({ email : req.body.email })
@@ -129,6 +134,7 @@ exports.logisticLogin = (req, res, next)=>{
                                 id: logistic._id,
                                 role: 'logistic',
                                 email : logistic.email,
+                                statusConfirmed: logistic.statusConfirmed
                             },
                             process.env.JWT_SECRET_KEY,
                             {
@@ -153,79 +159,70 @@ exports.logisticLogin = (req, res, next)=>{
 };
 
 // Update logistic's details
-exports.updateLogistic = (req, res, next) => {
+exports.updateLogistic = async function (req, res, next) {
 
-    // Retrieving logistic id from userData
-    const id = req.userData.id;
+    try {
+        // Retrieve update option from request body
+        var updateOps = await utils.updateOps(req);
 
-    // Retrieve update option from request body
-    var updateOps = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        mobileNumber: req.body.mobileNumber,
-        logisticImage: req.file.path,
-        address: {
-            city: req.body.city,
-            state: req.body.state,
-            country: req.body.country,
-            zip: req.body.zip,
-            body: req.body.body
-        },
-        gender: req.body.gender,
-        age: req.body.age
-    };
+        // Update logistic's details in database
+        var result = await Logistic.update({ _id: req.userData.id }, { $set: updateOps });
 
-    // Update logistic's details in database
-    Logistic.update({ _id: id }, { $set: updateOps })
-        .exec()
-        .then(result => {
-
-            // If logistic's details updated successfully, return success response
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: "User's detail updated."
-                });
-            }
+        // If logistic's details updated successfully, return success response
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: "User's detail updated."
+            });
+        } else {
             // If invalid logistic's id
-            else {
-                next(createError(404, "Invalid user Id !"));
-            }
+            next(createError(404, "Invalid user Id !"));
+        }
 
-        })
+    } catch (error) {
         // If logistic's updation failed.
-        .catch(error => {
-            error.message = "User's detail updation failed !";
-            next(error);
-        });
+        error.message = "User's detail updation failed !";
+        next(error);
+    }
 };
 
 // Delete logistic's records
-exports.removeLogistic = (req, res, next) => {
+exports.removeLogistic = async function (req, res, next) {
 
     // Getting logistic's id from request
     const id = req.params.logisticId;
 
-    // Deleting logistic's account from database
-    Logistic.remove({ "_id": id })
-        .exec()
-        .then(result => {
-            // If  logistic's deleted successfully, return success response
-            if (result.deletedCount > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: "Logistic's record deleted."
-                });
-            }
-            // If invalid logistic id
-            else {
-                next(createError(404, "Invalid logistic Id !"));
-            }
+    try{
+        // Deleting logistic's account from database
+        let result = await Logistic.remove({ "_id": id });
 
-        })
+        // If  logistic's deleted successfully, return success response
+        if (result.deletedCount > 0) {
+
+            // Delete logistic from couchdb
+            await contract.invoke({
+                org: "delivery",
+                user: "admin",
+                method: "DeleteAccount",
+                args: [id]
+            });
+
+            // Remove Identity from wallet
+            await wallet.removeIdentity('admin', 'delivery');
+
+            await res.status(200).json({
+                status: 200,
+                message: "Logistic's record deleted."
+            });
+
+        } else {
+            // If invalid logistic id
+            next(createError(404, "Invalid logistic Id !"));
+        }
+
+    } catch (error) {
         // If any error occurs, return error response
-        .catch(error => {
-            error.message = "Logistic's record deletion failed !";
-            next(error);
-        })
+        error.message = "Logistic's record deletion failed !";
+        next(error);
+    }
 };

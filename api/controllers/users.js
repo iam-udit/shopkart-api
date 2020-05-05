@@ -1,11 +1,44 @@
 // Importing all required modules
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const createError = require("http-errors");
-const bcrypt = require("bcryptjs");
-const  jwt = require("jsonwebtoken");
+const utils = require("../middlewares/utils");
 
 const User = require("../models/user");
 
+// Creating jwt token
+function createJWT(user, temp) {
+
+    // Making payload
+    let payload = {};
+
+    if ( temp == 'admin'){
+        // If request from admin
+        payload = {
+            id: user._id,
+            role: 'admin',
+            email: user.email
+        }
+    } if (temp == 'users'){
+        // If request from users
+        payload = {
+            id: user._id,
+            role: 'customer',
+            mobileNumber : user.mobileNumber
+        }
+    }
+
+    // Creating jwt token
+    const token = jwt.sign(
+        payload,
+        process.env.JWT_SECRET_KEY,
+        {
+            expiresIn: "1h"
+        });
+
+    return token;
+}
 
 // Retrieving user's details by userId
 exports.getUserById =  (req, res, next) => {
@@ -19,10 +52,6 @@ exports.getUserById =  (req, res, next) => {
         .then(user => {
             // if user found, return success response
             if (user) {
-                // Remove emailVerified field from user for admin request
-                if (req.originalUrl.split('/')[1] == 'admin') {
-                    delete user.emailVerified;
-                }
                 res.status(200).json({
                     status: 200,
                     message: "User account details",
@@ -38,7 +67,6 @@ exports.getUserById =  (req, res, next) => {
         // If any error occures, return error message
         .catch(error => {
             next(error);
-
         });
 };
 
@@ -46,7 +74,10 @@ exports.getUserById =  (req, res, next) => {
 exports.getAllUsers =  (req, res, next) => {
 
     // Finding all users
-    User.paginate({ email : { $ne: process.env.ADMIN } }, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+    User.paginate(
+        { email : { $ne: process.env.ADMIN } },
+        { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 }
+        )
         .then(result => {
             // If users found, return user details
             if (result.total > 0) {
@@ -55,7 +86,7 @@ exports.getAllUsers =  (req, res, next) => {
                     message: "A list of user details",
                     total: result.total,
                     pages: Math.ceil(result.total / result.limit),
-                    offset: result.offset,
+                    offset: (result.offset / 10) + 1 ,
                     users: result.docs,
                 }
                 res.status(200).json(response);
@@ -78,7 +109,7 @@ exports.userSignUp = (req, res, next)=>{
     const  user = new User({
         _id: new mongoose.Types.ObjectId(),
         mobileNumber: req.body.mobileNumber,
-        password: req.body.password
+        password: req.body.password,
     });
 
     user.save()
@@ -106,15 +137,18 @@ exports.userSignUp = (req, res, next)=>{
 exports.userLogin = (req, res, next)=>{
 
     let query = {};
+
     let temp = req.originalUrl.split('/')[1];
+
+    // Buildiing query
     if (temp == 'users'){
         // Building query for users login
         query = { mobileNumber : req.body.mobileNumber };
     } else if ( temp == 'admin'){
         // Building query for admin login
         query = { email : req.body.email };
-
     }
+
     // Checking user is valid or not
     User.findOne(query)
         .exec()
@@ -124,26 +158,9 @@ exports.userLogin = (req, res, next)=>{
                 bcrypt.compare(req.body.password, user.password, (error, result) => {
                     if (result) {
 
-                        let payload = {
-                            id: user._id,
-                            role: 'customer',
-                            mobileNumber : user.mobileNumber
-                        };
+                        // Create Jwt
+                        let token = createJWT(user, temp);
 
-                        // If request from admin, make payload
-                       if ( temp == 'admin'){
-                            payload.role = 'admin';
-                            payload.email = user.email;
-                            delete payload.mobileNumber;
-                        }
-
-                        // Creating jwt token
-                        const token = jwt.sign(
-                            payload,
-                            process.env.JWT_SECRET_KEY,
-                            {
-                                expiresIn: "1h"
-                            });
                         res.status(200).json({
                             status: 200,
                             message: "Authentication sucesss !",
@@ -162,60 +179,30 @@ exports.userLogin = (req, res, next)=>{
 };
 
 // Update users details
-exports.updateUser = (req, res, next) => {
+exports.updateUser = async (req, res, next) => {
 
-    // Retrieving user id from userData
-    const id = req.userData.id;
+    try {
+        // Retrieve update option from request body
+        var updateOps = await utils.updateOps(req);
 
-    // Retrieve update option from request body
-    var updateOps = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        address: {
-            city: req.body.city,
-            state: req.body.state,
-            country: req.body.country,
-            zip: req.body.zip,
-            body: req.body.body
-        },
-        gender: req.body.gender,
-        age: req.body.age
-    };
+        // Update user's details in database
+        let result = await User.updateOne({ _id: req.userData.id }, { $set: updateOps });
 
-    // If request from admin, modify updateOps
-    if (req.originalUrl.split('/')[1] == 'admin') {
-        delete updateOps.email;
-        updateOps.mobileNumber = req.body.mobileNumber;
-    }
-
-    if (req.file.path != undefined) {
-        updateOps.userImage =  req.file.path;
-    }
-
-    // Update user's details in database
-    User.updateOne({ _id: id }, { $set: updateOps })
-        .exec()
-        .then(result => {
-
-            // If user's details updated successfully, return success response
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: "User details updated"
-                });
-            }
+        // If user's details updated successfully, return success response
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: "User details updated"
+            });
+        } else {
             // If invalid user id
-            else {
-                next(createError(404, "Invalid user Id !"));
-            }
-
-        })
+            next(createError(404, "Invalid user Id !"));
+        }
+    } catch (error) {
         // If user's updation failed.
-        .catch(error => {
-            error.message = "User details updation failed !";
-            next(error);
-        });
+        error.message = "User details updation failed !";
+        next(error);
+    }
 };
 
 // Delete user records

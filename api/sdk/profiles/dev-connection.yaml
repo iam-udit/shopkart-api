@@ -2,7 +2,7 @@
 #
 # The network connection profile provides client applications the information about the target
 # blockchain network that are necessary for the applications to interact with it.
-name: "dev-network"
+name: "ecom-network"
 
 #
 # Describe what the target network is/does.
@@ -51,16 +51,13 @@ channels:
         eventSource: true
 
       # Delivery peer - with roles played by the peer
-      dpeer1:
+      delivery-peer1.delivery.com:
         # Roles for which this peer may be used
         endorsingPeer: false  # SDK will NOT send request for endorsements to this peer
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: false    # SDK will NOT allow event subscribers for this peer
 
-
-
-      
 #
 # List of orderers to send transaction and channel create/update requests to. For the time
 # being only one orderer is needed. 
@@ -78,6 +75,6 @@ peers:
 
     url: grpc://ecom-peer1.ecom.com:7051
 
-  dpeer1:
+  delivery-peer1.delivery.com:
 
     url: grpc://delivery-peer1.delivery.com:8051

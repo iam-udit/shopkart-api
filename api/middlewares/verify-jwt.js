@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 
-module.exports = (req, res, next) => {
+module.exports = function (req, res, next) {
 
     // Authenticating jwt token
     try {

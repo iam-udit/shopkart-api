@@ -16,7 +16,10 @@ const courierSchema = mongoose.Schema({
     },
     password: { type: String, required: true},
     mobileNumber:{ type: Number },
-    gender: { type: String },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other']
+    },
     age: { type: Number, maxlength: 2 },
     address: {
         city: { type: String },
