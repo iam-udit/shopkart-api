@@ -5,6 +5,7 @@
 'use strict';
 
 const fs = require('fs');
+const mkdirp = require("mkdirp");
 const path = require('path');
 const yaml = require('js-yaml');
 const Client = require('fabric-client');
@@ -29,23 +30,29 @@ function createWallet(org) {
     return new FileSystemWallet(walletPath);
 }
 
+// Load Connection profile and get CaUrl
+function getCaURL(org){
+
+    let caURL = "";
+
+    if (org == 'ecom') {
+        // setup ecom client
+        CLIENT_CONNECTION_PROFILE_PATH = path.resolve( __dirname, '../profiles/ecom-client.yaml');
+        caURL = 'http://0.0.0.0:7054';
+    } else if (org == 'delivery') {
+        // setup delivery client
+        CLIENT_CONNECTION_PROFILE_PATH = path.resolve(__dirname, '../profiles/delivery-client.yaml');
+        caURL = 'http://0.0.0.0:8054';
+    }
+
+    return caURL;
+}
+
 exports.importIdentity = async function (user, cb) {
     try {
         // Load the client section for the organization
         // This has the location of the credential store
-        let caURL = '';
-        if (user.org == 'ecom') {
-            // setup ecom client
-            CLIENT_CONNECTION_PROFILE_PATH = path.resolve( __dirname, '../profiles/ecom-client.yaml');
-            caURL = 'http://0.0.0.0:7054';
-        } else if (user.org == 'delivery') {
-            // setup delivery client
-            CLIENT_CONNECTION_PROFILE_PATH = path.resolve(__dirname, '../profiles/delivery-client.yaml');
-            caURL = 'http://0.0.0.0:8054';
-        } else {
-            console.log("Unknown organization:", org);
-            return cb(createError(500, 'User registration failed !'));
-        }
+        let caURL = getCaURL(user.org);
 
         // Create a new CA client for interacting with the CA.
         const ca = new FabricCAServices(caURL);
@@ -61,6 +68,7 @@ exports.importIdentity = async function (user, cb) {
             .then((done) => {
                 console.log("initCredentialStore(): ", done);
             })
+
         let adminUser = await client.loadUserFromStateStore('admin');
 
         // Check to see if we've already enrolled the admin user.
@@ -75,6 +83,7 @@ exports.importIdentity = async function (user, cb) {
             enrollmentID: user.id,
             role: user.role
         }, adminUser);
+
         const enrollment = await ca.enroll({
             enrollmentID: user.id,
             enrollmentSecret: secret
@@ -111,41 +120,50 @@ exports.importIdentity = async function (user, cb) {
  */
 exports.exportIdentity = async function (user, org) {
 
-    let wallet = createWallet(org);
-    // To retrive execute export
-    let identity = await wallet.export(user);
+    let identity = {};
 
-    if (identity == null){
-        return { message: `Identity ${user} for ${org} Org Not found !!!` };
-    } else {
-        // return all attributes : label, Key, Cert
-        return identity;
+    try {
+        let wallet = createWallet(org);
+        // To retrive execute export
+        identity = await wallet.export(user);
+    } catch (e) {
+        console.log(e)
     }
+
+    return identity;
 }
 
 /**
  * Lists the identities in the wallet
  */
 exports.listIdentities = async function (org){
-    let wallet = createWallet(org);
-    // Retrieve the identities in folder
-    let lists = await wallet.list()
-    // Return the identities lists
-    if (lists.length < 1){
-        return { message: `Users Not found !!!` };
-    } else {
-        // return all attributes : label, Key, Cert
-        return lists;
+
+    let lists = [];
+
+    try {
+        let wallet = createWallet(org);
+        // Retrieve the identities in folder
+        lists = await wallet.list();
+    } catch (e) {
+        console.log(e)
     }
+
+    return lists;
 }
 
 /**
  * Check identity in the wallet
  */
 exports.existsIdentity = async function (user, org){
-    let wallet = createWallet(org);
-    // Checking identity existance
-    return await wallet.exists(user)
+    let status = false;
+    try {
+        let wallet = createWallet(org);
+        // Checking identity existance
+        status = await wallet.exists(user);
+    } catch (error) {
+        console.log(error)
+    }
+    return status;
 }
 
 /**

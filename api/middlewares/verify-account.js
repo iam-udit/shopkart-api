@@ -3,12 +3,7 @@ const mongoose = require("mongoose");
 const createError = require("http-errors");
 
 // Update account status
-module.exports = (req, res, next) => {
-
-    // Checking user eligibility
-    if(req.userData.role != 'admin'){
-        return  next(createError(401,"You are not an eligible user for this operation !"));
-    }
+module.exports = function (req, res, next) {
 
     // Getting the model
     var temp = req.originalUrl.split('/')[1];

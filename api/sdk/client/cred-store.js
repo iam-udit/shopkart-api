@@ -61,6 +61,20 @@ async function initCredentialStore() {
         })
 }
 
+// Load the client section for the organization
+function loadConfig(org, client){
+    if(org == 'ecom'){
+        // setup ecom client
+        client.loadFromConfig(ECOM_CLIENT_CONNECTION_PROFILE_PATH);
+    } else if(org == 'delivery'){
+        // setup delivery client
+        client.loadFromConfig(DELIVERY_CLIENT_CONNECTION_PROFILE_PATH);
+    } else {
+        console.log("Unknown organization:", org);
+        process.exit(1);
+    }
+}
+
 /**
  * Setup the user context
  **/
@@ -102,16 +116,7 @@ async function setupCredStore(org, user){
 
     // Load the client section for the organization
     // This has the location of the credential store
-    if(org == 'ecom'){
-        // setup ecom client
-        client.loadFromConfig(ECOM_CLIENT_CONNECTION_PROFILE_PATH);
-    } else if(org == 'delivery'){
-        // setup delivery client
-        client.loadFromConfig(DELIVERY_CLIENT_CONNECTION_PROFILE_PATH);
-    } else {
-        console.log("Unknown organization:", org);
-        process.exit(1);
-    }
+    loadConfig(org, client);
 
     // Initialize the store
     await initCredentialStore();
@@ -124,10 +129,10 @@ async function setupCredStore(org, user){
 
         // Create the user context
         userContext = await createUserContext(org, user);
-        console.log(`Created ${user} for ${org} under the credentials store!!`);
+        console.log(`Created ${user} for ${org} under the wallet !!!`);
 
     } else {
-        console.log(`User ${org}: ${user} already exist!!`);
+        console.log(`User ${org}: ${user} already exist !!!`);
     }
 
     // Setup the context on the client

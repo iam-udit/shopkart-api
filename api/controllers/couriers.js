@@ -1,15 +1,16 @@
 // Importing all required modules
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const  jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const wallet = require('../sdk/gateway/wallet');
+const utils = require("../middlewares/utils");
 
 const Courier = require("../models/courier");
 
 
 // Retrieving courier's details by courierId
-exports.getCourierById =  (req, res, next) => {
+exports.getCourierById =  function (req, res, next) {
 
     // Getting courier's id from userData
     const id = req.userData.id;
@@ -41,19 +42,16 @@ exports.getCourierById =  (req, res, next) => {
 };
 
 // Retrieving all courier's details by logistic Id
-exports.getAllCouriers =  (req, res, next) => {
-
-    // Verifying eligibility of the user
-    if ( req.userData.role != 'logistic' ) {
-        // If role is not logistic, then return
-        return  next(createError(401,"You are not an eligible user for this operation !"));
-    }
+exports.getAllCouriers =  function (req, res, next) {
 
     // Getting logistic's id from userData
     const logistiId = req.userData.id;
 
     // Finding all logistics details
-    Courier.paginate( { logistic: logistiId }, { offset: parseInt(req.params.offSet) || 0, limit: 10 })
+    Courier.paginate(
+        { logistic: logistiId },
+        { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 }
+        )
         .then(result => {
             // If couriers found, return courier details
             if (result.total > 0) {
@@ -61,7 +59,7 @@ exports.getAllCouriers =  (req, res, next) => {
                     status: 200,
                     message: "A list of courier details",
                     total: result.total,
-                    offset: result.offset,
+                    offset: (result.offset / 10) + 1,
                     pages: Math.ceil(result.total / result.limit ),
                     couriers: result.docs
                 }
@@ -79,62 +77,47 @@ exports.getAllCouriers =  (req, res, next) => {
 };
 
 // Creating new courier/ processing signup
-exports.courierSignUp = (req, res, next)=>{
+exports.courierSignUp = async function (req, res, next) {
 
-    // Verifying eligibility of the user
-    if ( req.userData.role != 'logistic' ) {
-        // If role is not logistic, then return
-        return  next(createError(401,"You are not an eligible user for this operation !"));
-    }
+    try {
+        // Creating courier schema object and binding data to it
+        const  courier = new Courier(utils.createOps(req));
 
-    // Creating id for courier registration
-    let id = new mongoose.Types.ObjectId();
-    // Register, enroll and import the courier identity in wallet
-    wallet.importIdentity({
-        id: id.toString(),
-        org: 'delivery',
-        msp: 'deliveryMSP',
-        role: '',
-        affiliation: ''
-    },(error) => {
-        // If any error occur then return error response
-        next(error);
-    });
+        // Adding logisticId for courier registration
+        courier.logistic = req.userData.id;
 
-    // Creating courier schema object and binding data to it
-    const  courier = new Courier({
-        _id: id,
-        logistic: req.userData.id,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password
-    });
-
-    courier.save()
-        // If courier account created, return success message
-        .then(result => {
-            res.status(201).json({
-                status: 201,
-                message: "Courier account Created"
-            });
-        })
-        // If any error occur return error message
-        .catch(error=>{
-            if (error._message) {
-                // If validation faied
-                error.message = error.message;
-            } else {
-                // If courier account creation failed
-                error.message = "Courier account creation failed !";
-            }
-            next(error);
+        // Register, enroll and import the courier identity in wallet
+        await wallet.importIdentity({
+            id: courier._id.toString(),
+            org: 'delivery',
+            msp: 'deliveryMSP',
+            role: '',
+            affiliation: ''
         });
 
+        // Saving courier details in db
+        await courier.save()
+
+        // If courier account created, return success message
+        await res.status(201).json({
+            status: 201,
+            message: "Courier account Created"
+        });
+
+    } catch (error) {
+        if (error._message) {
+            // If validation faied
+            error.message = error.message;
+        } else {
+            // If courier account creation failed
+            error.message = "Courier account creation failed !";
+        }
+        next(error);
+    }
 };
 
 // Performing login process
-exports.courierLogin = (req, res, next)=>{
+exports.courierLogin = function (req, res, next) {
 
     // Checking courier is valid or not
     Courier.findOne({ email : req.body.email })
@@ -174,79 +157,61 @@ exports.courierLogin = (req, res, next)=>{
 };
 
 // Update courier's details
-exports.updateCourier = (req, res, next) => {
+exports.updateCourier = async  function (req, res, next) {
 
-    // Retrieving courier id from userData
-    const id = req.userData.id;
+    try {
+        // Retrieve update option from request body
+        const updateOps = await utils.updateOps(req);
 
-    // Retrieve update option from request body
-    var updateOps = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        mobileNumber: req.body.mobileNumber,
-        courierImage: req.file.path,
-        address: {
-            city: req.body.city,
-            state: req.body.state,
-            country: req.body.country,
-            zip: req.body.zip,
-            body: req.body.body
-        },
-        gender: req.body.gender,
-        age: req.body.age
-    };
+        // Update courier's details in database
+        var result = await Courier.update({ _id: req.userData.id }, { $set: updateOps });
 
-    // Update courier's details in database
-    Courier.update({ _id: id }, { $set: updateOps })
-        .exec()
-        .then(result => {
-
-            // If courier's details updated successfully, return success response
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: "User's detail updated"
-                });
-            }
+        // If courier's details updated successfully, return success response
+        if (result.nModified > 0) {
+            res.status(200).json({
+                status: 200,
+                message: "User's detail updated"
+            });
+        } else {
             // If invalid courier's id
-            else {
-                next(createError(404, "Invalid user Id !"));
-            }
-
-        })
+            next(createError(404, "Invalid user Id !"));
+        }
+    } catch (error) {
         // If courier's updation failed.
-        .catch(error => {
-            error.message = "User's detail updation failed !";
-            next(error);
-        });
+        error.message = "User's detail updation failed !";
+        next(error);
+    }
 };
 
 // Delete courier's records
-exports.removeCourier = (req, res, next) => {
+exports.removeCourier = async function (req, res, next) {
 
     // Getting courier's id from request
     const id = req.params.courierId;
 
-    // Deleting courier's account from database
-    Courier.remove({ "_id": id })
-        .exec()
-        .then(result => {
-            // If  courier's deleted successfully, return success response
-            if (result.deletedCount > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: "Courier's record deleted."
-                });
-            }
-            // If invalid courier id
-            else {
-                next(createError(404, "Invalid courier Id !"));
-            }
+    try {
+        // Deleting courier's account from database
+        let result = await Courier.remove({ "_id": id });
 
-        })
+        // If  courier's deleted successfully, return success response
+        if (result.deletedCount > 0) {
+
+            // Remove courier's wallet
+            await wallet.removeIdentity(id, 'delivery');
+
+            // Return success response
+            await res.status(200).json({
+                status: 200,
+                message: "Courier's record deleted."
+            });
+
+        } else {
+            // If invalid courier id
+            next(createError(404, "Invalid courier Id !"));
+        }
+    } catch (error) {
         // If any error occurs, return error response
-        .catch(error => {
-            error.message = "Courier's record deletion failed !";
-            next(error);
-        })
+        error.message = "Courier's record deletion failed !";
+        next(error);
+    }
 };

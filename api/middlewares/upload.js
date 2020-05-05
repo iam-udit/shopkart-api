@@ -8,6 +8,26 @@ const createError = require("http-errors");
 var temp = '';
 var dir = '';
 
+// Create target directories
+function createDir(req, temp) {
+
+    let targetDir = "";
+
+    if ( temp == 'admin' ){
+        // Destination for admin
+        targetDir = path.join(dir, 'admin');
+    } else if ( temp == 'products'){
+        // Destination for products
+        targetDir = path.join(dir, temp, req.body.type, req.body.title +'-'+ req.userData.id);
+    } else if ( temp == 'users' || temp == 'sellers' || temp == 'logistics'  || temp == 'couriers' ) {
+        // Destination for users, sellers, logistics
+        targetDir = path.join(dir, temp, req.userData.id);
+    }
+
+    return targetDir;
+}
+
+// Remove target directories
 var removeDir = function (dir) {
     // Checking if the dir is exists or not
     if(fs.existsSync(dir)){
@@ -19,6 +39,7 @@ var removeDir = function (dir) {
                 fs.unlinkSync( dir + '/' + fileName );
             })
         }
+        fs.rmdirSync(dir);
     }
 }
 
@@ -35,24 +56,16 @@ const storage = multer.diskStorage({
         temp = req.originalUrl.split('/')[1];
 
         // Creating target directories
-        if ( temp == 'admin' ){
-            // Destination for admin
-            dir = path.join(dir, 'admin');
-        } else if ( temp == 'products'){
-            // Destination for products
-            dir = path.join(dir, temp, req.body.type, req.body.title +'-'+ req.userData.id);
-        } else if ( temp == 'users' || temp == 'sellers' || temp == 'logistics'  || temp == 'couriers' ) {
-            // Destination for users, sellers, logistics
-            dir = path.join(dir, temp, req.userData.id);
-        }
+        dir = createDir(req, temp);
 
         // Delete if the dir is already exist
-        if ( temp == 'products' &&  req.files.length == 1 || temp != 'products') {
+        if ( (temp == 'products' &&  req.files.length == 1) || temp != 'products') {
             removeDir(dir);
         }
 
         // Creating the new dir
         mkdirp.sync(dir);
+
         cb(null,dir);
     },
 
@@ -63,7 +76,7 @@ const storage = multer.diskStorage({
 });
 
 // Preventing unwanted files, accepting only jpeg,png,jpg and gif
-const fileFilter = (req, file, cb) => {
+const fileFilter = function (req, file, cb) {
     if(
         file.mimetype === "image/jpeg" ||
         file.mimetype === "image/jpg" ||
@@ -99,3 +112,5 @@ module.exports = multer({
     },
     fileFilter : fileFilter
 });
+
+module.exports.removeDir = removeDir;

@@ -10,10 +10,10 @@ client:
   # User context storage
   credentialStore:
     # State
-    path: "./api/sdk/client/credstore/delivery/hfc-kvs"
+    path: "./api/sdk/wallet/delivery/admin"
     # Public & Private key
     cryptoStore:
-      path: "./api/sdk/client/credstore/delivery/hfc-cvs"
+      path: "./api/sdk/wallet/delivery/admin"
 
   #GRPC options
   connection:

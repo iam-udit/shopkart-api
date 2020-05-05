@@ -51,7 +51,6 @@ paths:
         - "application/json"
       parameters:
         - $ref: "#/parameters/productIdParam"
-        - $ref: "#/parameters/authorizationParam"
       responses:
         200:
           description:  "Product details of the given ID"
@@ -62,8 +61,6 @@ paths:
                 properties:
                   product:
                     $ref: '#/definitions/Product'
-        401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
         404:
           description: "No valid entry found for provided ID !"
   # Get products detail by productType
@@ -83,12 +80,9 @@ paths:
           required: true
           type: "string"
         - $ref: "#/parameters/offSetParam"
-        - $ref: "#/parameters/authorizationParam"
       responses:
         200:
           $ref: "#/responses/ProductDetails"
-        401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
         404:
           description: "Product not found !"
   # Get products detail by sellerId
@@ -97,7 +91,7 @@ paths:
       tags:
         - "product"
       summary: "Get product's details by sellerId"
-      description: "Returns an array of products list"
+      description: "Admin and seller are eligible user for this operation"
       operationId: "getProductsBySellerId"
       produces:
         - "application/json"
@@ -109,7 +103,7 @@ paths:
         200:
           $ref: "#/responses/ProductDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Product not found !"
   # Get all product details
@@ -124,12 +118,9 @@ paths:
         - "application/json"
       parameters:
         - $ref: "#/parameters/offSetParam"
-        - $ref: "#/parameters/authorizationParam"
       responses:
         200:
           $ref: "#/responses/ProductDetails"
-        401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
         404:
           description: "Product not found !"
   # Create new product
@@ -166,8 +157,6 @@ paths:
                     $ref: "#/definitions/Product"
         401:
           description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
-        404:
-          description: "Product not found !"
         409:
           description: "Duplicate product entry !"
         500:
@@ -285,24 +274,86 @@ paths:
         404:
           description: "No order found for provided ID !"
   # Get order detail by userId
-  /orders/by-user/{userId}/{offSet}:
+  /orders/by-user/{offSet}:
     get:
       tags:
         - "order"
       summary: "Get order's details by userId"
-      description: "Returns an array of order list"
+      description: "User is only eligible for this operation"
       operationId: "getOrdersByUserId"
       produces:
         - "application/json"
       parameters:
-        - $ref: "#/parameters/userIdParam"
         - $ref: "#/parameters/offSetParam"
         - $ref: "#/parameters/authorizationParam"
       responses:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        404:
+          description: "Orders not found !"
+  # Get order detail by sellerId
+  /orders/by-seller/{status}/{offSet}:
+    get:
+      tags:
+        - "order"
+      summary: "Get order's details by sellerId"
+      description: "Seller is only eligible for this operation"
+      operationId: "getOrdersBySellerId"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/orderStatusParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/OrderDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        404:
+          description: "Orders not found !"
+  # Get order detail by logsticId
+  /orders/by-logistic/{status}/{offSet}:
+    get:
+      tags:
+        - "order"
+      summary: "Get order's details by logisticId"
+      description: "Logistic is only eligible for this operation"
+      operationId: "getOrdersByLogisticId"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/orderStatusParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/OrderDetails"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        404:
+          description: "Orders not found !"
+  # Get order detail by courierId
+  /orders/by-courier/{status}/{offSet}:
+    get:
+      tags:
+        - "order"
+      summary: "Get order's details by courierId"
+      description: "Courier is only eligible for this operation"
+      operationId: "getOrdersByCourierId"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/offSetParam"
+        - $ref: "#/parameters/orderStatusParam"
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          $ref: "#/responses/OrderDetails"
+        401:
+          description: "Authentication failed !"
         404:
           description: "Orders not found !"
   # Get order detail by productId
@@ -311,7 +362,7 @@ paths:
       tags:
         - "order"
       summary: "Get order's details by product ID"
-      description: "Returns an array of order list"
+      description: "Admin is only eligible for the operation"
       operationId: "getOrdersByProductId"
       produces:
         - "application/json"
@@ -323,7 +374,7 @@ paths:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Orders not found !"
   # Get all order details
@@ -332,7 +383,7 @@ paths:
       tags:
         - "order"
       summary: "Get all order details"
-      description: "Returns an array of order list"
+      description: "Admin is only eligible for the operation"
       operationId: "getAllOrder"
       produces:
         - "application/json"
@@ -343,7 +394,7 @@ paths:
         200:
           $ref: "#/responses/OrderDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Orders not found !"
   # Buy new product
@@ -352,7 +403,7 @@ paths:
       tags:
         - "order"
       summary: "Buy new product"
-      description: ""
+      description: "User is only eligible for this operation"
       operationId: "buyProduct"
       consumes:
         - "application/json"
@@ -369,6 +420,9 @@ paths:
               product:
                 description: "Product's ID selected by user"
                 type: "string"
+              seller:
+                description: "Seller's ID of the product"
+                type: "string"
               colour:
                 description: "Product's colour selected by user"
                 type: "string"
@@ -378,6 +432,9 @@ paths:
               quantity:
                 description: "Quantity of the product"
                 type: "integer"
+              shipmentCharges:
+                description: "Shipment chrages of the order"
+                type: "number"
               totalBalance:
                 description: "Total price of the order"
                 type: "number"
@@ -423,17 +480,135 @@ paths:
                           product:
                             type: "string"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         500:
           description: "Different possible errors ! ( Order creation failed, Validation failed )"
-  # Remove order details
-  /orders/remove/{orderId}:
+  # Accept order by seller
+  /orders/accept/by-seller/{orderId}:
+    put:
+      tags:
+        - "order"
+      summary: "Accept order by seller"
+      description: "Seller is only eligible for this operation"
+      operationId: "acceptOrderBySeller"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/orderIdParam"
+        - $ref: "#/parameters/authorizationParam"
+        - name: "order"
+          in: "body"
+          description: "Order details to confirm the order"
+          required: true
+          schema:
+            properties:
+              user:
+                description: "User's ID of the order"
+                type: "string"
+              logistic:
+                description: "Logistic's ID for delivery process"
+                type: "string"
+              productName:
+                description: "Product's name of the order"
+                type: "string"
+              quantity:
+                description: "Quantity of the product"
+                type: "integer"
+              shipmentCharges:
+                description: "Shipment chrages of the order"
+                type: "number"
+              totalBalance:
+                description: "Total amount of the order"
+                type: "number"
+      responses:
+        200:
+          $ref: '#/responses/Success'
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        404:
+          description: "Invalid order ID !"
+        500:
+          description: "Order Confirmation failed !"
+  # Accept order by logistic
+  /orders/accept/by-logistic/{orderId}:
+    put:
+      tags:
+        - "order"
+      summary: "Accept order by logistic for shipment"
+      description: "Logistic is only eligible for this operation"
+      operationId: "acceptOrderByLogistic"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/orderIdParam"
+        - $ref: "#/parameters/authorizationParam"
+        - name: "order"
+          in: "body"
+          description: "Order details to dispatch the order"
+          required: true
+          schema:
+            properties:
+              courier:
+                description: "Courier's ID for delivery of order"
+                type: "string"
+      responses:
+        200:
+          $ref: '#/responses/Success'
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        403:
+          description: "Insufficient balance in account !"
+        404:
+          description: "Invalid order ID !"
+        500:
+          description: "Order failed to dispatch !"
+  # Confirm delivery by courier
+  /orders/confirm-delivery/{orderId}:
+    put:
+      tags:
+        - "order"
+      summary: "Confirm delivery of the order by courier"
+      description: "Courier is only eligible for this operation"
+      operationId: "confirmDeliveryByCourier"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/orderIdParam"
+        - $ref: "#/parameters/authorizationParam"
+        - name: "order"
+          in: "body"
+          description: "Delivery detail of the order"
+          required: true
+          schema:
+            properties:
+              user:
+                description: "User's ID to deliver the order"
+                type: "string"
+      responses:
+        200:
+          $ref: '#/responses/Success'
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        403:
+          description: "Access denied ! ( e.g: Unknown customer, Unknown courier )"
+        404:
+          description: "Invalid order ID !"
+        500:
+          description: "Order delivery failed !"
+  # Cancel order details
+  /orders/cancel/{orderId}:
     delete:
       tags:
         - "order"
-      summary: "Remove order details"
-      description: ""
-      operationId: "removeOrder"
+      summary: "Cancel order details"
+      description: "User is only eligible for this operation"
+      operationId: "cancelOrder"
       produces:
         - "application/json"
       parameters:
@@ -441,7 +616,7 @@ paths:
         - $ref: "#/parameters/authorizationParam"
       responses:
         200:
-          description:  "Deleted order details"
+          description:  "Canceled order details"
           schema:
             allOf:
               - $ref: "#/definitions/APIResponse"
@@ -457,11 +632,11 @@ paths:
                       url:
                         type: "string"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet )"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Invalid order ID !"
         500:
-          description: "Order deletion failed !"
+          description: "Order cancellation failed !"
 
   # Routes for Admin operations
 
@@ -496,6 +671,62 @@ paths:
           description: "Authentication failed !"
         404:
           description: "Admin details not found !"
+  # Get total supply
+  /admin/get/total_supply:
+    get:
+      tags:
+        - "admin"
+      summary: "Get total supply"
+      description: "Admin is only eligible for this operation"
+      operationId: "getTotalSupply"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description: "Return total token supplied for the business"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  totalSupply:
+                    type: "number"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        404:
+          description: "Token doesn't exists !"
+        500:
+          description: "Failed to get total supply !"
+  # Get available supply
+  /admin/get/available_supply:
+    get:
+      tags:
+        - "admin"
+      summary: "Get available supply"
+      description: "Admin is only eligible for this operation"
+      operationId: "getAvailableSupply"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description: "Return available supplied token for the business"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  availableSupply:
+                    type: "number"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        404:
+          description: "Token doesn't exists !"
+        500:
+          description: "Failed to get available supply !"
   # Admin login operation
   /admin/login:
     post:
@@ -515,6 +746,100 @@ paths:
           $ref: "#/responses/LoginSuccess"
         401:
           $ref: "#/responses/LoginError"
+  # Initalize token for business
+  /admin/init/token:
+    post:
+      tags:
+        - "admin"
+      summary: "Initialize token for business"
+      description: "Admin is only eligible for this operation"
+      operationId: "initEcomToken"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - name: "Details"
+          in: "body"
+          description: "Token initialization details"
+          required: true
+          schema:
+            properties:
+              totalSupply:
+                description: "Total token supply to initialize"
+                type: "number"
+      responses:
+        200:
+          description: "Initialized token details "
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  metaData:
+                    type: "object"
+                    properties:
+                      token:
+                        type: "string"
+                      admin:
+                        type: "boolean"
+                      totalSupply:
+                        type: "number"
+                      txnId:
+                        type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        500:
+          description: "Failed to initalize token !"
+  # Add token for business
+  /admin/add/token:
+    put:
+      tags:
+        - "admin"
+      summary: "Add token for business"
+      description: "Admin is only eligible for this operation"
+      operationId: "addEcomToken"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - name: "Details"
+          in: "body"
+          description: "Token addition details"
+          required: true
+          schema:
+            properties:
+              tokenAmount:
+                description: "Amount of the token to add"
+                type: "number"
+      responses:
+        200:
+          description: "Added token details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  metaData:
+                    type: "object"
+                    properties:
+                      token:
+                        type: "string"
+                      admin:
+                        type: "boolean"
+                      totalAmount:
+                        type: "number"
+                      txnId:
+                        type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+        404:
+          description: "Token doesn't exists !"
+        500:
+          description: "Failed to add token !"
   # Update admin details
   /admin/update:
     put:
@@ -608,7 +933,7 @@ paths:
       tags:
         - "user"
       summary: "Get all user's details"
-      description: "Returns an array of users list"
+      description: "Admin is only eligible for this operation"
       operationId: "getAllUsers"
       produces:
         - "application/json"
@@ -617,7 +942,7 @@ paths:
         - $ref: "#/parameters/authorizationParam"
       responses:
         200:
-          description:  "All user details"
+          description:  "Returns all user details"
           schema:
             allOf:
               - $ref: "#/definitions/APIResponse"
@@ -637,7 +962,7 @@ paths:
                     items:
                       $ref: '#/definitions/User'
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Users not found !"
   # User signup operation
@@ -786,7 +1111,7 @@ paths:
       tags:
         - "user"
       summary: "Remove user details"
-      description: ""
+      description: "Admin is only eligible for this operation"
       operationId: "removeUser"
       produces:
         - "application/json"
@@ -797,7 +1122,7 @@ paths:
         200:
           $ref: "#/responses/Success"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Invalid user ID !"
         500:
@@ -831,13 +1156,39 @@ paths:
           description: "Authentication failed !"
         404:
           description: "Seller details not found ! !"
+  # Get wallet balance
+  /sellers/get/balance:
+    get:
+      tags:
+        - "seller"
+      summary: "Get wallet balance"
+      description: "Seller is only eligible for this operation"
+      operationId: "getSellerWalletBalance"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description: "Return wallet balance of the seller"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  walletBalance:
+                    type: "number"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        500:
+          description: "Failed to get wallet balance !"
   # Get sellers detail by status
   /sellers/by-status/{statusConfirmed}/{offSet}:
     get:
       tags:
         - "seller"
       summary: "Get sellers detail by status"
-      description: "Returns an array of sellers list"
+      description: "Admin is only eligible for this operation"
       operationId: "getSellersByStatus"
       produces:
         - "application/json"
@@ -849,7 +1200,7 @@ paths:
         200:
           $ref: "#/responses/SellerDetails"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Sellers not found !"
   # Get all seller details
@@ -858,7 +1209,7 @@ paths:
       tags:
         - "seller"
       summary: "Get all seller's details"
-      description: "Returns an array of sellers list"
+      description: "Admin is only eligible for this operation"
       operationId: "getAllSellers"
       produces:
         - "application/json"
@@ -869,7 +1220,7 @@ paths:
         200:
           $ref: "#/responses/SellerDetails"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Sellers not found !"
   # Seller's signup operation
@@ -931,6 +1282,52 @@ paths:
           $ref: "#/responses/Success"
         404:
           description: "User is not exists !"
+  # Deposit wallet balance
+  /sellers/deposit/balance:
+    post:
+      tags:
+        - "seller"
+      summary: "Deposit balance to wallet"
+      description: "Seller is only eligible for this operation"
+      operationId: "depositSellerWalletBalance"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - name: "Details"
+          in: "body"
+          description: "Deposit wallet details"
+          required: true
+          schema:
+            properties:
+              depositAmount:
+                description: "Deposit amount of the seller"
+                type: "number"
+      responses:
+        200:
+          description: "Deposited amount details "
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  metaData:
+                    type: "object"
+                    properties:
+                      token:
+                        type: "string"
+                      admin:
+                        type: "boolean"
+                      depositAmount:
+                        type: "number"
+                      txnId:
+                        type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        500:
+          description: "Balance deposit failed !"
   # Update sellers details
   /sellers/update:
     put:
@@ -1012,7 +1409,7 @@ paths:
         200:
           $ref: "#/responses/Success"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Invalid seller ID !"
         500:
@@ -1023,7 +1420,7 @@ paths:
       tags:
         - "seller"
       summary: "Remove seller details"
-      description: ""
+      description: "Admin is only eligible for this operation"
       operationId: "removeSeller"
       produces:
         - "application/json"
@@ -1034,7 +1431,7 @@ paths:
         200:
           $ref: "#/responses/Success"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Invalid seller ID !"
         500:
@@ -1068,13 +1465,39 @@ paths:
           description: "Authentication failed !"
         404:
           description: "Logistic details not found ! !"
+  # Get wallet balance
+  /logistics/get/balance:
+    get:
+      tags:
+        - "logistic"
+      summary: "Get wallet balance"
+      description: "Logistic is only eligible for this operation"
+      operationId: "getLogisticWalletBalance"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+      responses:
+        200:
+          description: "Return wallet balance of the logistic"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  walletBalance:
+                    type: "number"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        500:
+          description: "Failed to get wallet balance !"
   # Get logistics detail by status
   /logistics/by-status/{statusConfirmed}/{offSet}:
     get:
       tags:
         - "logistic"
       summary: "Get logistics detail by status"
-      description: "Returns an array of logistics list"
+      description: "Admin is only eligible for this operation"
       operationId: "getLogisticsByStatus"
       produces:
         - "application/json"
@@ -1086,7 +1509,7 @@ paths:
         200:
           $ref: "#/responses/LogisticDetails"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Logistics not found !"
   # Get all logistic details
@@ -1095,7 +1518,7 @@ paths:
       tags:
         - "logistic"
       summary: "Get all logistic's details"
-      description: "Returns an array of logistics list"
+      description: "Admin is only eligible for this operation"
       operationId: "getAllLogistics"
       produces:
         - "application/json"
@@ -1106,7 +1529,7 @@ paths:
         200:
           $ref: "#/responses/LogisticDetails"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Logistics not found !"
   # Logistic's signup operation
@@ -1168,6 +1591,52 @@ paths:
           $ref: "#/responses/Success"
         404:
           description: "User is not exists !"
+  # Deposit wallet balance
+  /logistics/deposit/balance:
+    post:
+      tags:
+        - "logistic"
+      summary: "Deposit balance to wallet"
+      description: "Logistic is only eligible for this operation"
+      operationId: "depositLogisticWalletBalance"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/authorizationParam"
+        - name: "Details"
+          in: "body"
+          description: "Deposit wallet details"
+          required: true
+          schema:
+            properties:
+              depositAmount:
+                description: "Deposit amount of the logistic"
+                type: "number"
+      responses:
+        200:
+          description: "Deposited amount details"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  metaData:
+                    type: "object"
+                    properties:
+                      token:
+                        type: "string"
+                      admin:
+                        type: "boolean"
+                      depositAmount:
+                        type: "number"
+                      txnId:
+                        type: "string"
+        401:
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        500:
+          description: "Balance deposit failed !"
   # Update logistics details
   /logistics/update:
     put:
@@ -1249,7 +1718,7 @@ paths:
         200:
           $ref: "#/responses/Success"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Invalid logistic ID !"
         500:
@@ -1260,7 +1729,7 @@ paths:
       tags:
         - "logistic"
       summary: "Remove logistic details"
-      description: ""
+      description: "Admin is only eligible for this operation"
       operationId: "removeLogistic"
       produces:
         - "application/json"
@@ -1271,7 +1740,7 @@ paths:
         200:
           $ref: "#/responses/Success"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Invalid logistic ID !"
         500:
@@ -1322,7 +1791,7 @@ paths:
         200:
           $ref: "#/responses/CourierDetails"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Couriers not found !"
   # Courier's signup operation
@@ -1344,7 +1813,7 @@ paths:
         200:
           $ref: "#/responses/Success"
         401:
-          description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         409:
           description: "Courier is already exists !"
         500:
@@ -1457,7 +1926,7 @@ paths:
       tags:
         - "courier"
       summary: "Remove courier details"
-      description: ""
+      description: "Logistic is only eligible for this operation"
       operationId: "removeCourier"
       produces:
         - "application/json"
@@ -1472,11 +1941,12 @@ paths:
         200:
           $ref: "#/responses/Success"
         401:
-          description: "Authentication failed !"
+          description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Invalid courier ID !"
         500:
           description: "Courier details deletion failed !"
+
 
 # Description of common consumes
 consumes:
@@ -1501,7 +1971,7 @@ parameters:
     required: true
     type: "integer"
     format: "int32"
-    default: 0
+    default: 1
 
   # Parameters for product path
   productIdParam:
@@ -1587,6 +2057,21 @@ parameters:
     required: true
     type: "string"
 
+  orderStatusParam:
+    name: "status"
+    in: "path"
+    description: "Order's status of the order"
+    required: true
+    type: "string"
+    enum:
+      - "Pending"
+      - "Confirmed"
+      - "Dispatched"
+      - "Delivered"
+      - "Canceled"
+      - "Returned"
+    default: "Pending"
+
   # Parameters for user path
   userIdParam:
     name: "userId"
@@ -1614,28 +2099,28 @@ parameters:
     name: "firstName"
     in: "formData"
     description: "FirstName of the user"
-    required: true
+    required: false
     type: "string"
 
   lastNameParam:
     name: "lastName"
     in: "formData"
     description: "LastName of the user"
-    required: true
+    required: false
     type: "string"
 
   emailParam:
     name: "email"
     in: "formData"
     description: "Email of the user"
-    required: true
+    required: false
     type: "string"
 
   mobileNumberParam:
     name: "mobileNumber"
     in: "formData"
     description: "Mobile number of the user"
-    required: true
+    required: false
     type: "integer"
     format: "int64"
 
@@ -1650,49 +2135,50 @@ parameters:
     name: "city"
     in: "formData"
     description: "City of the user"
-    required: true
+    required: false
     type: "string"
 
   stateParam:
     name: "state"
     in: "formData"
     description: "State of the user"
-    required: true
+    required: false
     type: "string"
 
   countryParam:
     name: "country"
     in: "formData"
     description: "Country of the user"
-    required: true
+    required: false
     type: "string"
 
   zipParam:
     name: "zip"
     in: "formData"
     description: "ZIP of the user"
-    required: true
+    required: false
     type: "integer"
 
   bodyParam:
     name: "body"
     in: "formData"
     description: "Address/Landmark of the user"
-    required: true
+    required: false
     type: "string"
 
   genderParam:
     name: "gender"
     in: "formData"
     description: "Gender of the user"
-    required: true
+    required: false
     type: "string"
+    enum: ["Male", "Female", "Other"]
 
   ageParam:
     name: "age"
     in: "formData"
     description: "Age of the user"
-    required: true
+    required: false
     type: "integer"
 
   # Parameters for seller path
@@ -1838,7 +2324,7 @@ responses:
 
   # Definition of list of order response
   OrderDetails:
-    description:  "A list of Order details"
+    description:  "Returns a list of Order details"
     schema:
       allOf:
         - $ref: "#/definitions/APIResponse"
@@ -1860,7 +2346,7 @@ responses:
 
   # Definition of list of seller response
   SellerDetails:
-    description:  "List of seller details"
+    description:  "Returns a list of seller details"
     schema:
       allOf:
         - $ref: "#/definitions/APIResponse"
@@ -1882,7 +2368,7 @@ responses:
 
   # Definition of list of logistic response
   LogisticDetails:
-    description:  "List of logistic details"
+    description:  "Returns a list of logistic details"
     schema:
       allOf:
         - $ref: "#/definitions/APIResponse"
@@ -1987,6 +2473,12 @@ definitions:
         type: "string"
       user:
         type: "string"
+      seller:
+        type: "string"
+      logistic:
+        type: "string"
+      courier:
+        type: "string"
       product:
         type: "object"
         properties:
@@ -2024,6 +2516,10 @@ definitions:
         type: "string"
       quantity:
         type: "integer"
+      orderStatus:
+        type: "string"
+      shipmentCharges:
+        type: "number"
       totalBalance:
         type: "number"
       deliveryAddress:
@@ -2078,6 +2574,7 @@ definitions:
         type: "string"
       emailVerified:
         type: "boolean"
+        default: false
       gender:
         type: "string"
       age:

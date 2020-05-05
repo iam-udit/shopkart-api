@@ -18,7 +18,10 @@ const userSchema = mongoose.Schema({
         match: [/\S+@\S+\.\S+/, 'is invalid']
     },
     emailVerified: { type: Boolean, default: false },
-    gender: { type: String },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other']
+    },
     age: { type: Number, maxlength: 2 },
     address: {
         city: { type: String },
