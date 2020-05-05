@@ -16,8 +16,8 @@
 - After the product's delivery is confirmed by the customer both seller and delivery agency will get their shares.
 
   
-_-_**It runs in a three tire architecture.**__
-            
+   **- It runs in a three tire architecture**
+           
              1. Client Application
              2. SDK Application
              3. Network Application
@@ -28,16 +28,15 @@ _-_**It runs in a three tire architecture.**__
 ``    Client applicaion is purely designed with php and all the user 
 functionalities are maintained there. 
 
-
-`    **- Different technologies are used in client side**`
+**- Different technologies are used in client side**
             
-            - HTML5
+            `- HTML5
             - CSS3
             - Bootstarp4
             - JavaScript
             - Ajax
             - Php
-            - Laravel 6
+            - Laravel 6`
             
             
 - **Network Application : -**
@@ -49,11 +48,11 @@ which consist of two organizations and one orderer.
             - Ecom
             - Delivery
                 
-`    **- Different technologies are used in network side**`
+**- Different technologies are used in network side****
          
-            - Peer chain command
+            `- Peer chain command
             - Docker components
-            - Ubantu 16.04 LTS
+            - Ubantu 16.04 LTS`
      
     
    To perform ecom processes and maintain collaboration between two
@@ -71,7 +70,7 @@ using different technology.
   and query the chaincode deployed on network
      
   
-    **- Different technologies are used in REST API side**
+**- Different technologies are used in REST API side**
         
           - NodeJs
           - MongoDb Atlas
