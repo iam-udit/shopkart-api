@@ -12,7 +12,10 @@ const courierSchema = mongoose.Schema({
         unique: true,
         required: true,
         lowercase: true,
-        match: [/\S+@\S+\.\S+/, 'is invalid']
+        match: [
+            /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            'is invalid'
+        ]
     },
     password: { type: String, required: true},
     mobileNumber:{ type: Number },

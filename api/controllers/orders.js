@@ -97,11 +97,8 @@ exports.getAllOrders =  function (req, res, next) {
     // Building query
     var query = buildQuery(req);
 
-    let option = {
-        offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10,
-        populate: 'product',
-        limit: 10
-    };
+    // Building options for pagination
+    let option = { page: req.params.offSet || 1, populate: 'product', sort: { createdAt: -1 }, limit: 20  };
 
     // Finding all orders
     Order.paginate(query, option)
@@ -112,7 +109,7 @@ exports.getAllOrders =  function (req, res, next) {
                     status: 200,
                     message: "A list of order details",
                     total: result.total,
-                    offset: (result.offset / 10) + 1,
+                    offset: parseInt(result.page),
                     pages: Math.ceil(result.total / result.limit),
                     orders: result.docs.map(order => {
                         return utils.orderResponse(req, order);

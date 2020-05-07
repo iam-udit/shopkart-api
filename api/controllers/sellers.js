@@ -54,7 +54,7 @@ exports.getAllSellers = function (req, res, next) {
     }
 
     // Finding sellers details
-    Seller.paginate(query, { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 })
+    Seller.paginate(query, { page: req.params.offSet || 1, limit: 20 })
         .then(result => {
             // If sellers found, return user details
             if (result.total > 0) {
@@ -62,7 +62,7 @@ exports.getAllSellers = function (req, res, next) {
                     status: 200,
                     message: "A List of seller details",
                     total: result.total,
-                    offset: (result.offset / 10) + 1,
+                    offset: parseInt(result.page),
                     pages: Math.ceil( result.total / result.limit ),
                     sellers: result.docs
                 }
@@ -137,6 +137,7 @@ exports.createWallet = async function (req, res, next) {
                 affiliation: 'ecom.seller'
             });
 
+            next();
         } else {
             // If user not exist, return error response
             next(createError(404, "Invalid user Id !"));

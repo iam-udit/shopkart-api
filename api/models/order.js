@@ -35,13 +35,11 @@ const orderSchema = mongoose.Schema({
     },
     colour: {
         type: String,
-        enum: ['black', 'white', 'gray', 'red', 'pink', 'orange', 'yellow', 'green', 'blue', 'purple', 'brown'],
-        required: true
+        required: false
     },
     size: {
         type: String,
-        enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-        required: true
+        required: false
     },
     quantity: {
         type: Number,
@@ -70,7 +68,7 @@ const orderSchema = mongoose.Schema({
     deliveryAddress: {
         name: { type: String, required: true },
         mobileNumber: { type: Number, required: true },
-        landMark: { type: String, required: true },
+        body: { type: String, required: true },
         city: { type: String, required: true },
         state: { type: String, required: true },
         country: { type: String, required: true },

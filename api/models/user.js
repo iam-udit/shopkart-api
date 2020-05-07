@@ -15,7 +15,10 @@ const userSchema = mongoose.Schema({
     email: {
         type: String,
         lowercase: true,
-        match: [/\S+@\S+\.\S+/, 'is invalid']
+        match: [
+            /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            'is invalid'
+        ]
     },
     emailVerified: { type: Boolean, default: false },
     gender: {

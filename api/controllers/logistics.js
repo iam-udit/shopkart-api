@@ -56,7 +56,7 @@ exports.getAllLogistics = function (req, res, next) {
     }
 
     // Finding all logistics details
-    Logistic.paginate(query, { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 })
+    Logistic.paginate(query, { page: req.params.offSet || 1, limit: 20 })
         .then(result => {
             // If logistics found, return user details
             if (result.total > 0) {
@@ -64,7 +64,7 @@ exports.getAllLogistics = function (req, res, next) {
                     status: 200,
                     message: "A list of logistic details",
                     total: result.total,
-                    offset: (result.offset / 10) + 1,
+                    offset: parseInt(result.page),
                     pages: Math.ceil(result.total / result.limit ),
                     logistics: result.docs
                 }

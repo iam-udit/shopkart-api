@@ -4,7 +4,6 @@ const createError = require("http-errors");
 
 // Validating user's exists or not
 module.exports = function (req, res, next) {
-
     var query = {};
     // Getting the model
     var temp = req.originalUrl.split('/');

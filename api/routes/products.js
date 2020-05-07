@@ -27,16 +27,22 @@ function checkPermission(req, res, next) {
 }
 
 // Retrieving product's details by productId form database
-router.get('/get/:productId', productsController.getProductById);
+router.get('/get/:productId', productsController.getProduct);
+
+// Retrieving product's details by productTitle form database
+router.get('/by-title/:productTitle', productsController.getProduct);
 
 // Retrieving all product's details according to productType
 router.get('/by-type/:productType/:offSet?', productsController.getAllProducts);
 
-// Retrieving all product's details form database
-router.get('/get-all/:offSet?', productsController.getAllProducts);
+// Retrieving all product's details according to matched text
+router.get('/by-search/:text/:offSet?', productsController.getAllProducts);
 
 // Retrieving all product's details according to sellerId
 router.get('/by-seller/:sellerId/:offSet?', verifyJwt, checkPermission, productsController.getAllProducts);
+
+// Retrieving all product's details form database
+router.get('/get-all/:offSet?', productsController.getAllProducts);
 
 // Creating new product
 router.post('/create/', verifyJwt, checkPermission,  upload.array('productImages', 6 ), productExists, productsController.createProduct);

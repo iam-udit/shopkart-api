@@ -45,18 +45,18 @@ exports.updateOps = async function (req) {
 
     // Creating update options
     var updateOps = {
-        firstName: (req.body.firstName) ? req.body.firstName : user.firstName,
-        lastName: (req.body.lastName) ? req.body.lastName : user.lastName,
-        mobileNumber: (req.body.mobileNumber) ? req.body.mobileNumber : user.mobileNumber,
+        firstName: req.body.firstName || user.firstName,
+        lastName: req.body.lastName || user.lastName,
+        mobileNumber: req.body.mobileNumber || user.mobileNumber,
         address: {
-            city: (req.body.city) ? req.body.city : user.address.city,
-            state: (req.body.state) ? req.body.state : user.address.state,
-            country: (req.body.country) ? req.body.country : user.address.country,
-            zip: (req.body.zip) ? req.body.zip : user.address.zip,
-            body: (req.body.body) ? req.body.body : user.address.body
+            city: req.body.city || user.address.city,
+            state: req.body.state || user.address.state,
+            country: req.body.country || user.address.country,
+            zip: req.body.zip || user.address.zip,
+            body: req.body.body || user.address.body
         },
-        gender: (req.body.gender) ? req.body.gender : user.gender,
-        age: (req.body.age) ? req.body.age : user.age
+        gender: req.body.gender || user.gender,
+        age: req.body.age || user.age
     };
 
     // Retriveing image path
@@ -76,7 +76,7 @@ exports.updateOps = async function (req) {
     // Adding email and removing mobileNumber if request from user
     if ( role == 'customer' ){
         delete updateOps.mobileNumber;
-        updateOps.email = (req.body.email) ? req.body.email : user.email;
+        updateOps.email = req.body.email || user.email;
     }
 
     // Returning update options

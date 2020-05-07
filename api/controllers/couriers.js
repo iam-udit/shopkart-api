@@ -44,14 +44,11 @@ exports.getCourierById =  function (req, res, next) {
 // Retrieving all courier's details by logistic Id
 exports.getAllCouriers =  function (req, res, next) {
 
-    // Getting logistic's id from userData
-    const logistiId = req.userData.id;
+    // Building query
+    let query = { logistic: req.userData.id };
 
     // Finding all logistics details
-    Courier.paginate(
-        { logistic: logistiId },
-        { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 }
-        )
+    Courier.paginate(query, { page: req.params.offSet || 1, limit: 20 })
         .then(result => {
             // If couriers found, return courier details
             if (result.total > 0) {
@@ -59,7 +56,7 @@ exports.getAllCouriers =  function (req, res, next) {
                     status: 200,
                     message: "A list of courier details",
                     total: result.total,
-                    offset: (result.offset / 10) + 1,
+                    offset: parseInt(result.page),
                     pages: Math.ceil(result.total / result.limit ),
                     couriers: result.docs
                 }

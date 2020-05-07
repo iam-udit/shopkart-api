@@ -41,17 +41,30 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expAutoSan.allUnsafe);
 
 // Connecting with mongo db.
-mongoose.connect(
-    process.env.DB_URI, {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-        useCreateIndex: true
-    }
-)
-mongoose.connection.on('error',
-    console.error.bind(console, 'Database Connectivity Failed !'));
+try {
+    mongoose.connect(
+        process.env.DB_URI, {
+            useUnifiedTopology: true,
+            useNewUrlParser: true,
+            useCreateIndex: true
+        }, success => {
+            console.log('Database Connected Successfully  !');
+        }
+    );
+} catch( error )  {
+    console.log("Initial Database Connectivity Failed !");
+    console.log('Error: ' + error.message);
+
+};
 
 mongoose.Promise = global.Promise;
+
+// Setting up error evnet
+mongoose.connection.on("error", error => {
+    console.log('Database Connectivity Failed !');
+    console.log('Error: ' + error.message);
+});
+
 
 // Hanlding CORS
 app.use((req, res, next) => {
@@ -69,7 +82,6 @@ app.use((req, res, next) => {
   next();
 
 });
-
 
 // Providing routes
 app.use("/users", userRoutes);

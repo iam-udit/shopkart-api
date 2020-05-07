@@ -11,18 +11,48 @@ const Product = require("../models/product.js");
 // Building query for get products
 function buildQuery(req) {
 
-    let query = {};
+    let query = [];
+
     let path = req.originalUrl.split('/')[2];
 
-    if ( path == 'by-type' ){
+    if ( path == 'get-all' ) {
+        // Query for all products
+        query = []
+    } else  if ( path == 'get' ){
+        // Quering product details by Id
+        query = [{ $match: { _id: mongoose.Types.ObjectId(req.params.productId) } }];
+    } else if ( path == 'by-type' ){
         // Query for all product according to productType
-        query = { type: req.params.productType };
+        query = [{ $match: { type: req.params.productType } }]
     } else if ( path == 'by-seller' ){
         // Query for all products according to sellerId
-        query = { seller: req.params.sellerId };
-    } else {
-        // Query for all products
-        query = {};
+        query = [{ $match: { seller: mongoose.Types.ObjectId(req.params.sellerId) } }]
+    } else if( path == 'by-search' ) {
+        // Query for products according to matched text
+        query = [
+            {
+                $match: {
+                    $or: [
+                        { title: { $regex: req.params.text, $options: 'i' } },
+                        { type: { $regex: req.params.text, $options: 'i' } },
+                        { description: { $regex: req.params.text, $options: 'i' } },
+                    ]
+                }
+            }
+        ]
+    }else if ( path == 'by-title') {
+        // Building query for title route
+         query = [
+            { $match: { title: req.params.productTitle } },
+            { $sort: { price: 1 } },
+            {
+                $group: {
+                    _id: req.params.productTitle,
+                    details: { $first: "$$ROOT"},
+                    sellerList: { $push: { seller: "$seller", product: "$_id", price: "$price", name: "$Seller.name" }  }
+                },
+            },
+        ];
     }
 
     return query;
@@ -42,61 +72,90 @@ function addProductImages(req){
     req.body.productImages = productImages;
 }
 
-// Retrieving product's details form database
-exports.getProductById =  function (req, res, next) {
+// Retrieving product's details according to productId and productTitle
+exports.getProduct =  function (req, res, next) {
 
-    // Getting product'd id from request
-    const id = req.params.productId;
+    // Building query
+    let query = buildQuery(req);
 
-    // Finding product's details using product id.
-    Product.findById(id, { __v: 0 })
+    // Making request path
+    let path = req.originalUrl.split('/')[2];
+
+    // Finding product's details, and returning response
+    Product.aggregate(query)
         .exec()
         .then(product => {
+
             // if product found, return success response
-            if (product) {
-                product.request = {
-                    type: "GET ",
+            if (product.length > 0) {
+
+                // Making response
+                let response = {
+                    status: 200,
+                    message: "Product details of the given input",
+                    product: product[0],
+                    request : {
+                        type: "GET ",
                         description: "GET_ALL_PRODUCTS",
                         url: req.protocol + '://' + req.get('host') + "/products/get-all"
+                    }
+                };
+
+                // Manage the response
+                if ( path == 'get' ) {
+                    // If request to get by productId
+                    response.product.request = response.request;
+                    delete response.request;
+                } else {
+                    // If request to get by productTitle
+                    response.product = product[0].details;
+                    response.sellerList = product[0].sellerList;
                 }
-                res.status(200).json({
-                    status: 200,
-                    message: "Product details of the given Id: " + id,
-                    product: product
-                });
-            }
-            // If product doesn't found, return not found response
-            else {
-                next(createError(404, "No valid entry found for provided ID"));
+
+                // Returning success response
+                res.status(200).json(response);
+
+            } else {
+                // If product doesn't found, return not found response
+                next(createError(404, "No valid entry found for provided input"));
             }
 
         })
         // If any error occures, return error message
         .catch(error => {
             next(error);
-
         });
 };
 
-// Retrieving all product's details or according to productType form database
+// Retrieving all product's details or according to productType / sellerId from database
 exports.getAllProducts = function (req, res, next) {
 
     // Building query
-    var query = buildQuery(req);
+    let query = buildQuery(req);
 
-    // Finding all products
-    Product.paginate(query, { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 })
+    // Adding grouping by title to query
+    query.push(
+        { $sort: { price: 1 } },
+        { $group: {_id: '$title', details: { $first: "$$ROOT"}} }
+    );
+
+    // Aggregating the products
+    let aggregate = Product.aggregate(query);
+
+    // Finding products
+    Product.aggregatePaginate(aggregate, { page: req.params.offSet || 1, limit: 20 })
         .then(result => {
+
             // If Product found, return product details
-            if (result.total > 0) {
+            if (result.totalDocs > 0) {
                 const response = {
                     status: 200,
                     message: "A list of product details",
-                    total: result.total,
-                    offSet: (result.offset / 10) + 1,
-                    pages: Math.ceil(result.total / result.limit),
-                    products: result.docs.map(product => {
-                        return utils.productResponse(req, product);
+                    total: result.totalDocs,
+                    offSet: result.page,
+                    pages: result.totalPages,
+                    products: result.docs.map(productDoc => {
+                        return utils.productResponse(req, productDoc.details);
                     })
                 }
                 res.status(200).json(response);

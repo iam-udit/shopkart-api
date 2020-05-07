@@ -73,11 +73,11 @@ exports.getUserById =  (req, res, next) => {
 // Retrieving all user's details form database
 exports.getAllUsers =  (req, res, next) => {
 
+    // Building query
+    let query = { email : { $ne: process.env.ADMIN } };
+
     // Finding all users
-    User.paginate(
-        { email : { $ne: process.env.ADMIN } },
-        { offset: ( parseInt(req.params.offSet) - 1 || 0 ) * 10, limit: 10 }
-        )
+    User.paginate(query, { page: req.params.offSet || 1, limit: 20 })
         .then(result => {
             // If users found, return user details
             if (result.total > 0) {
@@ -86,7 +86,7 @@ exports.getAllUsers =  (req, res, next) => {
                     message: "A list of user details",
                     total: result.total,
                     pages: Math.ceil(result.total / result.limit),
-                    offset: (result.offset / 10) + 1 ,
+                    offset: parseInt(result.page),
                     users: result.docs,
                 }
                 res.status(200).json(response);

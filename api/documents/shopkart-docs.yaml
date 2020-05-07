@@ -10,7 +10,7 @@ info:
     name: "Ecom Team"
 
 # API address
-host: "http://localhost:8000"
+host: "localhost:8000"
 basePath: "/"
 
 # Route information
@@ -63,6 +63,54 @@ paths:
                     $ref: '#/definitions/Product'
         404:
           description: "No valid entry found for provided ID !"
+  # Get product details by productTitle
+  /products/by-title/{productTitle}:
+    get:
+      tags:
+        - "product"
+      summary: "Get product's details by productTitle"
+      description: "Returns single product with a seller list"
+      operationId: "getProductByTitle"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "productTitle"
+          in: "path"
+          description: "Title of the product"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description:  "Product details of the given title with a seller list"
+          schema:
+            allOf:
+              - $ref: "#/definitions/APIResponse"
+              - type: "object"
+                properties:
+                  product:
+                    $ref: '#/definitions/Product'
+                  sellerList:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        seller:
+                          type: "string"
+                        product:
+                          type: "string"
+                        price:
+                          type: "number"
+                  request:
+                    type: "object"
+                    properties:
+                      type:
+                        type: "string"
+                      description:
+                        type: "string"
+                      url:
+                        type: "string"
+        404:
+          description: "No valid entry found for provided title !"
   # Get products detail by productType
   /products/by-type/{productType}/{offSet}:
     get:
@@ -104,6 +152,28 @@ paths:
           $ref: "#/responses/ProductDetails"
         401:
           description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
+        404:
+          description: "Product not found !"
+  # Get products detail by matched text
+  /products/by-search/{text}/{offSet}:
+    get:
+      tags:
+        - "product"
+      summary: "Get product's details by matched text"
+      description: "Returns an array of products list"
+      operationId: "getProductsByText"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "text"
+          in: "path"
+          description: "Text for the searching"
+          required: true
+          type: "string"
+        - $ref: "#/parameters/offSetParam"
+      responses:
+        200:
+          $ref: "#/responses/ProductDetails"
         404:
           description: "Product not found !"
   # Get all product details
@@ -449,7 +519,7 @@ paths:
                     description: "Mobile number of the recipant"
                     type: "integer"
                     format: "int64"
-                  landMark:
+                  body:
                     description: "LandMark/Locality of the recipant"
                     type: "string"
                   city:
@@ -2530,7 +2600,7 @@ definitions:
           mobileNumber:
             type: "integer"
             format: "int64"
-          landMark:
+          body:
             type: "string"
           city:
             type: "string"
