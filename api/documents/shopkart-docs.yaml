@@ -1035,6 +1035,27 @@ paths:
           description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Users not found !"
+  # Get user existance by mobileNumber
+  /users/is_exists/{mobileNumber}:
+    get:
+      tags:
+        - "user"
+      summary: "Get user existance by mobile number"
+      description: ""
+      operationId: "checkUserExists"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "mobileNumber"
+          in: "path"
+          description: "Mobile number to check user existatnce"
+          required: true
+          type: "string"
+      responses:
+        200:
+          $ref: "#/responses/UserExists"
+        404:
+          description: "User is not exists !"
   # User signup operation
   /users/signup:
     post:
@@ -1293,6 +1314,23 @@ paths:
           description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Sellers not found !"
+  # Get seller existance by email
+  /sellers/is_exists/{email}:
+    get:
+      tags:
+        - "seller"
+      summary: "Get seller existance by email"
+      description: ""
+      operationId: "checkSellerExists"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userEmailParam"
+      responses:
+        200:
+          $ref: "#/responses/UserExists"
+        404:
+          description: "Seller is not exists !"
   # Seller's signup operation
   /sellers/signup:
     post:
@@ -1602,6 +1640,23 @@ paths:
           description: "Authentication errors ! ( e.g: Authentication failed, You are not an eligible user for this operation )"
         404:
           description: "Logistics not found !"
+  # Get logistic existance by email
+  /logistics/is_exists/{email}:
+    get:
+      tags:
+        - "logistic"
+      summary: "Get logistic existance by email"
+      description: ""
+      operationId: "checkLogisticExists"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userEmailParam"
+      responses:
+        200:
+          $ref: "#/responses/UserExists"
+        404:
+          description: "Logistic is not exists !"
   # Logistic's signup operation
   /logistics/signup:
     post:
@@ -1864,6 +1919,23 @@ paths:
           description: "Authentication errors ! ( e.g: Authentication failed, Your account is not verified yet, You are not an eligible user for this operation )"
         404:
           description: "Couriers not found !"
+  # Get courier existance by email
+  /couriers/is_exists/{email}:
+    get:
+      tags:
+        - "courier"
+      summary: "Get courier existance by email"
+      description: ""
+      operationId: "checkCourierExists"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: "#/parameters/userEmailParam"
+      responses:
+        200:
+          $ref: "#/responses/UserExists"
+        404:
+          description: "Courier is not exists !"
   # Courier's signup operation
   /couriers/signup:
     post:
@@ -2150,6 +2222,13 @@ parameters:
     required: true
     type: "string"
 
+  userEmailParam:
+    name: "email"
+    in: "path"
+    description: "User's email to check existatnce"
+    required: true
+    type: "string"
+
   userParam:
     name: "user"
     in: "body"
@@ -2369,6 +2448,17 @@ responses:
     description: "User credential mismatched !"
     schema:
       $ref: "#/definitions/APIResponse"
+
+  # Definition for serr existsance success response
+  UserExists:
+    description:  "Success response if user exists !"
+    schema:
+      allOf:
+        - $ref: "#/definitions/APIResponse"
+        - type: "object"
+          properties:
+            isExists:
+              type: "boolean"
 
   # Definition of list of product response
   ProductDetails:

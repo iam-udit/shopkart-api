@@ -9,6 +9,9 @@ const { checkAdminPermission } = require('../middlewares/utils');
 const { updatePassword, forgotPassword, digestPassword } = require('../middlewares/password-ops');
 
 
+// Check user is exists or not
+router.get('/is_exists/:mobileNumber', userExists);
+
 // Retrieving user's details by Id
 router.get("/get", verifyJwt, usersController.getUserById);
 

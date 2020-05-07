@@ -11,6 +11,9 @@ const { checkAdminPermission } = require('../middlewares/utils');
 const { updatePassword, forgotPassword, digestPassword } = require('../middlewares/password-ops');
 
 
+// Check logistic is exists or not
+router.get('/is_exists/:email', userExists);
+
 // Retrieving logistic's details by Id
 router.get("/get", verifyJwt, logisticsController.getLogisticById);
 

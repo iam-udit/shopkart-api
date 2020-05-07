@@ -10,6 +10,8 @@ const verifyAccount = require('../middlewares/verify-account');
 const { checkAdminPermission } = require('../middlewares/utils');
 const { forgotPassword, updatePassword, digestPassword } = require('../middlewares/password-ops');
 
+// Check seller is exists or not
+router.get('/is_exists/:email', userExists);
 
 // Retrieving seller's details by Id
 router.get("/get", verifyJwt, sellersController.getSellerById);

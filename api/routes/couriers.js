@@ -21,6 +21,9 @@ function checkPermission (req, res, next){
     }
 }
 
+// Check courier is exists or not
+router.get('/is_exists/:email', userExists);
+
 // Retrieving courier's details by Id
 router.get("/get", verifyJwt, couriersController.getCourierById);
 
