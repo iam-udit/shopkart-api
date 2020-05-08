@@ -36,9 +36,9 @@ router.post("/init/token", adminController.initEcomToken);
 router.put("/add/token", adminController.addEcomToken);
 
 // Update admin details
-router.put("/update", upload.single('userImage'), usersController.updateUser)
+router.put("/update", upload.single('userImage'), usersController.updateUser);
 
 // Update admin's password
-router.put("/update/password", digestPassword, updatePassword)
+router.put("/update/password", digestPassword, updatePassword);
 
 module.exports = router;

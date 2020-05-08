@@ -37,7 +37,7 @@ router.post("/signup", verifyJwt, checkPermission, userExists, digestPassword, c
 router.post("/login", couriersController.courierLogin);
 
 // Performing forgot password operation
-router.post("/forgot/password", userExists, forgotPassword);
+router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update courier's details
 router.put("/update", verifyJwt, upload.single('courierImage'), couriersController.updateCourier)

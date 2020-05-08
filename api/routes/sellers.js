@@ -35,7 +35,7 @@ router.post("/signup", userExists, digestPassword, sellersController.sellerSignU
 router.post("/login", sellersController.sellerLogin);
 
 // Performing forgot password operation
-router.post("/forgot/password", userExists, forgotPassword);
+router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update seller's details
 router.put("/update", verifyJwt, upload.single('sellerImage'), sellersController.updateSeller)

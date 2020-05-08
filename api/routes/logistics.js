@@ -36,7 +36,7 @@ router.post("/signup", userExists, digestPassword, logisticsController.logisticS
 router.post("/login", logisticsController.logisticLogin);
 
 // Performing forgot password operation
-router.post("/forgot/password", userExists, forgotPassword);
+router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update logistic's details
 router.put("/update", verifyJwt, upload.single('logisticImage'), logisticsController.updateLogistic)

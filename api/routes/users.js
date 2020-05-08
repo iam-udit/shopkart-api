@@ -25,7 +25,7 @@ router.post("/signup",userExists, digestPassword, usersController.userSignUp);
 router.post("/login", usersController.userLogin);
 
 // Performing forgot password operation
-router.post("/forgot/password", userExists, forgotPassword);
+router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update user details
 router.put("/update", verifyJwt, upload.single('userImage'), usersController.updateUser)

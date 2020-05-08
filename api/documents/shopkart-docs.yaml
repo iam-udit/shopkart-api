@@ -1120,18 +1120,16 @@ paths:
                 description: "The mobile number of user"
                 type: "integer"
                 format: "int64"
+              npassword:
+                description: "The new password to update"
+                type: "string"
       responses:
         200:
-          description: "Success response with an One Time Password"
-          schema:
-            allOf:
-              - $ref: "#/definitions/APIResponse"
-              - type: "object"
-                properties:
-                  otp:
-                    type: "string"
+          $ref: "#/responses/Success"
         404:
           description: "User is not exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
   # Update user details
   /users/update:
     put:
@@ -1390,6 +1388,8 @@ paths:
           $ref: "#/responses/Success"
         404:
           description: "User is not exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
   # Deposit wallet balance
   /sellers/deposit/balance:
     post:
@@ -1716,6 +1716,8 @@ paths:
           $ref: "#/responses/Success"
         404:
           description: "User is not exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
   # Deposit wallet balance
   /logistics/deposit/balance:
     post:
@@ -1998,6 +2000,8 @@ paths:
           $ref: "#/responses/Success"
         404:
           description: "User is not exists !"
+        500:
+          description: "Different possible errors ! (e.g: Password conversion failed, Password updation failed )"
   # Update courier details
   /couriers/update:
     put:
@@ -2384,8 +2388,8 @@ parameters:
         email:
           description: "Email Id of the user"
           type: "string"
-        url:
-          description: "Url of the update new password page"
+        npassword:
+          description: "New password to update"
           type: "string"
 
   userUpdatePasswordParam:

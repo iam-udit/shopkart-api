@@ -22,17 +22,43 @@ function createModel(req) {
     return Model;
 }
 
+// Build query for forgot/update password
+function buildQuery(req) {
+
+    let query = {};
+
+    // Splitting the requested path
+    var temp = req.originalUrl.split('/');
+
+    // Building query
+    if(temp[2] == 'update') {
+        // Querying for update password
+        query = { _id: req.userData.id };
+    } else if (temp[2] == 'forgot') {
+
+        if (temp[1] == "users") {
+            // Querying for forgot password if request from users
+            query = { mobileNumber: req.body.mobileNumber };
+        } else {
+            // Querying for forgot password if request form seller, logistic, courier
+            query = { email: req.body.email };
+        }
+    }
+
+    return query;
+}
+
 // Update new password
 exports.updatePassword = function (req, res, next)  {
 
-    // Retrieving user id from userData
-    var id = req.userData.id;
+    // Building query
+    var query = buildQuery(req);
 
     // Creating model class for request
     var Model = createModel(req);
 
     // Update password in database
-    Model.updateOne({ _id: id }, { $set: { password: req.body.password } })
+    Model.updateOne(query, { $set: { password: req.body.password } })
         .exec()
         .then(result => {
 
@@ -45,7 +71,7 @@ exports.updatePassword = function (req, res, next)  {
             }
             // If invalid user id
             else {
-                next(createError(404, "Invalid user Id !"));
+                next(createError(404, "User is not exists !"));
             }
 
         })
@@ -69,11 +95,5 @@ exports.digestPassword = function (req, res, next) {
         }
     });
 }
-
-
-// Update account status
-exports.forgotPassword = function (req, res, next) {
-
-};
 
 exports.createModel = createModel;
