@@ -3,7 +3,10 @@ const fs = require("fs");
 const path = require('path');
 const multer = require("multer");
 const mkdirp = require("mkdirp");
+const mongoose = require("mongoose");
 const createError = require("http-errors");
+
+const Product = require("../models/product");
 
 var temp = '';
 var dir = '';
@@ -18,7 +21,7 @@ function createDir(req, temp) {
         targetDir = path.join(dir, 'admin');
     } else if ( temp == 'products'){
         // Destination for products
-        targetDir = path.join(dir, temp, req.body.type, req.body.title +'-'+ req.userData.id);
+        targetDir = path.join(dir, temp, req.body.type.toLowerCase(), req.body.title +'-'+ req.userData.id);
     } else if ( temp == 'users' || temp == 'sellers' || temp == 'logistics'  || temp == 'couriers' ) {
         // Destination for users, sellers, logistics
         targetDir = path.join(dir, temp, req.userData.id);
@@ -43,17 +46,74 @@ var removeDir = function (dir) {
     }
 }
 
+// Validating product exists or not
+async function isProductExists(req, cb) {
+
+    var query = {};
+
+    try {
+        if ( req.method == 'POST' ){
+            // Query for searching product for post method
+            query = {
+                title : req.body.title,
+                type: req.body.type,
+                seller: req.userData.id
+            };
+        } else {
+            // Query for searching product for put method
+            query = {
+                title : req.body.title,
+                seller: req.userData.id,
+                _id: { $ne : req.params.productId }
+            };
+        }
+
+        // Checking if the product is exist or not
+        let productExist = await Product.findOne(query);
+
+        if (productExist) {
+            // If product is exists, return error message - can't create / cant't update
+            cb(createError(409, "Duplicate product entry !"), null);
+        } else {
+            // If product not exist, then allow for create / update
+            return true;
+        }
+
+    } catch (error) {
+        // If any error occur
+        cb(createError(500, error.message), null);
+    }
+}
+
 // Providing destination, filename to multer
 const storage = multer.diskStorage({
 
     // Providing destination path
-    destination : (req, file, cb) => {
+    destination : async (req, file, cb) => {
 
         // Creating target directories
         dir = 'public/uploads/';
 
         // Getting the model
         temp = req.originalUrl.split('/')[1];
+
+        if (temp == 'products' && await isProductExists(req, cb) && req.method == 'PUT') {
+
+            // If product is exists and then allow to update
+            let productDetails = await Product.findById(req.params.productId);
+
+            if (
+                (req.body.title != undefined && req.body.title != productDetails.title) ||
+                (req.body.type != undefined && req.body.type.toLowerCase() != productDetails.type)
+            ) {
+                // If type or title updated then remove previous file/ images
+                removeDir(path.join(dir, temp, productDetails.type, productDetails.title +'-'+ req.userData.id));
+            }
+
+            // If title and type is undefined
+            req.body.title = req.body.title || productDetails.title;
+            req.body.type = req.body.type || productDetails.type;
+        }
 
         // Creating target directories
         dir = createDir(req, temp);
@@ -83,21 +143,8 @@ const fileFilter = function (req, file, cb) {
         file.mimetype === "image/png" ||
         file.mimetype === "image/gif"
     ){
-
-        if(
-            temp == 'products' &&
-            (
-                fs.existsSync(dir) && req.method == 'POST' ||
-                !fs.existsSync(dir) && req.method == 'PATCH'
-            )
-        ) {
-            // If product already exist in post method then ignore or
-            // If the product is not exist in patch then ignore
-            cb(null, false);
-        } else {
-            // otherwise allow to upload
-            cb(null, true);
-        }
+        // If condition satisfied, allow to upload
+        cb(null, true);
     }else{
         // If condition does not satisfied, return error message
         cb( createError(500,"Only jpeg, jpg, png, gig files are allowed"), false);
@@ -112,5 +159,3 @@ module.exports = multer({
     },
     fileFilter : fileFilter
 });
-
-module.exports.removeDir = removeDir;

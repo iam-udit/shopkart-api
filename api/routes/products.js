@@ -5,7 +5,6 @@ const createError = require("http-errors");
 const upload = require("../middlewares/upload");
 const verifyJwt = require("../middlewares/verify-jwt");
 const productsController = require("../controllers/products");
-const productExists = require('../middlewares/product-exists');
 
 const router = express.Router();
 
@@ -45,10 +44,10 @@ router.get('/by-seller/:sellerId/:offSet?', verifyJwt, checkPermission, products
 router.get('/get-all/:offSet?', productsController.getAllProducts);
 
 // Creating new product
-router.post('/create/', verifyJwt, checkPermission,  upload.array('productImages', 6 ), productExists, productsController.createProduct);
+router.post('/create/', verifyJwt, checkPermission,  upload.array('productImages', 6 ), productsController.createProduct);
 
 // Update Product details
-router.put('/update/:productId', verifyJwt, checkPermission, upload.array('productImages', 6 ), productExists, productsController.updateProduct);
+router.put('/update/:productId', verifyJwt, checkPermission, upload.array('productImages', 6 ), productsController.updateProduct);
 
 // Delete product
 router.delete('/remove/:productId', verifyJwt, checkPermission, productsController.deleteProduct);

@@ -158,7 +158,7 @@ exports.updateCourier = async  function (req, res, next) {
 
     try {
         // Retrieve update option from request body
-        const updateOps = await utils.updateOps(req);
+        const updateOps = await utils.updateUserOps(req);
 
         // Update courier's details in database
         var result = await Courier.update({ _id: req.userData.id }, { $set: updateOps });

@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const createError = require("http-errors");
 const utils = require('../middlewares/utils');
 const contract = require('../sdk/gateway/contract');
-const { removeDir } = require('../middlewares/upload');
 
 const Product = require("../models/product.js");
 
@@ -61,15 +60,18 @@ function buildQuery(req) {
 // Retrieving and adding productImages to request
 function addProductImages(req){
 
-    // Retrieve images path from req.files
-    let productImages = [];
+    if (req.files != undefined) {
 
-    req.files.forEach(image => {
-        productImages.push(image.path.replace('public/uploads/', ''));
-    });
+        // Retrieve images path from req.files
+        let productImages = [];
 
-    // Adding productImages to request body
-    req.body.productImages = productImages;
+        req.files.forEach(image => {
+            productImages.push(image.path.replace('public/uploads/', ''));
+        });
+
+        // Adding productImages to request body
+        req.body.productImages = productImages;
+    }
 }
 
 // Retrieving product's details according to productId and productTitle
@@ -213,12 +215,6 @@ exports.createProduct = async function (req, res, next) {
 
     } catch (error) {
 
-        // If error occur, then remove stored images
-        removeDir(
-            path.resolve(__dirname + "../../../public/uploads",
-            path.dirname(req.body.productImages[0]))
-        );
-
         if (error._message) {
             // If validation faied
             error.message = error.message;
@@ -231,46 +227,47 @@ exports.createProduct = async function (req, res, next) {
 };
 
 // Update Product details
-exports.updateProduct = function (req, res, next) {
-
-    // Adding productImages to request body
-    addProductImages(req);
+exports.updateProduct = async function (req, res, next) {
 
     // Retrieving product id from request
     const id = req.params.productId;
 
-    // Update product details in database
-    Product.updateOne({ _id: id, seller: req.userData.id }, { $set: req.body })
-        .exec()
-        .then(result => {
+    try {
+        // Retrieve update option from request body
+        var updateOps = await utils.updateProductOps(req);
 
-            // If product's details updated successfully, return success response
-            if (result.nModified > 0) {
-                res.status(200).json({
-                    status: 200,
-                    message: "Product details updated",
-                    request: {
-                        type: "GET",
-                        description: "GET_PRODUCT_DETAILS",
-                        url: req.protocol + '://' + req.get('host') + "/products/get/" + id
-                    }
-                });
-            } else {
-                // If invalid product id
-                next(createError(404, "Invalid Product Id !"));
-            }
-        })
+        // Adding productImages to request body
+        addProductImages(req);
+
+        // Update product details in database
+        let result = await Product.updateOne({ _id: id, seller: req.userData.id }, { $set: req.body })
+
+        // If product's details updated successfully, return success response
+        if (result.nModified > 0) {
+            await res.status(200).json({
+                status: 200,
+                message: "Product details updated",
+                request: {
+                    type: "GET",
+                    description: "GET_PRODUCT_DETAILS",
+                    url: req.protocol + '://' + req.get('host') + "/products/get/" + id
+                }
+            });
+        } else {
+            // If invalid product id
+            next(createError(404, "Invalid Product Id !"));
+        }
+    } catch (error) {
         // If product's updation failed.
-        .catch(error => {
-            if (error._message) {
-                // If validation faied
-                error.message = error.message;
-            } else {
-                // If product update failed
-                error.message = "Product updation failed !";
-            }
-            next(error);
-        });
+        if (error._message) {
+            // If validation faied
+            error.message = error.message;
+        } else {
+            // If product update failed
+            error.message = "Product updation failed !";
+        }
+        next(error);
+    }
 };
 
 // Delete product

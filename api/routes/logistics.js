@@ -5,9 +5,9 @@ const upload = require("../middlewares/upload");
 const verifyJwt = require("../middlewares/verify-jwt");
 const adminController = require('../controllers/admin');
 const userExists = require('../middlewares/user-exists');
-const verifyAccount = require('../middlewares/verify-account');
 const logisticsController = require("../controllers/logistics");
 const { checkAdminPermission } = require('../middlewares/utils');
+const { verifyAccount, setWalletBalance, getWalletBalance} = require('../controllers/admin');
 const { updatePassword, forgotPassword, digestPassword } = require('../middlewares/password-ops');
 
 
@@ -18,7 +18,7 @@ router.get('/is_exists/:email', userExists);
 router.get("/get", verifyJwt, logisticsController.getLogisticById);
 
 // Retrieving logistic wallet balance
-router.get("/get/balance", verifyJwt, adminController.getWalletBalance);
+router.get("/get/balance", verifyJwt, getWalletBalance);
 
 // Retrieving all confirmed/unconfirmed/total logistic's details
 router.get("/by-status/:statusConfirmed/:offSet?", verifyJwt, checkAdminPermission, logisticsController.getAllLogistics);
@@ -27,7 +27,7 @@ router.get("/by-status/:statusConfirmed/:offSet?", verifyJwt, checkAdminPermissi
 router.get("/get-all/:offSet?", verifyJwt, checkAdminPermission, logisticsController.getAllLogistics);
 
 // Deposit logistic's balance to wallet
-router.post("/deposit/balance", verifyJwt, adminController.setWalletBalance);
+router.post("/deposit/balance", verifyJwt, setWalletBalance);
 
 // Creating new logistic/ processing signup
 router.post("/signup", userExists, digestPassword, logisticsController.logisticSignUp);

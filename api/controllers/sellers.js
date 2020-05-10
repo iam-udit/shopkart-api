@@ -195,7 +195,7 @@ exports.updateSeller = async function (req, res, next) {
 
     try {
         // Retrieve update option from request body
-        var updateOps = await utils.updateOps(req);
+        var updateOps = await utils.updateUserOps(req);
 
         // Update seller's details in database
         var result = await Seller.update({ _id: req.userData.id }, { $set: updateOps });

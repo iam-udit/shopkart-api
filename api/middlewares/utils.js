@@ -32,7 +32,7 @@ exports.createOps = function (req) {
 }
 
 // Common updateOps
-exports.updateOps = async function (req) {
+exports.updateUserOps = async function (req) {
 
     // Creating model class
     const Model = createModel(req);
@@ -83,6 +83,28 @@ exports.updateOps = async function (req) {
     return updateOps;
 }
 
+exports.updateProductOps = async function (req) {
+
+    // Making model object
+    const ProductModel = require('../models/product');
+
+    // Getting old records
+    const product = await ProductModel.findById(req.params.productId);
+
+    // Creating update options
+    const updateOps = {
+        title: req.body.title || product.title,
+        type: req.body.type || product.type,
+        colours: req.body.colours || product.colours,
+        quantity: req.body.quantity || product.quantity,
+        price: req.body.price || product.price,
+        description: req.body.description || product.description
+    };
+
+    // Returning update options
+    return updateOps;
+}
+
 // Create product response
 exports.productResponse = function (req, product) {
 
@@ -93,7 +115,6 @@ exports.productResponse = function (req, product) {
         title: product.title,
         type: product.type,
         colours: product.colours,
-        sizes: product.sizes,
         quantity: product.quantity,
         price: product.price,
         productImages : product.productImages,
@@ -123,7 +144,6 @@ exports.orderResponse = function (req, order) {
         courier: order.courier,
         product: order.product,
         colour: order.colour,
-        size: order.size,
         quantity: order.quantity,
         orderStatus: order.orderStatus,
         shipmentCharges: order.shipmentCharges,

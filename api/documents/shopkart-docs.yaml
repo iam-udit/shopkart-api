@@ -207,14 +207,55 @@ paths:
         - "application/json"
       parameters:
         - $ref: "#/parameters/authorizationParam"
-        - $ref: "#/parameters/titleParam"
-        - $ref: "#/parameters/typeParam"
-        - $ref: "#/parameters/coloursParam"
-        - $ref: "#/parameters/sizesParam"
-        - $ref: "#/parameters/quantityParam"
-        - $ref: "#/parameters/priceParam"
-        - $ref: "#/parameters/productImagesParam"
-        - $ref: "#/parameters/descriptionParam"
+
+        - name: "title"
+          in: "formData"
+          description: "Title of the product"
+          required: true
+          type: "string"
+
+        - name: "type"
+          in: "formData"
+          description: "Catagory of the product"
+          required: true
+          type: "string"
+
+        - name: "colours"
+          in: "formData"
+          description: "Colour lists of the product"
+          required: true
+          type: "array"
+          uniqueItems: true
+          items:
+            type: "string"
+            enum: ["black", "white", "gray", "red", "pink", "orange", "yellow", "green", "blue", "purple", "brown"]
+          minItems: 1
+
+        - name: "quantity"
+          in: "formData"
+          description: "Quantity of the product"
+          required: true
+          type: "integer"
+          format: "int32"
+          default: 1
+
+        - name: "price"
+          in: "formData"
+          description: "Selling price of the product"
+          required: true
+          type: "number"
+
+        - name: "productImages"
+          in: "formData"
+          description: "Images for the product"
+          required: true
+          type: "file"
+
+        - name: "description"
+          in: "formData"
+          description: "Description of the product"
+          required: true
+          type: "string"
       responses:
         200:
           description:  "Created product details"
@@ -246,14 +287,52 @@ paths:
       parameters:
         - $ref: "#/parameters/authorizationParam"
         - $ref: "#/parameters/productIdParam"
-        - $ref: "#/parameters/titleParam"
-        - $ref: "#/parameters/typeParam"
-        - $ref: "#/parameters/coloursParam"
-        - $ref: "#/parameters/sizesParam"
-        - $ref: "#/parameters/quantityParam"
-        - $ref: "#/parameters/priceParam"
-        - $ref: "#/parameters/productImagesParam"
-        - $ref: "#/parameters/descriptionParam"
+        - name: "title"
+          in: "formData"
+          description: "Title of the product"
+          required: false
+          type: "string"
+
+        - name: "type"
+          in: "formData"
+          description: "Catagory of the product"
+          required: false
+          type: "string"
+
+        - name: "colours"
+          in: "formData"
+          description: "Colour lists of the product"
+          required: false
+          type: "array"
+          uniqueItems: true
+          items:
+            type: "string"
+            enum: ["black", "white", "gray", "red", "pink", "orange", "yellow", "green", "blue", "purple", "brown"]
+
+        - name: "quantity"
+          in: "formData"
+          description: "Quantity of the product"
+          required: false
+          type: "integer"
+          format: "int32"
+
+        - name: "price"
+          in: "formData"
+          description: "Selling price of the product"
+          required: false
+          type: "number"
+
+        - name: "productImages"
+          in: "formData"
+          description: "Images for the product"
+          required: false
+          type: "file"
+
+        - name: "description"
+          in: "formData"
+          description: "Description of the product"
+          required: false
+          type: "string"
       responses:
         200:
           description:  "Updated product details"
@@ -495,9 +574,6 @@ paths:
                 type: "string"
               colour:
                 description: "Product's colour selected by user"
-                type: "string"
-              size:
-                description: "Product's size selected by user"
                 type: "string"
               quantity:
                 description: "Quantity of the product"
@@ -2127,74 +2203,6 @@ parameters:
     required: true
     type: "string"
 
-  titleParam:
-    name: "title"
-    in: "formData"
-    description: "Title of the product"
-    required: true
-    type: "string"
-
-  typeParam:
-    name: "type"
-    in: "formData"
-    description: "Catagory of the product"
-    required: true
-    type: "string"
-
-  coloursParam:
-    name: "colours"
-    in: "formData"
-    description: "Colour lists of the product"
-    required: true
-    type: "array"
-    uniqueItems: true
-    items:
-      type: "string"
-      enum: ["black", "white", "gray", "red", "pink", "orange", "yellow", "green", "blue", "purple", "brown"]
-    minItems: 1
-
-  sizesParam:
-    name: "sizes"
-    in: "formData"
-    description: "Size lists of the product"
-    required: true
-    type: "array"
-    uniqueItems: true
-    items:
-      type: "string"
-      enum: ["XS", "S", "M", "L", "XL", "XXL"]
-    minItems: 1
-
-  quantityParam:
-    name: "quantity"
-    in: "formData"
-    description: "Quantity of the product"
-    required: true
-    type: "integer"
-    format: "int32"
-    default: 1
-
-  priceParam:
-    name: "price"
-    in: "formData"
-    description: "Selling price of the product"
-    required: true
-    type: "number"
-
-  productImagesParam:
-    name: "productImages"
-    in: "formData"
-    description: "Images for the product"
-    required: true
-    type: "file"
-
-  descriptionParam:
-    name: "description"
-    in: "formData"
-    description: "Description of the product"
-    required: true
-    type: "string"
-
   # Parameters for order path
   orderIdParam:
     name: "orderId"
@@ -2599,10 +2607,6 @@ definitions:
         type: "array"
         items:
           type: "string"
-      sizes:
-        type: "array"
-        items:
-          type: "string"
       quantity:
         type: "integer"
       price:
@@ -2656,10 +2660,6 @@ definitions:
             type: "array"
             items:
               type: "string"
-          sizes:
-            type: "array"
-            items:
-              type: "string"
           price:
             type: "number"
           productImages:
@@ -2675,8 +2675,6 @@ definitions:
             type: "string"
             format: "date-time"
       colour:
-        type: "string"
-      size:
         type: "string"
       quantity:
         type: "integer"

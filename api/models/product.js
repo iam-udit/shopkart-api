@@ -13,7 +13,7 @@ const productSchema = mongoose.Schema({
     title: {
         type: String,
         required: true,
-        dropDups: true
+        index: true,
     },
     type: {
         type: String,
@@ -22,11 +22,6 @@ const productSchema = mongoose.Schema({
         index: true
     },
     colours: {
-        type: [ String ],
-        required: true,
-        minlength: 1
-    },
-    sizes: {
         type: [ String ],
         required: true,
         minlength: 1
@@ -42,6 +37,7 @@ const productSchema = mongoose.Schema({
     },
     productImages : {
         type: [ String ],
+        required: true
     },
     description: {
         type: String,

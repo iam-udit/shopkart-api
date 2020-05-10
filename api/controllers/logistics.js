@@ -163,7 +163,7 @@ exports.updateLogistic = async function (req, res, next) {
 
     try {
         // Retrieve update option from request body
-        var updateOps = await utils.updateOps(req);
+        var updateOps = await utils.updateUserOps(req);
 
         // Update logistic's details in database
         var result = await Logistic.update({ _id: req.userData.id }, { $set: updateOps });

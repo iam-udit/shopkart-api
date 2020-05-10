@@ -183,7 +183,7 @@ exports.updateUser = async (req, res, next) => {
 
     try {
         // Retrieve update option from request body
-        var updateOps = await utils.updateOps(req);
+        var updateOps = await utils.updateUserOps(req);
 
         // Update user's details in database
         let result = await User.updateOne({ _id: req.userData.id }, { $set: updateOps });
