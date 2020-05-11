@@ -1,5 +1,5 @@
 {
-  "name": "ecommerce-rest-api",
+  "name": "shopkart-api",
   "version": "1.0.0",
   "description": "A rest api using nodejs for hlf ecommerce app.",
   "private": true,
