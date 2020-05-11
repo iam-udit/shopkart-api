@@ -35,7 +35,7 @@ function buildQuery(req) {
                 orderStatus: req.params.status
             };
             break;
-        case 'by-logistic':
+        case 'by-courier':
             // Query for all orders according to courierId
             query = {
                 courier: req.userData.id,
