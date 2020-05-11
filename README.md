@@ -1,12 +1,11 @@
 
-`           ******Ecommerce Web Application******
+#  Ecommerce Web Application
 
     This is an ecommerce web project based on blockchain platform.
 
   
-  **PROTECTING SELLER'S INTEREST OR CASH ON DELIVERY BY USING SMART CONTRACT**
+#### **:: PROTECTING SELLER'S INTEREST OR CASH ON DELIVERY BY USING SMART CONTRACT :**
 
-    
 - We are implementing a solution for COD in e-commerce.
 - We have planned a system based on a smart contract where the basic mechanism will go as below
 - Customer order any product from an e-commerce site.
@@ -15,7 +14,6 @@
 - This agreement(smart contract) will contain a virtual account which will store the product's price, seller's profit.
 - After the product's delivery is confirmed by the customer both seller and delivery agency will get their shares.
 
-  
    **- It runs in a three tire architecture**
            
              1. Client Application
@@ -23,73 +21,70 @@
              3. Network Application
             
              
-- **Client Application : -**
+- #### **Client Application : -**
 
-``    Client applicaion is purely designed with php and all the user 
+    Client applicaion is purely designed with php and all the user 
 functionalities are maintained there. 
 
-**- Different technologies are used in client side**
+    **- Different technologies are used in client side**
             
-            `- HTML5
+            - HTML5
             - CSS3
             - Bootstarp4
             - JavaScript
             - Ajax
             - Php
-            - Laravel 6`
+            - Laravel 6
             
             
-- **Network Application : -**
+- #### **Network Application : -**
 
-`    Here we are using hyper leger fabric network which is most 
+    Here we are using hyper leger fabric network which is most 
 popular project under blockchain. Here we create a private network 
 which consist of two organizations and one orderer.
 
             - Ecom
             - Delivery
                 
-**- Different technologies are used in network side****
+    **- Different technologies are used in network side**
          
-            `- Peer chain command
+            - Peer chain command
             - Docker components
-            - Ubantu 16.04 LTS`
-     
+            - Ubantu 16.04 LTS 
+            
+    To perform ecom processes and maintain collaboration between two
+    organization we use a smart contract. Our smart contract acts as an endroser and developed
+    using different technology.
     
-   To perform ecom processes and maintain collaboration between two
-organization we use a smart contract. Our smart contract acts as an endroser and developed
-using different technology.
-
             - Go Lang
             - Fabric 1.4 support
 
-- **SDK Application :-** 
+- #### **SDK Application :-**
     
     To communicate with network we use fabric sdk. Fabric sdk provides various functionalities
-  to interact with the hyper ledger network. We created RESTFUL API using nodeJS for communication 
-  between client application and network application. This API has various functionalities to inovke 
-  and query the chaincode deployed on network
-     
-  
-**- Different technologies are used in REST API side**
+to interact with the hyper ledger network. We created RESTFUL API using nodeJS for communication 
+between client application and network application. This API has various functionalities to inovke 
+and query the chaincode deployed on network.
         
-          - NodeJs
-          - MongoDb Atlas
-          - Swagger API Docs
-   
-   
-**_- SETUP DEVELOPMENT ENVIRONMENT :**_
+   **- Different technologies are used in REST API side**
+            
+             - NodeJs
+             - MongoDb Atlas
+             - Swagger API Docs
 
-`    _- API Docs: http:/localhost:8000/api-docs_
-`   
-   
-    - **Requirements**: 
+       
+#### **:: SETUP DEVELOPMENT ENVIRONMENT :**
+    
+        - API Docs: http:/localhost:8000/api-docs  
+
+   **- Requirements :** 
+
         - Make sure shopkart smart contract deployed on a hyper ledger fabric network and 
-        running on your local machine.
-        
-        
+          running on your local machine.
+    
 1. Clone the repository to your local machine : 
     
-        -` git clone https://github.com/udit6899/shopkart-api.git   `
+        - git clone https://github.com/udit6899/shopkart-api.git   
          
 2. Download dependencies to the project : 
     
@@ -128,7 +123,7 @@ using different technology.
 
 5. Deploy your contract then install and instantiate chaincode
 
-6. Change you port, If you want :
+6. Change your port, If you want :
     
         - bin/www -> ~~8000~~ -> 9000
 
