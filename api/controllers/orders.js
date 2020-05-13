@@ -304,13 +304,18 @@ exports.cancelOrder =  async function (req, res, next) {
     const id = req.params.orderId;
 
     try {
-        //  Delete order from couchDb
-        await contract.invoke( {
-            org: "ecom",
-            user: 'admin',
-            method: "DeleteOrder",
-            args: [id.toString()]
-        });
+        // Getting order status from database
+        let orderDetails = await Order.findById(id);
+
+        //  Delete order from couchDb if orderStatus is not pending
+        if (orderDetails.orderStatus != 'Pending') {
+            await contract.invoke( {
+                org: "ecom",
+                user: 'admin',
+                method: "DeleteOrder",
+                args: [id.toString()]
+            });
+        }
 
         // Canncel order from database
         let result = await Order.update({ "_id": id }, { $set: { orderStatus: 'Canceled' } });
