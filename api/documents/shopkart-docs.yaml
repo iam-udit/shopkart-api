@@ -1702,7 +1702,7 @@ paths:
       tags:
         - "logistic"
       summary: "Get all logistic's details"
-      description: "Admin is only eligible for this operation"
+      description: "Admin and seller are eligible for this operation"
       operationId: "getAllLogistics"
       produces:
         - "application/json"

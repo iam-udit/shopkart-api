@@ -24,7 +24,7 @@ router.get("/get/balance", verifyJwt, getWalletBalance);
 router.get("/by-status/:statusConfirmed/:offSet?", verifyJwt, checkAdminPermission, logisticsController.getAllLogistics);
 
 // Retrieving all logistic's details
-router.get("/get-all/:offSet?", verifyJwt, checkAdminPermission, logisticsController.getAllLogistics);
+router.get("/get-all/:offSet?", verifyJwt, logisticsController.getAllLogistics);
 
 // Deposit logistic's balance to wallet
 router.post("/deposit/balance", verifyJwt, setWalletBalance);
