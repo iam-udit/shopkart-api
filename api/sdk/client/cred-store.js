@@ -20,7 +20,7 @@ const client = Client.loadFromConfig(CONNECTION_PROFILE_PATH);
  * @param {string} org 
  */
 function createMSPId(org) {
-    return org+'MSP'
+    return org+'MSP';
 }
 
 /**
@@ -41,7 +41,7 @@ function getCertPath(org, user) {
 function getPrivateKeyPath(org, user) {
     let pkFolder = process.env.CRYPTO_CONFIG_PEER_ORGANIZATIONS + "/" + org + "/" + user + "/msp/keystore";
     let pkFile = '';
-    fs.readdirSync(pkFolder).forEach(file => {
+    fs.readdirSync(pkFolder).forEach((file) => {
         // return the first file
         pkFile = file;
         return;
@@ -57,16 +57,16 @@ async function initCredentialStore() {
     // Call the function for initializing the credentials store on file system
     await client.initCredentialStores()
         .then((done) => {
-            console.log("initCredentialStore(): ", done)
-        })
+            console.log("initCredentialStore(): ", done);
+        });
 }
 
 // Load the client section for the organization
 function loadConfig(org, client){
-    if(org == 'ecom'){
+    if(org === 'ecom'){
         // setup ecom client
         client.loadFromConfig(ECOM_CLIENT_CONNECTION_PROFILE_PATH);
-    } else if(org == 'delivery'){
+    } else if(org === 'delivery'){
         // setup delivery client
         client.loadFromConfig(DELIVERY_CLIENT_CONNECTION_PROFILE_PATH);
     } else {
@@ -80,10 +80,10 @@ function loadConfig(org, client){
  **/
 async function createUserContext(org, user) {
     // Get the path  to user private key
-    let privateKeyPath = getPrivateKeyPath(org, user)
+    let privateKeyPath = getPrivateKeyPath(org, user);
 
     // Get the path to the user certificate
-    let certPath = getCertPath(org, user)
+    let certPath = getCertPath(org, user);
 
     // Setup the options for the user context
     // Global Type: UserOpts
@@ -96,12 +96,12 @@ async function createUserContext(org, user) {
         },
         // Set this to true to skip persistence
         skipPersistence: false
-    }
+    };
 
     // Setup the user
-    let userContext = await client.createUser(opts)
+    let userContext = await client.createUser(opts);
 
-    return userContext
+    return userContext;
 }
 
 
@@ -109,7 +109,7 @@ async function createUserContext(org, user) {
 async function setupCredStore(org, user){
 
     // Check if org and name are provided
-    if (org == undefined || user == undefined){
+    if (org === 'undefined' || user === 'undefined'){
         console.log("Usage:  setupCredStore(org,user)");
         process.exit(1);
     }
@@ -125,7 +125,7 @@ async function setupCredStore(org, user){
     let userContext = await client.loadUserFromStateStore(user);
 
     // If user is null then the user does not exist
-    if( userContext == null ){
+    if( userContext === null ){
 
         // Create the user context
         userContext = await createUserContext(org, user);
@@ -136,7 +136,7 @@ async function setupCredStore(org, user){
     }
 
     // Setup the context on the client
-    await client.setUserContext(userContext, false)
+    await client.setUserContext(userContext, false);
 }
 
 

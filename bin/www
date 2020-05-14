@@ -28,7 +28,8 @@ var server = http.createServer(app);
  */
 
 server.listen(port,   function () {
-  setupCredStore('ecom','admin')
+  console.log("Server is runnning on port 8000");
+  setupCredStore('ecom','admin');
   setTimeout(() =>   setupCredStore('delivery','admin') , 2000);
   setTimeout(() =>console.log("Credstore is ready !!!"), 3000);
 });

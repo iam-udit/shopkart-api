@@ -39,10 +39,10 @@ router.post("/login", logisticsController.logisticLogin);
 router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update logistic's details
-router.put("/update", verifyJwt, upload.single('logisticImage'), logisticsController.updateLogistic)
+router.put("/update", verifyJwt, upload.single('logisticImage'), logisticsController.updateLogistic);
 
 // Update logistic's password
-router.put("/update/password", verifyJwt, digestPassword, updatePassword)
+router.put("/update/password", verifyJwt, digestPassword, updatePassword);
 
 // Verify logistic's account status
 router.put("/verify/account/:id", verifyJwt, checkAdminPermission, verifyAccount);

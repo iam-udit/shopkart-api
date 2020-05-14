@@ -13,10 +13,10 @@ function checkPermission(req, res, next) {
 
     let temp = req.originalUrl.split('/')[2];
 
-    if (req.userData.role == 'seller' && req.userData.statusConfirmed == false){
+    if (req.userData.role === 'seller' && req.userData.statusConfirmed === false){
         // If seller account is not verified, return error response
         return next(createError(401, "Your account is not verified yet !"));
-    } else if(req.userData.role != 'seller' && req.userData.role != 'admin') {
+    } else if(req.userData.role !== 'seller' && req.userData.role !== 'admin') {
         // Checking user eligibility
         return  next(createError(401,"You are not an eligible user for this operation !"));
     } else {

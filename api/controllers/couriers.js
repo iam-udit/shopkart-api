@@ -3,10 +3,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const createError = require("http-errors");
-const wallet = require('../sdk/gateway/wallet');
-const utils = require("../middlewares/utils");
-
 const Courier = require("../models/courier");
+const utils = require("../middlewares/utils");
+const wallet = require('../sdk/gateway/wallet');
 
 
 // Retrieving courier's details by courierId
@@ -49,17 +48,17 @@ exports.getAllCouriers =  function (req, res, next) {
 
     // Finding all logistics details
     Courier.paginate(query, { page: req.params.offSet || 1, limit: 20 })
-        .then(result => {
+        .then((result) => {
             // If couriers found, return courier details
             if (result.total > 0) {
                 const response = {
                     status: 200,
                     message: "A list of courier details",
                     total: result.total,
-                    offset: parseInt(result.page),
+                    offset: parseInt(result.page, 10),
                     pages: Math.ceil(result.total / result.limit ),
                     couriers: result.docs
-                }
+                };
                 res.status(200).json(response);
             }
             // If courier doesn't found, return empty response
@@ -68,9 +67,9 @@ exports.getAllCouriers =  function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch(error => {
+        .catch((error) => {
             next(error);
-        })
+        });
 };
 
 // Creating new courier/ processing signup
@@ -93,7 +92,7 @@ exports.courierSignUp = async function (req, res, next) {
         });
 
         // Saving courier details in db
-        await courier.save()
+        await courier.save();
 
         // If courier account created, return success message
         await res.status(201).json({
@@ -119,7 +118,7 @@ exports.courierLogin = function (req, res, next) {
     // Checking courier is valid or not
     Courier.findOne({ email : req.body.email })
         .exec()
-        .then(courier => {
+        .then((courier) => {
             // If courier is an existing user then authenticate password
             if(courier){
                 bcrypt.compare(req.body.password, courier.password, (error, result) => {

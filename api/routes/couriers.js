@@ -10,10 +10,10 @@ const { updatePassword, forgotPassword, digestPassword } = require('../middlewar
 
 // Verifying eligibility of the user
 function checkPermission (req, res, next){
-    if ( req.userData.role != 'logistic' ) {
+    if ( req.userData.role !== 'logistic' ) {
         // If role is not logistic, then return
         return  next(createError(401,"You are not an eligible user for this operation !"));
-    } else if (req.userData.role == 'logistic' && req.userData.statusConfirmed == false) {
+    } else if (req.userData.role === 'logistic' && req.userData.statusConfirmed === false) {
         // If logistic account is not verifed, then return
         return  next(createError(401,"Your account is not verified yet !"));
     }else {
@@ -40,10 +40,10 @@ router.post("/login", couriersController.courierLogin);
 router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update courier's details
-router.put("/update", verifyJwt, upload.single('courierImage'), couriersController.updateCourier)
+router.put("/update", verifyJwt, upload.single('courierImage'), couriersController.updateCourier);
 
 // Update courier's password
-router.put("/update/password", verifyJwt, digestPassword, updatePassword)
+router.put("/update/password", verifyJwt, digestPassword, updatePassword);
 
 // Delete courier's record
 router.delete('/remove/:courierId', verifyJwt, checkPermission, couriersController.removeCourier);

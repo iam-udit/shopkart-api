@@ -37,15 +37,14 @@ async function setupGateway(org, user) {
     let connectionOptions = {
         identity: user,
         wallet: wallet,
-        discovery: { enabled: true, asLocalhost: true }
-        /*** Uncomment lines below to disable commit listener on submit ****/
-        , eventHandlerOptions: {
+        discovery: { enabled: true, asLocalhost: true },
+        eventHandlerOptions: {
             strategy: null
         }
     }
 
     // 2.4 Connect gateway to the network
-    await gateway.connect(connectionProfile, connectionOptions)
+    await gateway.connect(connectionProfile, connectionOptions);
 
     // 3. Get the network
     let network = await gateway.getNetwork(process.env.NETWORK_NAME);
@@ -67,7 +66,7 @@ exports.query =  async function (options) {
     let contract = await setupGateway( options.org, options.user );
 
     // Query the chaincode
-    response =  await contract.evaluateTransaction(options.method, ...options.args);
+    let response =  await contract.evaluateTransaction(options.method, ...options.args);
 
     // Parsing and managing response
     response = JSON.parse(response);
@@ -102,5 +101,5 @@ exports.invoke = async function (options) {
 
     // Return invoke response
     return response;
-}
+};
 

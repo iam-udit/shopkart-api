@@ -2,10 +2,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const User = require("../models/user");
 const createError = require("http-errors");
 const utils = require("../middlewares/utils");
 
-const User = require("../models/user");
 
 // Creating jwt token
 function createJWT(user, temp) {
@@ -13,14 +13,14 @@ function createJWT(user, temp) {
     // Making payload
     let payload = {};
 
-    if ( temp == 'admin'){
+    if ( temp === 'admin'){
         // If request from admin
         payload = {
             id: user._id,
             role: 'admin',
             email: user.email
         }
-    } if (temp == 'users'){
+    } if (temp === 'users'){
         // If request from users
         payload = {
             id: user._id,
@@ -86,9 +86,9 @@ exports.getAllUsers =  (req, res, next) => {
                     message: "A list of user details",
                     total: result.total,
                     pages: Math.ceil(result.total / result.limit),
-                    offset: parseInt(result.page),
+                    offset: parseInt(result.page, 10),
                     users: result.docs,
-                }
+                };
                 res.status(200).json(response);
             }
             // If user doesn't found, return empty response
@@ -103,7 +103,7 @@ exports.getAllUsers =  (req, res, next) => {
 };
 
 // Creating new use/ processing signup
-exports.userSignUp = (req, res, next)=>{
+exports.userSignUp = (req, res, next) => {
 
     // Creating user schema object and binding data to it
     const  user = new User({
@@ -134,17 +134,17 @@ exports.userSignUp = (req, res, next)=>{
 };
 
 // Performing login process
-exports.userLogin = (req, res, next)=>{
+exports.userLogin = (req, res, next) => {
 
     let query = {};
 
     let temp = req.originalUrl.split('/')[1];
 
     // Buildiing query
-    if (temp == 'users'){
+    if (temp === 'users'){
         // Building query for users login
         query = { mobileNumber : req.body.mobileNumber };
-    } else if ( temp == 'admin'){
+    } else if ( temp === 'admin'){
         // Building query for admin login
         query = { email : req.body.email };
     }
@@ -152,7 +152,7 @@ exports.userLogin = (req, res, next)=>{
     // Checking user is valid or not
     User.findOne(query)
         .exec()
-        .then(user => {
+        .then((user) => {
             // If user is an existing user then authenticate password
             if(user){
                 bcrypt.compare(req.body.password, user.password, (error, result) => {
@@ -214,7 +214,7 @@ exports.removeUser = (req, res, next) => {
     // Deleting user's account from database
     User.remove({ "_id": id })
         .exec()
-        .then(result => {
+        .then((result) => {
             // If  user's deleted successfully, return success response
             if (result.deletedCount > 0) {
                 res.status(200).json({
@@ -229,8 +229,8 @@ exports.removeUser = (req, res, next) => {
 
         })
         // If any error occurs, return error response
-        .catch(error => {
+        .catch((error) => {
             error.message = "User's record deletion failed !";
             next(error);
-        })
+        });
 };

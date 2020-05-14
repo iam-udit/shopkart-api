@@ -1,11 +1,12 @@
 // Importing all required modules
 const express = require("express");
 const router = express.Router();
+const createError = require("http-errors");
 const upload = require("../middlewares/upload");
 const verifyJwt = require("../middlewares/verify-jwt");
-const usersController = require("../controllers/users");
 const adminController = require("../controllers/admin");
-const { updatePassword, digestPassword } = require('../middlewares/password-ops');
+const usersController = require("../controllers/users");
+const { updatePassword, digestPassword } = require("../middlewares/password-ops");
 
 // Performing admin login process
 router.post("/login", usersController.userLogin);
@@ -13,7 +14,7 @@ router.post("/login", usersController.userLogin);
 // Checking user eligibility
 router.use(verifyJwt, function (req, res, next) {
     let path = req.originalUrl.split('/')[2];
-    if ( path != 'login' && req.userData.role != 'admin'){
+    if ( path !== 'login' && req.userData.role !== 'admin'){
         return  next(createError(401,"You are not an eligible user for this operation !"));
     } else {
         next();

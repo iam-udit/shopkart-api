@@ -8,7 +8,7 @@ const { createModel } = require('./password-ops');
 // Check admin permission
 exports.checkAdminPermission = function (req, res, next) {
     // If request not form admin
-    if (req.userData.role != 'admin'){
+    if (req.userData.role !== 'admin'){
         next(createError(401,"You are not an eligible user for this operation !"));
     } else {
         next();
@@ -100,11 +100,11 @@ exports.updateUserOps = async function (req) {
     };
 
     // Retriveing image path
-    if (req.file != undefined) {
+    if (req.file !== 'undefined') {
 
         let imagePath = req.file.path.replace('public/uploads/', '');
 
-        if( role == 'admin' || role == 'customer' ) {
+        if( role === 'admin' || role === 'customer' ) {
             // If request from admin or user
             updateOps.userImage = imagePath;
         } else {
@@ -114,7 +114,7 @@ exports.updateUserOps = async function (req) {
     }
 
     // Adding email and removing mobileNumber if request from user
-    if ( role == 'customer' ){
+    if ( role === 'customer' ){
         delete updateOps.mobileNumber;
         updateOps.email = req.body.email || user.email;
     }
@@ -200,4 +200,4 @@ exports.orderResponse = function (req, order) {
 
     // Returning response
     return response;
-}
+};
