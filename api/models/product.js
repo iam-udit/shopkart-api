@@ -45,5 +45,6 @@ const productSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Adding plugin to the schema
 productSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("Product", productSchema);

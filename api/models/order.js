@@ -72,5 +72,6 @@ const orderSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Adding plugin to the schema
 orderSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('Order', orderSchema );

@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
+const utils = require('../middlewares/utils');
 const mongoosePaginate = require('mongoose-paginate');
+
+// Getting common schema options
+const schemaOps = utils.schemaOps();
 
 // Creating user's schema
 const userSchema = new mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
+    _id: schemaOps._id,
     firstName: { type: String },
     lastName: { type: String },
     mobileNumber:{
@@ -11,7 +15,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    password: { type: String, required: true},
+    password: schemaOps.password,
     email: {
         type: String,
         lowercase: true,
@@ -21,21 +25,13 @@ const userSchema = new mongoose.Schema({
         ]
     },
     emailVerified: { type: Boolean, default: false },
-    gender: {
-        type: String,
-        enum: ['Male', 'Female', 'Other']
-    },
-    age: { type: Number, maxlength: 2 },
-    address: {
-        city: { type: String },
-        state: { type: String },
-        country: { type: String },
-        zip: { type: Number },
-        body: { type: String }
-    },
+    gender: schemaOps.gender,
+    age: schemaOps.age,
+    address: schemaOps.address,
     userImage: { type: String },
 }, { timestamps: true });
 
+// Adding plugin to the schema
 userSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("User", userSchema);
 
