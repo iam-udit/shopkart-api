@@ -18,7 +18,7 @@ exports.getSellerById =  function (req, res, next) {
     // Finding seller's details using seller id.
     Seller.findById(id, { __v: 0, password: 0 })
         .exec()
-        .then(seller => {
+        .then((seller) => {
             // if seller found, return success response
             if (seller) {
                 res.status(200).json({
@@ -34,10 +34,7 @@ exports.getSellerById =  function (req, res, next) {
 
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-
-        });
+        .catch((error) => { next(error); });
 };
 
 // Retrieving all seller's details form database
@@ -65,7 +62,7 @@ exports.getAllSellers = function (req, res, next) {
                     offset: parseInt(result.page, 10),
                     pages: Math.ceil( result.total / result.limit ),
                     sellers: result.docs
-                }
+                };
                 res.status(200).json(response);
             }
             // If seller doesn't found, return empty response
@@ -74,9 +71,7 @@ exports.getAllSellers = function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch((error) => {
-            next(error);
-        });
+        .catch((error) => { next(error); });
 };
 
 // Creating new seller/ processing signup
@@ -155,7 +150,7 @@ exports.sellerLogin = function (req, res, next) {
     // Checking seller is valid or not
     Seller.findOne({ email : req.body.email })
         .exec()
-        .then(seller => {
+        .then((seller) => {
             // If seller is an existing user then authenticate password
             if(seller){
                 bcrypt.compare(req.body.password, seller.password, (error, result) => {
@@ -202,7 +197,7 @@ exports.updateSeller = async function (req, res, next) {
 
         // If seller's details updated successfully, return success response
         if (result.nModified > 0) {
-            res.status(200).json({
+            await res.status(200).json({
                 status: 200,
                 message: "User's detail updated."
             });

@@ -22,9 +22,9 @@ const CONNECTION_PROFILE_PATH = __dirname + '/../profiles/dev-connection.yaml';
 // Create a new file system based wallet for managing identities.
 function createWallet(org) {
     let walletPath = path.resolve(__dirname, '../wallet');
-    if ( org == 'ecom') {
+    if ( org === 'ecom') {
         walletPath += '/ecom';
-    } else if (org == 'delivery') {
+    } else if (org === 'delivery') {
         walletPath += '/delivery';
     }
     return new FileSystemWallet(walletPath);
@@ -126,7 +126,7 @@ exports.exportIdentity = async function (user, org) {
         let wallet = createWallet(org);
         // To retrive execute export
         identity = await wallet.export(user);
-    } catch (e) {}
+    } catch (e) { return {}; }
 
     return identity;
 }
@@ -142,7 +142,7 @@ exports.listIdentities = async function (org){
         let wallet = createWallet(org);
         // Retrieve the identities in folder
         lists = await wallet.list();
-    } catch (e) {}
+    } catch (e) { return []; }
 
     return lists;
 }
@@ -158,10 +158,10 @@ exports.existsIdentity = async function (user, org){
         let wallet = createWallet(org);
         // Checking identity existance
         status = await wallet.exists(user);
-    } catch (error) {}
+    } catch (error) { return false; }
 
     return status;
-}
+};
 
 /**
  * Lists the identities in the wallet

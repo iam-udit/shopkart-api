@@ -18,7 +18,7 @@ exports.getLogisticById = function (req, res, next) {
     // Finding logistic's details using logistic id.
     Logistic.findById(id, { __v: 0, password: 0 })
         .exec()
-        .then(logistic => {
+        .then((logistic) => {
             // if logistic found, return success response
             if (logistic) {
                 res.status(200).json({
@@ -26,19 +26,14 @@ exports.getLogisticById = function (req, res, next) {
                     message: "Logistic account details",
                     logistic: logistic
                 });
-
             }
             // If logistic doesn't found, return not found response
             else {
                 next(createError(404, "Logistic details not found !"));
             }
-
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-
-        });
+        .catch((error) => { next(error); });
 };
 
 // Retrieving all logistic's details form database
@@ -66,7 +61,7 @@ exports.getAllLogistics = function (req, res, next) {
                     offset: parseInt(result.page, 10),
                     pages: Math.ceil(result.total / result.limit ),
                     logistics: result.docs
-                }
+                };
                 res.status(200).json(response);
             }
             // If logistic doesn't found, return empty response
@@ -75,9 +70,7 @@ exports.getAllLogistics = function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
+        .catch((error) => { next(error); });
 };
 
 // Creating new logistic/ processing signup
@@ -169,7 +162,7 @@ exports.updateLogistic = async function (req, res, next) {
 
         // If logistic's details updated successfully, return success response
         if (result.nModified > 0) {
-            res.status(200).json({
+            await res.status(200).json({
                 status: 200,
                 message: "User's detail updated."
             });

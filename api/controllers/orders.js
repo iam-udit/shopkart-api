@@ -82,13 +82,9 @@ exports.getOrderById = function (req, res, next) {
             else {
                 next(createError(404, "No order found for provided ID"));
             }
-
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-
-        });
+        .catch(error => { next(error); });
 };
 
 // Retrieving all order's details form database
@@ -102,7 +98,7 @@ exports.getAllOrders =  function (req, res, next) {
 
     // Finding all orders
     Order.paginate(query, option)
-        .then(result => {
+        .then((result) => {
             // If order found, return product details
             if (result.total > 0) {
                 const response = {
@@ -114,7 +110,7 @@ exports.getAllOrders =  function (req, res, next) {
                     orders: result.docs.map((order) => {
                         return utils.orderResponse(req, order);
                     })
-                }
+                };
                 res.status(200).json(response);
             }
             // If order doesn't found, return empty response
@@ -123,9 +119,7 @@ exports.getAllOrders =  function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
+        .catch((error) => { next(error); })
 };
 
 // Creating new order
@@ -140,7 +134,7 @@ exports.createOrder = function (req, res, next) {
 
     // Creating a new order
     order.save()
-        .then(result => {
+        .then((result) => {
 
             // If  order's created successfully, then update product quantity
             productController.updateProductQuantity(result.product, - result.quantity);
@@ -153,7 +147,7 @@ exports.createOrder = function (req, res, next) {
             });
         })
         // If any error occurs, return error response
-        .catch(error => {
+        .catch((error) => {
             if (error._message) {
                 // If validation faied
                 error.message = error.message;
@@ -162,8 +156,7 @@ exports.createOrder = function (req, res, next) {
                 error.message = "Order creation failed !";
             }
             next(error);
-        })
-
+        });
 };
 
 // Accept order by seller
@@ -186,20 +179,20 @@ exports.acceptOrderBySeller = function (req, res, next) {
 
     // Confirmed pending order of the product
     contract.invoke(options)
-        .then( data =>{
+        .then( (data) => {
             // Saving logistic ID and Updating order status
             return Order.updateOne(
                 { _id: req.params.orderId },
                 { $set: { logistic: req.body.logistic, orderStatus: 'Confirmed' }}
-            )
+            );
         })
-        .then(result=>{
+        .then((result) => {
             // If order's details updated successfully, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
                     status: 200,
                     message: "Order Confirmed !"
-                })
+                });
             } else {
                 next(createError(404,'Invalid order ID !'));
             }
@@ -224,32 +217,32 @@ exports.acceptOrderByLogistic = function (req, res, next) {
     };
     // Dispatched the confirmed order by logistic
     contract.invoke(options )
-        .then( data =>{
+        .then( (data) => {
             // Saving courier ID and Updating order status to Dispatched
             return Order.updateOne(
                 { _id: req.params.orderId },
                 { $set: { courier: req.body.courier, orderStatus: 'Dispatched' }}
-            )
+            );
         })
-        .then(result=>{
+        .then((result) => {
             // If order's details updated successfully, return success response
             if (result.nModified > 0) {
                 res.status(200).json({
                     status: 200,
                     message: "Order Dispatched !"
-                })
+                });
             } else {
                 next(createError(404,'Invalid Oder ID !'));
             }
         })
-        .catch(error=>{
+        .catch((error) => {
             // If any error occur, return error response
-            if(error.status == 403){
+            if(error.status === 403){
                 next(createError(403, "Insufficient balance !"));
             } else {
                 next(createError(500, 'Order failed to dispatch !"'));
             }
-        })
+        });
 }
 
 // Confirm delivery of the order by courier
@@ -280,7 +273,7 @@ exports.confirmDeliveryByCourier = function (req, res, next) {
                 res.status(200).json({
                     status: 200,
                     message: "Order Delivered Successfully !"
-                })
+                });
             } else {
                 next(createError(404,'Invalid Oder ID !'));
             }
@@ -295,7 +288,7 @@ exports.confirmDeliveryByCourier = function (req, res, next) {
                 next(createError(500, 'Order delivery failed !'));
             }
         });
-}
+};
 
 // Cancel order
 exports.cancelOrder =  async function (req, res, next) {
@@ -345,7 +338,6 @@ exports.cancelOrder =  async function (req, res, next) {
             next(createError(404, "Invalid Order Id !"));
         }
 
-
     } catch (error) {
         // If any error occurs, return error response
         error.message = "Order cancellation failed !";
@@ -378,7 +370,7 @@ exports.checkUsersPermission = function (req, res, next) {
         return  next(createError(401,"You are not an eligible user for this operation !"));
     } else if (
         ( role === 'seller' || role === 'logistic' ) &&
-        req.userData.statusConfirmed == false
+        req.userData.statusConfirmed === false
     ){
         // If seller account is not verified, return error response
         return next(createError(401, "Your account is not verified yet !"));

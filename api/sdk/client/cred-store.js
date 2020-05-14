@@ -45,7 +45,7 @@ function getPrivateKeyPath(org, user) {
         // return the first file
         pkFile = file;
         return;
-    })
+    });
     return (pkFolder + "/" + pkFile);
 }
 

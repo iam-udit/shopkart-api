@@ -64,10 +64,11 @@ exports.addEcomToken = async function (req, res, next) {
         });
 
     } catch (error) {
-        if (error.message)
+        if (error.message) {
             next(createError(404, "Token doesn't exists !"));
-        else
+        } else {
             next(createError(500, 'Failed to add token !'));
+        }
     }
 }
 
@@ -93,10 +94,11 @@ exports.getTotalSupply = async function (req, res, next) {
         });
 
     } catch (error) {
-        if (error.message)
+        if (error.message) {
             next(createError(404, "Token doesn't exists !"));
-        else
+        } else {
             next(createError(500, 'Failed to get total supply !'));
+        }
     }
 }
 
@@ -136,22 +138,22 @@ exports.setWalletBalance = async function (req, res, next) {
     let options =  {};
 
     // Checking user eligibility
-    if ( req.userData.role != 'seller' && req.userData.role != 'logistic'){
+    if ( req.userData.role !== 'seller' && req.userData.role !== 'logistic'){
         return  next(createError(401,"You are not an eligible user for this operation !"));
-    } else if ( req.userData.statusConfirmed == false ) {
-        return next(createError(401, "Your account is not verified yet !"))
+    } else if ( req.userData.statusConfirmed === false ) {
+        return next(createError(401, "Your account is not verified yet !"));
     }
 
     try{
         // Build user options
-        if(req.userData.role == 'seller'){
+        if(req.userData.role === 'seller'){
             options = {
                 org: "ecom",
                 user: req.userData.id.toString(),
                 method: "SetAccountBalance",
                 args: [req.userData.id.toString(), req.body.depositAmount.toString()]
             };
-        } else if (req.userData.role == 'logistic'){
+        } else if (req.userData.role === 'logistic'){
             options = {
                 org: "delivery",
                 user: "admin",
@@ -179,7 +181,7 @@ exports.setWalletBalance = async function (req, res, next) {
         // If any error occur, then return error response
         next(createError(500, "Balance deposit failed !"));
     }
-}
+};
 
 // get/check account balance
 exports.getWalletBalance = async function (req, res, next) {

@@ -124,7 +124,7 @@ exports.getProduct =  function (req, res, next) {
 
         })
         // If any error occures, return error message
-        .catch(error => {
+        .catch((error) => {
             next(error);
         });
 };
@@ -168,9 +168,7 @@ exports.getAllProducts = function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch((error) => {
-            next(error);
-        });
+        .catch((error) => { next(error); });
 };
 
 // Creating new product

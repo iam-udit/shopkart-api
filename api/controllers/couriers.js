@@ -17,7 +17,7 @@ exports.getCourierById =  function (req, res, next) {
     // Finding courier's details using courier id.
     Courier.findById(id, { __v: 0, password: 0 })
         .exec()
-        .then(courier => {
+        .then((courier) => {
             // if courier found, return success response
             if (courier) {
                 res.status(200).json({
@@ -34,10 +34,7 @@ exports.getCourierById =  function (req, res, next) {
 
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-
-        });
+        .catch((error) => { next(error); });
 };
 
 // Retrieving all courier's details by logistic Id
@@ -67,9 +64,7 @@ exports.getAllCouriers =  function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch((error) => {
-            next(error);
-        });
+        .catch((error) => { next(error); });
 };
 
 // Creating new courier/ processing signup

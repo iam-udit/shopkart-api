@@ -25,7 +25,7 @@ exports.createOps = function (req) {
         lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password
-    }
+    };
 
     // Returning the options
     return options;
@@ -45,7 +45,7 @@ exports.schemaOps = function () {
             required: true,
             lowercase: true,
             match: [
-                /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                new RegExp('^[a-zA-Z0-9.+/=?^_-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$'),
                 'is invalid'
             ]
         },
@@ -166,7 +166,7 @@ exports.productResponse = function (req, product) {
             description: "GET_PRODUCT_DETAILS",
             url: req.protocol + '://' + req.get('host') + "/products/get/" + product._id
         }
-    }
+    };
 
     // Returning response
     return response;
@@ -196,7 +196,7 @@ exports.orderResponse = function (req, order) {
             description: "GET_ORDER_DETAILS",
             url: req.protocol + '://' + req.get('host') + "/orders/get/" + order._id
         }
-    }
+    };
 
     // Returning response
     return response;

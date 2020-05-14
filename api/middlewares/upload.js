@@ -44,7 +44,7 @@ var removeDir = function (dir) {
         }
         fs.rmdirSync(dir);
     }
-}
+};
 
 // Validating product exists or not
 async function isProductExists(req, cb) {

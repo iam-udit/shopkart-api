@@ -75,7 +75,7 @@ exports.query =  async function (options) {
 
     // Return query response
     return response;
-}
+};
 
 
 /**

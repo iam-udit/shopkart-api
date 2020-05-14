@@ -11,7 +11,7 @@ function createModel(req) {
     // Getting the model
     var temp = req.originalUrl.split('/')[1];
 
-    if ( temp != 'admin' ){
+    if ( temp !== 'admin' ){
         // Making model class if request from user, seller, logistic
         Model =  require('../models/' + temp.substring(0, temp.length-1));
     } else {

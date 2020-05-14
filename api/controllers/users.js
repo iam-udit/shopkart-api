@@ -26,7 +26,7 @@ function createJWT(user, temp) {
             id: user._id,
             role: 'customer',
             mobileNumber : user.mobileNumber
-        }
+        };
     }
 
     // Creating jwt token
@@ -35,7 +35,8 @@ function createJWT(user, temp) {
         process.env.JWT_SECRET_KEY,
         {
             expiresIn: "1h"
-        });
+        }
+    );
 
     return token;
 }
@@ -49,7 +50,7 @@ exports.getUserById =  (req, res, next) => {
     // Finding user's details using user id.
     User.findById(id, { __v: 0, password: 0 })
         .exec()
-        .then(user => {
+        .then((user) => {
             // if user found, return success response
             if (user) {
                 res.status(200).json({
@@ -65,9 +66,7 @@ exports.getUserById =  (req, res, next) => {
 
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        });
+        .catch((error) => { next(error); });
 };
 
 // Retrieving all user's details form database
@@ -78,7 +77,7 @@ exports.getAllUsers =  (req, res, next) => {
 
     // Finding all users
     User.paginate(query, { page: req.params.offSet || 1, limit: 20 })
-        .then(result => {
+        .then((result) => {
             // If users found, return user details
             if (result.total > 0) {
                 const response = {
@@ -97,9 +96,7 @@ exports.getAllUsers =  (req, res, next) => {
             }
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
+        .catch((error) => { next(error); });
 };
 
 // Creating new use/ processing signup
@@ -114,14 +111,14 @@ exports.userSignUp = (req, res, next) => {
 
     user.save()
         // If user created, return success message
-        .then(result => {
+        .then((result) => {
             res.status(201).json({
                 status: 201,
                 message: "User Created Successfully."
             });
         })
         // If any error occure return error message
-        .catch(error=>{
+        .catch((error) => {
             if (error._message) {
                 // If validation faied
                 error.message = error.message;
@@ -190,7 +187,7 @@ exports.updateUser = async (req, res, next) => {
 
         // If user's details updated successfully, return success response
         if (result.nModified > 0) {
-            res.status(200).json({
+            await res.status(200).json({
                 status: 200,
                 message: "User details updated"
             });
