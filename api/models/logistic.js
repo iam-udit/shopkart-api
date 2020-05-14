@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const mongoosePaginate = require('mongoose-paginate');
 
 // Creating logistic's schema
-const logisticSchema = mongoose.Schema({
+const logisticSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     firstName: { type: String },
     lastName: { type: String },
@@ -12,7 +12,7 @@ const logisticSchema = mongoose.Schema({
         required: true,
         lowercase: true,
         match: [
-            new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/),
+            /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
             'is invalid'
         ]
     },

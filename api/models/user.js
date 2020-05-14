@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const mongoosePaginate = require('mongoose-paginate');
 
 // Creating user's schema
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     firstName: { type: String },
     lastName: { type: String },
@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema({
         type: String,
         lowercase: true,
         match: [
-            new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/),
+            /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
             'is invalid'
         ]
     },

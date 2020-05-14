@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const mongoosePaginate = require('mongoose-paginate');
 
-const orderSchema = mongoose.Schema({
+const orderSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     user: {
         type: mongoose.Schema.Types.ObjectId,
