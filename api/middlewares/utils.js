@@ -170,7 +170,7 @@ exports.productResponse = function (req, product) {
 
     // Returning response
     return response;
-}
+};
 
 // Create order response
 exports.orderResponse = function (req, order) {

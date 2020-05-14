@@ -41,7 +41,7 @@ async function setupGateway(org, user) {
         eventHandlerOptions: {
             strategy: null
         }
-    }
+    };
 
     // 2.4 Connect gateway to the network
     await gateway.connect(connectionProfile, connectionOptions);

@@ -130,7 +130,7 @@ exports.getAvailableSupply = async function (req, res, next) {
             next(createError(500, 'Failed to get available supply !'));
         }
     }
-}
+};
 
 // set wallet balance/ purchase token
 exports.setWalletBalance = async function (req, res, next) {

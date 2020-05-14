@@ -84,7 +84,7 @@ exports.getOrderById = function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch(error => { next(error); });
+        .catch((error) => { next(error); });
 };
 
 // Retrieving all order's details form database
@@ -119,7 +119,7 @@ exports.getAllOrders =  function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch((error) => { next(error); })
+        .catch((error) => { next(error); });
 };
 
 // Creating new order
@@ -243,7 +243,7 @@ exports.acceptOrderByLogistic = function (req, res, next) {
                 next(createError(500, 'Order failed to dispatch !"'));
             }
         });
-}
+};
 
 // Confirm delivery of the order by courier
 exports.confirmDeliveryByCourier = function (req, res, next) {

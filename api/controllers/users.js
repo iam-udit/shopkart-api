@@ -19,7 +19,7 @@ function createJWT(user, temp) {
             id: user._id,
             role: 'admin',
             email: user.email
-        }
+        };
     } if (temp === 'users'){
         // If request from users
         payload = {

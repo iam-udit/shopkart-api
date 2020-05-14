@@ -145,7 +145,7 @@ exports.listIdentities = async function (org){
     } catch (e) { return []; }
 
     return lists;
-}
+};
 
 /**
  * Check identity in the wallet
