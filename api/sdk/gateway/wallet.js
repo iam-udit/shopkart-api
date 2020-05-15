@@ -129,7 +129,7 @@ exports.exportIdentity = async function (user, org) {
     } catch (e) { return {}; }
 
     return identity;
-}
+};
 
 /**
  * Lists the identities in the wallet

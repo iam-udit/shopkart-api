@@ -143,7 +143,7 @@ exports.updateProductOps = async function (req) {
 
     // Returning update options
     return updateOps;
-}
+};
 
 // Create product response
 exports.productResponse = function (req, product) {

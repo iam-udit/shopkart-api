@@ -111,7 +111,7 @@ exports.getAvailableSupply = async function (req, res, next) {
             user: 'admin',
             method: "AvailableSupply",
             args: []
-        }
+        };
 
         //  Getting available supply
         let result = await contract.query(options);

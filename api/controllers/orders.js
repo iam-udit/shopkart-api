@@ -200,7 +200,7 @@ exports.acceptOrderBySeller = function (req, res, next) {
         .catch((error) => {
             next(createError(500,'Order Confirmation failed !'));
         });
-}
+};
 
 // Accept order by logistic
 exports.acceptOrderByLogistic = function (req, res, next) {
