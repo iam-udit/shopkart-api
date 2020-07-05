@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const mongoosePaginate = require('mongoose-aggregate-paginate-v2');
 
 // Creating product schema
-const productSchema = mongoose.Schema({
+const productSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     seller: {
         type: mongoose.Schema.Types.ObjectId,
@@ -45,5 +45,6 @@ const productSchema = mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Adding plugin to the schema
 productSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("Product", productSchema);

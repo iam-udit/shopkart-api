@@ -4,10 +4,9 @@ const mongoose = require("mongoose");
 const  jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const utils = require("../middlewares/utils");
+const Logistic = require("../models/logistic");
 const wallet = require('../sdk/gateway/wallet');
 const contract = require('../sdk/gateway/contract');
-
-const Logistic = require("../models/logistic");
 
 
 // Retrieving logistic's details by logisticId
@@ -19,7 +18,7 @@ exports.getLogisticById = function (req, res, next) {
     // Finding logistic's details using logistic id.
     Logistic.findById(id, { __v: 0, password: 0 })
         .exec()
-        .then(logistic => {
+        .then((logistic) => {
             // if logistic found, return success response
             if (logistic) {
                 res.status(200).json({
@@ -27,19 +26,14 @@ exports.getLogisticById = function (req, res, next) {
                     message: "Logistic account details",
                     logistic: logistic
                 });
-
             }
             // If logistic doesn't found, return not found response
             else {
                 next(createError(404, "Logistic details not found !"));
             }
-
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-
-        });
+        .catch((error) => { next(error); });
 };
 
 // Retrieving all logistic's details form database
@@ -47,7 +41,7 @@ exports.getAllLogistics = function (req, res, next) {
 
     var query = {};
 
-    if(req.originalUrl.split('/')[2] == 'by-status'){
+    if(req.originalUrl.split('/')[2] === 'by-status'){
         // Query for confirmed/unconfirmed logistics
         query = { statusConfirmed: req.params.statusConfirmed };
     } else {
@@ -57,17 +51,17 @@ exports.getAllLogistics = function (req, res, next) {
 
     // Finding all logistics details
     Logistic.paginate(query, { page: req.params.offSet || 1, limit: 20 })
-        .then(result => {
+        .then((result) => {
             // If logistics found, return user details
             if (result.total > 0) {
                 const response = {
                     status: 200,
                     message: "A list of logistic details",
                     total: result.total,
-                    offset: parseInt(result.page),
+                    offset: parseInt(result.page, 10),
                     pages: Math.ceil(result.total / result.limit ),
                     logistics: result.docs
-                }
+                };
                 res.status(200).json(response);
             }
             // If logistic doesn't found, return empty response
@@ -76,9 +70,7 @@ exports.getAllLogistics = function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
+        .catch((error) => { next(error); });
 };
 
 // Creating new logistic/ processing signup
@@ -94,7 +86,7 @@ exports.logisticSignUp = async function (req, res, next) {
             user: 'admin',
             method: "CreateAccount",
             args: [logistic._id.toString(), 'delivery']
-        })
+        });
 
         // Save logistic details in database
         await logistic.save();
@@ -123,7 +115,7 @@ exports.logisticLogin = function (req, res, next) {
     // Checking logistic is valid or not
     Logistic.findOne({ email : req.body.email })
         .exec()
-        .then(logistic => {
+        .then((logistic) => {
             // If logistic is an existing user then authenticate password
             if(logistic){
                 bcrypt.compare(req.body.password, logistic.password, (error, result) => {
@@ -170,7 +162,7 @@ exports.updateLogistic = async function (req, res, next) {
 
         // If logistic's details updated successfully, return success response
         if (result.nModified > 0) {
-            res.status(200).json({
+            await res.status(200).json({
                 status: 200,
                 message: "User's detail updated."
             });

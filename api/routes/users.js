@@ -28,10 +28,10 @@ router.post("/login", usersController.userLogin);
 router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update user details
-router.put("/update", verifyJwt, upload.single('userImage'), usersController.updateUser)
+router.put("/update", verifyJwt, upload.single('userImage'), usersController.updateUser);
 
 // Update user's password
-router.put("/update/password", verifyJwt, digestPassword, updatePassword)
+router.put("/update/password", verifyJwt, digestPassword, updatePassword);
 
 // Delete user records
 router.delete('/remove/:userId', verifyJwt, checkAdminPermission, usersController.removeUser);

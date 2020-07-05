@@ -3,9 +3,9 @@ const path = require('path');
 const mongoose = require("mongoose");
 const createError = require("http-errors");
 const utils = require('../middlewares/utils');
+const Product = require("../models/product.js");
 const contract = require('../sdk/gateway/contract');
 
-const Product = require("../models/product.js");
 
 // Building query for get products
 function buildQuery(req) {
@@ -14,19 +14,19 @@ function buildQuery(req) {
 
     let path = req.originalUrl.split('/')[2];
 
-    if ( path == 'get-all' ) {
+    if ( path === 'get-all' ) {
         // Query for all products
-        query = []
-    } else  if ( path == 'get' ){
+        query = [];
+    } else  if ( path === 'get' ){
         // Quering product details by Id
-        query = [{ $match: { _id: mongoose.Types.ObjectId(req.params.productId) } }];
-    } else if ( path == 'by-type' ){
+        query = [{ $match: { _id: new mongoose.Types.ObjectId(req.params.productId) } }];
+    } else if ( path === 'by-type' ){
         // Query for all product according to productType
-        query = [{ $match: { type: req.params.productType } }]
-    } else if ( path == 'by-seller' ){
+        query = [{ $match: { type: req.params.productType } }];
+    } else if ( path === 'by-seller' ){
         // Query for all products according to sellerId
-        query = [{ $match: { seller: mongoose.Types.ObjectId(req.params.sellerId) } }]
-    } else if( path == 'by-search' ) {
+        query = [{ $match: { seller: new mongoose.Types.ObjectId(req.params.sellerId) } }];
+    } else if( path === 'by-search' ) {
         // Query for products according to matched text
         query = [
             {
@@ -38,8 +38,8 @@ function buildQuery(req) {
                     ]
                 }
             }
-        ]
-    }else if ( path == 'by-title') {
+        ];
+    }else if ( path === 'by-title') {
         // Building query for title route
          query = [
             { $match: { title: req.params.productTitle } },
@@ -60,12 +60,12 @@ function buildQuery(req) {
 // Retrieving and adding productImages to request
 function addProductImages(req){
 
-    if (req.files != undefined) {
+    if (req.files !== 'undefined') {
 
         // Retrieve images path from req.files
         let productImages = [];
 
-        req.files.forEach(image => {
+        req.files.forEach((image) => {
             productImages.push(image.path.replace('public/uploads/', ''));
         });
 
@@ -86,7 +86,7 @@ exports.getProduct =  function (req, res, next) {
     // Finding product's details, and returning response
     Product.aggregate(query)
         .exec()
-        .then(product => {
+        .then((product) => {
 
             // if product found, return success response
             if (product.length > 0) {
@@ -104,7 +104,7 @@ exports.getProduct =  function (req, res, next) {
                 };
 
                 // Manage the response
-                if ( path == 'get' ) {
+                if ( path === 'get' ) {
                     // If request to get by productId
                     response.product.request = response.request;
                     delete response.request;
@@ -124,7 +124,7 @@ exports.getProduct =  function (req, res, next) {
 
         })
         // If any error occures, return error message
-        .catch(error => {
+        .catch((error) => {
             next(error);
         });
 };
@@ -146,7 +146,7 @@ exports.getAllProducts = function (req, res, next) {
 
     // Finding products
     Product.aggregatePaginate(aggregate, { page: req.params.offSet || 1, limit: 20 })
-        .then(result => {
+        .then((result) => {
 
             // If Product found, return product details
             if (result.totalDocs > 0) {
@@ -156,10 +156,10 @@ exports.getAllProducts = function (req, res, next) {
                     total: result.totalDocs,
                     offSet: result.page,
                     pages: result.totalPages,
-                    products: result.docs.map(productDoc => {
+                    products: result.docs.map((productDoc) => {
                         return utils.productResponse(req, productDoc.details);
                     })
-                }
+                };
                 res.status(200).json(response);
             }
             // If product doesn't found, return empty response
@@ -168,9 +168,7 @@ exports.getAllProducts = function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
+        .catch((error) => { next(error); });
 };
 
 // Creating new product
@@ -240,7 +238,7 @@ exports.updateProduct = async function (req, res, next) {
         addProductImages(req);
 
         // Update product details in database
-        let result = await Product.updateOne({ _id: id, seller: req.userData.id }, { $set: req.body })
+        let result = await Product.updateOne({ _id: id, seller: req.userData.id }, { $set: req.body });
 
         // If product's details updated successfully, return success response
         if (result.nModified > 0) {
@@ -325,7 +323,7 @@ exports.updateProductQuantity =  function (id, quantity) {
          // If product is exists then update quantity of the product
         if (product){
             Product.updateOne({ _id: id }, { $set: { quantity: product.quantity + quantity } })
-                .catch(e=>{});
+                .catch((error) => {});
         }
     } );
 };

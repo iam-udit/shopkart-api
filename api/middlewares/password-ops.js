@@ -11,7 +11,7 @@ function createModel(req) {
     // Getting the model
     var temp = req.originalUrl.split('/')[1];
 
-    if ( temp != 'admin' ){
+    if ( temp !== 'admin' ){
         // Making model class if request from user, seller, logistic
         Model =  require('../models/' + temp.substring(0, temp.length-1));
     } else {
@@ -31,12 +31,12 @@ function buildQuery(req) {
     var temp = req.originalUrl.split('/');
 
     // Building query
-    if(temp[2] == 'update') {
+    if(temp[2] === 'update') {
         // Querying for update password
         query = { _id: req.userData.id };
-    } else if (temp[2] == 'forgot') {
+    } else if (temp[2] === 'forgot') {
 
-        if (temp[1] == "users") {
+        if (temp[1] === "users") {
             // Querying for forgot password if request from users
             query = { mobileNumber: req.body.mobileNumber };
         } else {
@@ -60,7 +60,7 @@ exports.updatePassword = function (req, res, next)  {
     // Update password in database
     Model.updateOne(query, { $set: { password: req.body.password } })
         .exec()
-        .then(result => {
+        .then((result) => {
 
             // If password updated successfully, return success response
             if (result.nModified > 0) {
@@ -76,7 +76,7 @@ exports.updatePassword = function (req, res, next)  {
 
         })
         // If user's updation failed.
-        .catch(error => {
+        .catch((error) => {
             error.message = "Password updation failed !";
             next(error);
         });
@@ -86,7 +86,7 @@ exports.updatePassword = function (req, res, next)  {
 // Converting plain password into hash
 exports.digestPassword = function (req, res, next) {
 
-    bcrypt.hash(req.body.npassword || req.body.password, 10, (error, hash)=> {
+    bcrypt.hash(req.body.npassword || req.body.password, 10, (error, hash) => {
         if (error) {
             return next(createError(500, "Password conversion failed."));
         } else {
@@ -94,6 +94,6 @@ exports.digestPassword = function (req, res, next) {
             next();
         }
     });
-}
+};
 
 exports.createModel = createModel;

@@ -8,7 +8,7 @@ const { createModel } = require('./password-ops');
 // Check admin permission
 exports.checkAdminPermission = function (req, res, next) {
     // If request not form admin
-    if (req.userData.role != 'admin'){
+    if (req.userData.role !== 'admin'){
         next(createError(401,"You are not an eligible user for this operation !"));
     } else {
         next();
@@ -25,7 +25,47 @@ exports.createOps = function (req) {
         lastName: req.body.lastName,
         email: req.body.email,
         password: req.body.password
-    }
+    };
+
+    // Returning the options
+    return options;
+}
+
+// Common Schema options
+exports.schemaOps = function () {
+
+    // Creating common schma options
+    let options = {
+        _id: mongoose.Schema.Types.ObjectId,
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
+        email: {
+            type: String,
+            unique: true,
+            required: true,
+            lowercase: true,
+            match: [
+                new RegExp('^[a-zA-Z0-9.+/=?^_-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$'),
+                'is invalid'
+            ]
+        },
+        password: { type: String, required: true},
+        statusConfirmed : { type: Boolean, default: false },
+        mobileNumber:{ type: Number },
+        mobileNumberVerified: { type: Boolean, default: false },
+        gender: {
+            type: String,
+            enum: ['Male', 'Female', 'Other']
+        },
+        age: { type: Number, maxlength: 2 },
+        address: {
+            city: { type: String },
+            state: { type: String },
+            country: { type: String },
+            zip: { type: Number },
+            body: { type: String }
+        }
+    };
 
     // Returning the options
     return options;
@@ -60,11 +100,11 @@ exports.updateUserOps = async function (req) {
     };
 
     // Retriveing image path
-    if (req.file != undefined) {
+    if (req.file !== 'undefined') {
 
         let imagePath = req.file.path.replace('public/uploads/', '');
 
-        if( role == 'admin' || role == 'customer' ) {
+        if( role === 'admin' || role === 'customer' ) {
             // If request from admin or user
             updateOps.userImage = imagePath;
         } else {
@@ -74,7 +114,7 @@ exports.updateUserOps = async function (req) {
     }
 
     // Adding email and removing mobileNumber if request from user
-    if ( role == 'customer' ){
+    if ( role === 'customer' ){
         delete updateOps.mobileNumber;
         updateOps.email = req.body.email || user.email;
     }
@@ -103,7 +143,7 @@ exports.updateProductOps = async function (req) {
 
     // Returning update options
     return updateOps;
-}
+};
 
 // Create product response
 exports.productResponse = function (req, product) {
@@ -126,11 +166,11 @@ exports.productResponse = function (req, product) {
             description: "GET_PRODUCT_DETAILS",
             url: req.protocol + '://' + req.get('host') + "/products/get/" + product._id
         }
-    }
+    };
 
     // Returning response
     return response;
-}
+};
 
 // Create order response
 exports.orderResponse = function (req, order) {
@@ -156,8 +196,8 @@ exports.orderResponse = function (req, order) {
             description: "GET_ORDER_DETAILS",
             url: req.protocol + '://' + req.get('host') + "/orders/get/" + order._id
         }
-    }
+    };
 
     // Returning response
     return response;
-}
+};

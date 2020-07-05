@@ -47,20 +47,19 @@ try {
             useUnifiedTopology: true,
             useNewUrlParser: true,
             useCreateIndex: true
-        }, success => {
+        }, (success) => {
             console.log('Database Connected Successfully  !');
         }
     );
-} catch( error )  {
+} catch (error) {
     console.log("Initial Database Connectivity Failed !");
     console.log('Error: ' + error.message);
-
-};
+}
 
 mongoose.Promise = global.Promise;
 
-// Setting up error evnet
-mongoose.connection.on("error", error => {
+// Setting up error event
+mongoose.connection.on("error", (error) => {
     console.log('Database Connectivity Failed !');
     console.log('Error: ' + error.message);
 });
@@ -93,12 +92,15 @@ app.use("/products", productRoutes);
 app.use("/logistics", logisticRoutes);
 
 // Providing routes for api-documents
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(shopKartDocs));
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(shopKartDocs, {
+    customSiteTitle: "ShopKart-API",
+    customfavIcon: "https://pbs.twimg.com/profile_images/1223070381281382400/AYuXgO5r_400x400.jpg"
+}));
 
 // Redirecting main page to api-docs
-app.use((req, res, next)=>{
+app.use((req, res, next) => {
 
-    if (req.originalUrl == "/"){
+    if (req.originalUrl === "/"){
         // If the route is '/', then redirect to api-docs
         res.redirect('/api-docs');
     } else {

@@ -2,12 +2,12 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const Seller = require("../models/seller");
 const createError = require("http-errors");
-const wallet = require('../sdk/gateway/wallet');
 const utils = require('../middlewares/utils');
+const wallet = require('../sdk/gateway/wallet');
 const contract = require('../sdk/gateway/contract');
 
-const Seller = require("../models/seller");
 
 // Retrieving seller's details by sellerId
 exports.getSellerById =  function (req, res, next) {
@@ -18,7 +18,7 @@ exports.getSellerById =  function (req, res, next) {
     // Finding seller's details using seller id.
     Seller.findById(id, { __v: 0, password: 0 })
         .exec()
-        .then(seller => {
+        .then((seller) => {
             // if seller found, return success response
             if (seller) {
                 res.status(200).json({
@@ -34,10 +34,7 @@ exports.getSellerById =  function (req, res, next) {
 
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-
-        });
+        .catch((error) => { next(error); });
 };
 
 // Retrieving all seller's details form database
@@ -45,7 +42,7 @@ exports.getAllSellers = function (req, res, next) {
 
     var query = {};
 
-    if(req.originalUrl.split('/')[2] == 'by-status'){
+    if(req.originalUrl.split('/')[2] === 'by-status'){
         // Query for confirmed/unconfirmed sellers
         query = { statusConfirmed: req.params.statusConfirmed };
     } else {
@@ -55,17 +52,17 @@ exports.getAllSellers = function (req, res, next) {
 
     // Finding sellers details
     Seller.paginate(query, { page: req.params.offSet || 1, limit: 20 })
-        .then(result => {
+        .then((result) => {
             // If sellers found, return user details
             if (result.total > 0) {
                 const response = {
                     status: 200,
                     message: "A List of seller details",
                     total: result.total,
-                    offset: parseInt(result.page),
+                    offset: parseInt(result.page, 10),
                     pages: Math.ceil( result.total / result.limit ),
                     sellers: result.docs
-                }
+                };
                 res.status(200).json(response);
             }
             // If seller doesn't found, return empty response
@@ -74,9 +71,7 @@ exports.getAllSellers = function (req, res, next) {
             }
         })
         // If any error occures, return error message
-        .catch(error => {
-            next(error);
-        })
+        .catch((error) => { next(error); });
 };
 
 // Creating new seller/ processing signup
@@ -147,7 +142,7 @@ exports.createWallet = async function (req, res, next) {
         // If any error occur, then return error response
         next(createError(500, "Verification failed !"));
     }
-}
+};
 
 // Performing login process
 exports.sellerLogin = function (req, res, next) {
@@ -155,7 +150,7 @@ exports.sellerLogin = function (req, res, next) {
     // Checking seller is valid or not
     Seller.findOne({ email : req.body.email })
         .exec()
-        .then(seller => {
+        .then((seller) => {
             // If seller is an existing user then authenticate password
             if(seller){
                 bcrypt.compare(req.body.password, seller.password, (error, result) => {
@@ -202,7 +197,7 @@ exports.updateSeller = async function (req, res, next) {
 
         // If seller's details updated successfully, return success response
         if (result.nModified > 0) {
-            res.status(200).json({
+            await res.status(200).json({
                 status: 200,
                 message: "User's detail updated."
             });
@@ -222,7 +217,6 @@ exports.removeSeller = async function (req, res, next) {
 
     // Getting seller's id from request
     let id = req.params.sellerId;
-    console.log(id)
 
     try {
 
@@ -241,7 +235,7 @@ exports.removeSeller = async function (req, res, next) {
             });
 
             // Remove seller's wallet
-            await wallet.removeIdentity(id, 'ecom').catch(e=>{});
+            await wallet.removeIdentity(id, 'ecom').catch((error) => {});
 
             // Return success response
             await res.status(200).json({

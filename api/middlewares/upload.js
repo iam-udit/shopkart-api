@@ -16,13 +16,13 @@ function createDir(req, temp) {
 
     let targetDir = "";
 
-    if ( temp == 'admin' ){
+    if ( temp === 'admin' ){
         // Destination for admin
         targetDir = path.join(dir, 'admin');
-    } else if ( temp == 'products'){
+    } else if ( temp === 'products'){
         // Destination for products
         targetDir = path.join(dir, temp, req.body.type.toLowerCase(), req.body.title +'-'+ req.userData.id);
-    } else if ( temp == 'users' || temp == 'sellers' || temp == 'logistics'  || temp == 'couriers' ) {
+    } else if ( temp === 'users' || temp === 'sellers' || temp === 'logistics'  || temp === 'couriers' ) {
         // Destination for users, sellers, logistics
         targetDir = path.join(dir, temp, req.userData.id);
     }
@@ -38,13 +38,13 @@ var removeDir = function (dir) {
         let files = fs.readdirSync(dir);
         if (files.length > 0){
             // If the files are present then unlink
-            files.forEach(fileName=>{
+            files.forEach((fileName) => {
                 fs.unlinkSync( dir + '/' + fileName );
-            })
+            });
         }
         fs.rmdirSync(dir);
     }
-}
+};
 
 // Validating product exists or not
 async function isProductExists(req, cb) {
@@ -52,7 +52,7 @@ async function isProductExists(req, cb) {
     var query = {};
 
     try {
-        if ( req.method == 'POST' ){
+        if ( req.method === 'POST' ) {
             // Query for searching product for post method
             query = {
                 title : req.body.title,
@@ -97,14 +97,14 @@ const storage = multer.diskStorage({
         // Getting the model
         temp = req.originalUrl.split('/')[1];
 
-        if (temp == 'products' && await isProductExists(req, cb) && req.method == 'PUT') {
+        if (temp === 'products' && await isProductExists(req, cb) && req.method === 'PUT') {
 
             // If product is exists and then allow to update
             let productDetails = await Product.findById(req.params.productId);
 
             if (
-                (req.body.title != undefined && req.body.title != productDetails.title) ||
-                (req.body.type != undefined && req.body.type.toLowerCase() != productDetails.type)
+                (req.body.title !== 'undefined' && req.body.title !== productDetails.title) ||
+                (req.body.type !== 'undefined' && req.body.type.toLowerCase() !== productDetails.type)
             ) {
                 // If type or title updated then remove previous file/ images
                 removeDir(path.join(dir, temp, productDetails.type, productDetails.title +'-'+ req.userData.id));
@@ -119,7 +119,7 @@ const storage = multer.diskStorage({
         dir = createDir(req, temp);
 
         // Delete if the dir is already exist
-        if ( (temp == 'products' &&  req.files.length == 1) || temp != 'products') {
+        if ( (temp === 'products' &&  req.files.length === 1) || temp !== 'products') {
             removeDir(dir);
         }
 
@@ -149,7 +149,7 @@ const fileFilter = function (req, file, cb) {
         // If condition does not satisfied, return error message
         cb( createError(500,"Only jpeg, jpg, png, gig files are allowed"), false);
     }
-}
+};
 
 // Storing fie using multer
 module.exports = multer({

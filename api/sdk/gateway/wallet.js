@@ -22,9 +22,9 @@ const CONNECTION_PROFILE_PATH = __dirname + '/../profiles/dev-connection.yaml';
 // Create a new file system based wallet for managing identities.
 function createWallet(org) {
     let walletPath = path.resolve(__dirname, '../wallet');
-    if ( org == 'ecom') {
+    if ( org === 'ecom') {
         walletPath += '/ecom';
-    } else if (org == 'delivery') {
+    } else if (org === 'delivery') {
         walletPath += '/delivery';
     }
     return new FileSystemWallet(walletPath);
@@ -35,11 +35,11 @@ function getCaURL(org){
 
     let caURL = "";
 
-    if (org == 'ecom') {
+    if (org === 'ecom') {
         // setup ecom client
         CLIENT_CONNECTION_PROFILE_PATH = path.resolve( __dirname, '../profiles/ecom-client.yaml');
         caURL = 'http://0.0.0.0:7054';
-    } else if (org == 'delivery') {
+    } else if (org === 'delivery') {
         // setup delivery client
         CLIENT_CONNECTION_PROFILE_PATH = path.resolve(__dirname, '../profiles/delivery-client.yaml');
         caURL = 'http://0.0.0.0:8054';
@@ -67,12 +67,12 @@ exports.importIdentity = async function (user, cb) {
         await client.initCredentialStores()
             .then((done) => {
                 console.log("initCredentialStore(): ", done);
-            })
+            });
 
         let adminUser = await client.loadUserFromStateStore('admin');
 
         // Check to see if we've already enrolled the admin user.
-        if( adminUser == null ){
+        if( adminUser === null ){
             console.log('An identity for the admin user "admin" does not exist.');
             return cb(createError(500, 'User registration failed !'));
         }
@@ -126,12 +126,10 @@ exports.exportIdentity = async function (user, org) {
         let wallet = createWallet(org);
         // To retrive execute export
         identity = await wallet.export(user);
-    } catch (e) {
-        console.log(e)
-    }
+    } catch (e) { return {}; }
 
     return identity;
-}
+};
 
 /**
  * Lists the identities in the wallet
@@ -144,27 +142,26 @@ exports.listIdentities = async function (org){
         let wallet = createWallet(org);
         // Retrieve the identities in folder
         lists = await wallet.list();
-    } catch (e) {
-        console.log(e)
-    }
+    } catch (e) { return []; }
 
     return lists;
-}
+};
 
 /**
  * Check identity in the wallet
  */
 exports.existsIdentity = async function (user, org){
+
     let status = false;
+
     try {
         let wallet = createWallet(org);
         // Checking identity existance
         status = await wallet.exists(user);
-    } catch (error) {
-        console.log(error)
-    }
+    } catch (error) { return false; }
+
     return status;
-}
+};
 
 /**
  * Lists the identities in the wallet
@@ -173,7 +170,7 @@ exports.removeIdentity = async function (user, org){
     let wallet = createWallet(org);
     // removing the identity in folder
     await wallet.delete(user);
-}
+};
 
 // Exporting the createWallet()
 exports.createWallet = createWallet;

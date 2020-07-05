@@ -37,10 +37,10 @@ router.post("/login", sellersController.sellerLogin);
 router.post("/forgot/password", userExists, digestPassword, updatePassword);
 
 // Update seller's details
-router.put("/update", verifyJwt, upload.single('sellerImage'), sellersController.updateSeller)
+router.put("/update", verifyJwt, upload.single('sellerImage'), sellersController.updateSeller);
 
 // Update seller's password
-router.put("/update/password", verifyJwt, digestPassword, updatePassword)
+router.put("/update/password", verifyJwt, digestPassword, updatePassword);
 
 // Verify seller's account status
 router.put("/verify/account/:id", verifyJwt, checkAdminPermission, sellersController.createWallet, verifyAccount);
