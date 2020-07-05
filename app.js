@@ -92,7 +92,10 @@ app.use("/products", productRoutes);
 app.use("/logistics", logisticRoutes);
 
 // Providing routes for api-documents
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(shopKartDocs));
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(shopKartDocs, {
+    customSiteTitle: "ShopKart-API",
+    customfavIcon: "https://pbs.twimg.com/profile_images/1223070381281382400/AYuXgO5r_400x400.jpg"
+}));
 
 // Redirecting main page to api-docs
 app.use((req, res, next) => {

@@ -5,7 +5,7 @@ swagger: "2.0"
 info:
   description: "This is an ecommerce application runing on hyperledger fabric network."
   version: "1.0.0"
-  title: "Ecommerce Application"
+  title: "ShopKart: An Ecommerce Application"
   contact:
     name: "Ecom Team"
 
