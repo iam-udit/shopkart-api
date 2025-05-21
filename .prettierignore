@@ -1,0 +1,4 @@
+node_modules/
+package-lock.json
+swagger.json
+api/documents/shopkart-docs.yaml

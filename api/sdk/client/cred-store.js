@@ -8,19 +8,20 @@ const Client = require('fabric-client');
 const CONNECTION_PROFILE_PATH = __dirname + '/../profiles/dev-connection.yaml';
 
 // Client section configuration
-const ECOM_CLIENT_CONNECTION_PROFILE_PATH = __dirname + '/../profiles/ecom-client.yaml';
-const DELIVERY_CLIENT_CONNECTION_PROFILE_PATH = __dirname + '/../profiles/delivery-client.yaml';
+const ECOM_CLIENT_CONNECTION_PROFILE_PATH =
+    __dirname + '/../profiles/ecom-client.yaml';
+const DELIVERY_CLIENT_CONNECTION_PROFILE_PATH =
+    __dirname + '/../profiles/delivery-client.yaml';
 
 // Creating and initializing client object
 const client = Client.loadFromConfig(CONNECTION_PROFILE_PATH);
 
-
 /**
  * Creates the MSP ID from the org name for 'acme' it will be 'AcmeMSP'
- * @param {string} org 
+ * @param {string} org
  */
 function createMSPId(org) {
-    return org+'MSP';
+    return org + 'MSP';
 }
 
 /**
@@ -29,7 +30,13 @@ function createMSPId(org) {
  * @param {string} user
  */
 function getCertPath(org, user) {
-    var certPath = process.env.CRYPTO_CONFIG_PEER_ORGANIZATIONS + "/" + org + "/" + user + "/msp/signcerts/cert.pem";
+    var certPath =
+        process.env.CRYPTO_CONFIG_PEER_ORGANIZATIONS +
+        '/' +
+        org +
+        '/' +
+        user +
+        '/msp/signcerts/cert.pem';
     return certPath;
 }
 
@@ -39,38 +46,42 @@ function getCertPath(org, user) {
  * @param {string} user
  */
 function getPrivateKeyPath(org, user) {
-    let pkFolder = process.env.CRYPTO_CONFIG_PEER_ORGANIZATIONS + "/" + org + "/" + user + "/msp/keystore";
+    let pkFolder =
+        process.env.CRYPTO_CONFIG_PEER_ORGANIZATIONS +
+        '/' +
+        org +
+        '/' +
+        user +
+        '/msp/keystore';
     let pkFile = '';
     fs.readdirSync(pkFolder).forEach((file) => {
         // return the first file
         pkFile = file;
         return;
     });
-    return (pkFolder + "/" + pkFile);
+    return pkFolder + '/' + pkFile;
 }
 
 /**
  * Initialize the file system credentials store
  */
 async function initCredentialStore() {
-
     // Call the function for initializing the credentials store on file system
-    await client.initCredentialStores()
-        .then((done) => {
-            console.log("initCredentialStore(): ", done);
-        });
+    await client.initCredentialStores().then((done) => {
+        console.log('initCredentialStore(): ', done);
+    });
 }
 
 // Load the client section for the organization
-function loadConfig(org, client){
-    if(org === 'ecom'){
+function loadConfig(org, client) {
+    if (org === 'ecom') {
         // setup ecom client
         client.loadFromConfig(ECOM_CLIENT_CONNECTION_PROFILE_PATH);
-    } else if(org === 'delivery'){
+    } else if (org === 'delivery') {
         // setup delivery client
         client.loadFromConfig(DELIVERY_CLIENT_CONNECTION_PROFILE_PATH);
     } else {
-        console.log("Unknown organization:", org);
+        console.log('Unknown organization:', org);
         process.exit(1);
     }
 }
@@ -92,10 +103,10 @@ async function createUserContext(org, user) {
         mspid: createMSPId(org),
         cryptoContent: {
             privateKey: privateKeyPath,
-            signedCert: certPath
+            signedCert: certPath,
         },
         // Set this to true to skip persistence
-        skipPersistence: false
+        skipPersistence: false,
     };
 
     // Setup the user
@@ -104,13 +115,11 @@ async function createUserContext(org, user) {
     return userContext;
 }
 
-
 // Main function for setupCredStore
-async function setupCredStore(org, user){
-
+async function setupCredStore(org, user) {
     // Check if org and name are provided
-    if (org === 'undefined' || user === 'undefined'){
-        console.log("Usage:  setupCredStore(org,user)");
+    if (org === 'undefined' || user === 'undefined') {
+        console.log('Usage:  setupCredStore(org,user)');
         process.exit(1);
     }
 
@@ -125,12 +134,10 @@ async function setupCredStore(org, user){
     let userContext = await client.loadUserFromStateStore(user);
 
     // If user is null then the user does not exist
-    if( userContext === null ){
-
+    if (userContext === null) {
         // Create the user context
         userContext = await createUserContext(org, user);
         console.log(`Created ${user} for ${org} under the wallet !!!`);
-
     } else {
         console.log(`User ${org}: ${user} already exist !!!`);
     }
@@ -138,6 +145,5 @@ async function setupCredStore(org, user){
     // Setup the context on the client
     await client.setUserContext(userContext, false);
 }
-
 
 module.exports = setupCredStore;

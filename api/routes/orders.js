@@ -1,13 +1,13 @@
 // Importing all necessary packages
-const express = require("express");
-const createError = require('http-errors');
-const verifyJwt = require("../middlewares/verify-jwt");
-const ordersController = require("../controllers/orders");
+const express = require('express');
+// const createError = require('http-errors'); // Removed as per ESLint no-unused-vars
+const verifyJwt = require('../middlewares/verify-jwt');
+const ordersController = require('../controllers/orders');
 
 const router = express.Router();
 
 // Verifying jwt token and verifying user' role
-router.use( verifyJwt, ordersController.checkUsersPermission);
+router.use(verifyJwt, ordersController.checkUsersPermission);
 
 // Retrieving order's details by orderId from database
 router.get('/get/:orderId', ordersController.getOrderById);
@@ -37,10 +37,16 @@ router.post('/create/', ordersController.createOrder);
 router.put('/accept/by-seller/:orderId', ordersController.acceptOrderBySeller);
 
 // Accept order by logistic
-router.put('/accept/by-logistic/:orderId', ordersController.acceptOrderByLogistic);
+router.put(
+    '/accept/by-logistic/:orderId',
+    ordersController.acceptOrderByLogistic
+);
 
 // Confirm the delivery of order by courier
-router.put('/confirm-delivery/:orderId', ordersController.confirmDeliveryByCourier);
+router.put(
+    '/confirm-delivery/:orderId',
+    ordersController.confirmDeliveryByCourier
+);
 
 // Cancel order by the user
 router.delete('/cancel/:orderId', ordersController.cancelOrder);

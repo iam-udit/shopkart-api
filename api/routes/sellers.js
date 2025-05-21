@@ -1,51 +1,90 @@
 // Importing all required modules
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require("../middlewares/upload");
-const verifyJwt = require("../middlewares/verify-jwt");
+const upload = require('../middlewares/upload');
+const verifyJwt = require('../middlewares/verify-jwt');
 const userExists = require('../middlewares/user-exists');
-const sellersController = require("../controllers/sellers");
+const sellersController = require('../controllers/sellers');
 const { checkAdminPermission } = require('../middlewares/utils');
-const { verifyAccount, setWalletBalance, getWalletBalance} = require('../controllers/admin');
-const { forgotPassword, updatePassword, digestPassword } = require('../middlewares/password-ops');
+const {
+    verifyAccount,
+    setWalletBalance,
+    getWalletBalance,
+} = require('../controllers/admin');
+const {
+    // forgotPassword, // Removed as per ESLint no-unused-vars
+    updatePassword,
+    digestPassword,
+} = require('../middlewares/password-ops');
 
 // Check seller is exists or not
 router.get('/is_exists/:email', userExists);
 
 // Retrieving seller's details by Id
-router.get("/get", verifyJwt, sellersController.getSellerById);
+router.get('/get', verifyJwt, sellersController.getSellerById);
 
 // Retrieving seller wallet balance
-router.get("/get/balance", verifyJwt, getWalletBalance);
+router.get('/get/balance', verifyJwt, getWalletBalance);
 
 // Retrieving all confirmed/unconfirmed seller's details
-router.get("/by-status/:statusConfirmed/:offSet?", verifyJwt, checkAdminPermission, sellersController.getAllSellers);
+router.get(
+    '/by-status/:statusConfirmed/:offSet?',
+    verifyJwt,
+    checkAdminPermission,
+    sellersController.getAllSellers
+);
 
 // Retrieving all seller's details
-router.get("/get-all/:offSet?", verifyJwt, checkAdminPermission, sellersController.getAllSellers);
+router.get(
+    '/get-all/:offSet?',
+    verifyJwt,
+    checkAdminPermission,
+    sellersController.getAllSellers
+);
 
 // Deposit seller balance to wallet
-router.post("/deposit/balance", verifyJwt, setWalletBalance);
+router.post('/deposit/balance', verifyJwt, setWalletBalance);
 
 // Creating new seller/ processing signup
-router.post("/signup", userExists, digestPassword, sellersController.sellerSignUp);
+router.post(
+    '/signup',
+    userExists,
+    digestPassword,
+    sellersController.sellerSignUp
+);
 
 // Performing login process
-router.post("/login", sellersController.sellerLogin);
+router.post('/login', sellersController.sellerLogin);
 
 // Performing forgot password operation
-router.post("/forgot/password", userExists, digestPassword, updatePassword);
+router.post('/forgot/password', userExists, digestPassword, updatePassword);
 
 // Update seller's details
-router.put("/update", verifyJwt, upload.single('sellerImage'), sellersController.updateSeller);
+router.put(
+    '/update',
+    verifyJwt,
+    upload.single('sellerImage'),
+    sellersController.updateSeller
+);
 
 // Update seller's password
-router.put("/update/password", verifyJwt, digestPassword, updatePassword);
+router.put('/update/password', verifyJwt, digestPassword, updatePassword);
 
 // Verify seller's account status
-router.put("/verify/account/:id", verifyJwt, checkAdminPermission, sellersController.createWallet, verifyAccount);
+router.put(
+    '/verify/account/:id',
+    verifyJwt,
+    checkAdminPermission,
+    sellersController.createWallet,
+    verifyAccount
+);
 
 // Delete seller's record
-router.delete('/remove/:sellerId', verifyJwt, checkAdminPermission, sellersController.removeSeller);
+router.delete(
+    '/remove/:sellerId',
+    verifyJwt,
+    checkAdminPermission,
+    sellersController.removeSeller
+);
 
 module.exports = router;

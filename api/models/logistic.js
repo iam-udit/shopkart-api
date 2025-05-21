@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const utils = require('../middlewares/utils');
 const mongoosePaginate = require('mongoose-paginate');
 
@@ -11,5 +11,4 @@ const logisticSchema = new mongoose.Schema(schemaOps, { timestamps: true });
 
 // Adding plugin to the schema
 logisticSchema.plugin(mongoosePaginate);
-module.exports = mongoose.model("Logistic", logisticSchema);
-
+module.exports = mongoose.model('Logistic', logisticSchema);
